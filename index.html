@@ -12,8 +12,8 @@
 <meta name="generator" content="Ремонт по полочкам · RPP-E669-2B0F-A66E">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ремонт">
@@ -291,6 +291,8 @@ td input[type=number]{width:104px}
 .step-opt{margin:2px 0 12px;max-width:72ch}
 .apt-vbar{align-items:center;gap:8px 10px;margin-top:10px}
 .apt-vbar > span:first-child{margin-right:auto}
+.apt-vbar .btn.v3d-tq{background:var(--accent2);border-color:var(--accent2);color:var(--accent2-ink)}
+.apt-vbar .btn.v3d-tq:hover{filter:brightness(1.06)}
 .c-where{margin:-4px 0 14px;font-size:14px}
 .c-where summary{cursor:pointer;color:var(--accent);width:max-content}
 .c-where ul{margin:8px 0 0;padding-left:20px;color:var(--muted);display:grid;gap:4px}
@@ -1044,7 +1046,7 @@ label.tr-pick{cursor:pointer}
 .apt .afurn .dt{stroke:color-mix(in srgb,#7FA6A1 70%,var(--surface))}
 .plan .bad .b{fill:var(--bad-soft);stroke:var(--bad)}
 .plan .bad .dt{stroke:var(--bad)}
-.plan .door{fill:var(--accent-soft);fill-opacity:.35;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.plan .door{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
 .plan .bad .door{stroke:var(--bad)}
 .plan .leaf{stroke:var(--ink);stroke-width:2.5}
 .plan .win{fill:var(--sunk);stroke:var(--accent);stroke-width:2}
@@ -3410,7 +3412,7 @@ function aptView(mini){
     ${edit ? `<div class="row apt-bar">
       ${sel ? `<button class="btn small" data-apt="rot">Повернуть на 90°</button><button class="btn small" data-padd="door" title="Новая дверь в комнате «${esc(selRoom.name)}»">+ Дверь</button><button class="btn small" data-padd="window" title="Новое окно в комнате «${esc(selRoom.name)}»">+ Окно</button><button class="btn small" data-apt="open">Открыть планировку</button>` : ''}
       </div>${aptPanel(pick)}` : ''}
-    ${vsel ? (r=>`<div class="row apt-bar apt-vbar"><span><b>${esc(r.name)}</b> <span class="muted">· ${fmt(roomCalc(r).floor)} м²</span></span><button class="btn small primary" data-apt="openv">Открыть планировку</button><button class="btn small ghost" data-apt="unv" aria-label="Снять выбор">✕</button></div>`)(state.rooms.find(x=>x.id===vsel)) : ''}
+    ${vsel ? (r=>`<div class="row apt-bar apt-vbar"><span><b>${esc(r.name)}</b> <span class="muted">· ${fmt(roomCalc(r).floor)} м²</span></span><button class="btn small v3d-tq" data-apt="view3d">Смотреть в 3D</button><button class="btn small primary" data-apt="openv">Открыть планировку</button><button class="btn small ghost" data-apt="unv" aria-label="Снять выбор">✕</button></div>`)(state.rooms.find(x=>x.id===vsel)) : ''}
   </div>`;
 }
 /* the zoom of the plan of the flat: ui.aptZoom = {k, cx, cy} – how many times closer, and the middle in cm. Below 1 (down
@@ -4723,7 +4725,7 @@ function itemShape(i){
     const ax = X(w-k), bx = X(w), L = Math.round(k*Math.SQRT2), sw = c.right ? 0 : 1;
     return `<rect class="b" x="0" y="0" width="${w}" height="${d}" style="fill:transparent;stroke:none"/><polygon class="b" points="${pts}"/>`
       + `<rect class="dt" x="8" y="8" width="${w-16}" height="${d-k-4}" rx="6"/>`
-      + `<path class="door" d="M${ax} ${d} L${bx} ${d+k} A${L} ${L} 0 0 ${sw} ${bx} ${d-k} Z" style="opacity:.7"/>`;
+      + `<path class="door" d="M${ax} ${d} L${bx} ${d+k} A${L} ${L} 0 0 ${sw} ${bx} ${d-k} Z" style="opacity:.7;fill:var(--accent-soft);fill-opacity:.35"/>`;
   }
   /* a round or oval dining table, a round coffee table */
   if((t==='dining' && ['round', 'oval'].includes(modelOf(i))) || (t==='coffee' && modelOf(i)==='round')) return `<rect class="b" x="0" y="0" width="${w}" height="${d}" style="fill:transparent;stroke:none"/><ellipse class="b" cx="${w/2}" cy="${d/2}" rx="${w/2}" ry="${d/2}"/>`;
@@ -4741,33 +4743,78 @@ function itemShape(i){
   else if(t==='washer' || t==='dw'){ s += `<circle class="dt" cx="${w/2}" cy="${d/2}" r="${Math.min(w,d)/3}"/>`; }
   return s;
 }
-/* Item labels: name and size.
-   Tried in order: the full name, then shorter forms of it («Журнальный стол» → «Ж-й стол» → «Ж/с»);
-   for each, full and smaller type; horizontal whenever the width allows it, otherwise along the long side.
-   Names with sizes are tried first, then names alone; if nothing fits, the shortest form at the smallest type. */
+/* Item labels: name and size, always horizontal (version 264).
+   Tried in order: the name on one line; if it does not fit – its words on separate lines; then a long word
+   broken with a hyphen; each at full and smaller type, first with the size under the name, then without;
+   only then shorter forms of the name («Журнальный стол» → «Ж-й стол» → «Ж/с»).
+   If nothing fits, the shortest form at the smallest type. */
 const SHORT = {cabin:['Д-я кабина','Д/к'], coffee:['Ж-й стол','Ж/с'], desk:['Р-й стол','Р/с'], dining:['О-й стол','О/с'], washer:['С-я машина','СМ'],
   sofaL:['У-й диван','Диван'], fridge:['Холод-к','Х-к'], dw:['Посуд-ка','ПММ'], tv:['ТВ'], shoe:['Обувн.'], wardrobe:['Шк.'],
   shelf:['Ст-ж'], dresser:['Ком.'], armchair:['Кр.'], kitchen:['Кух.'], bath:['Ван.'], wc:['Ун.'], sink:['Рак.'], night:['Т-а'],
   chair:['Ст.'], sofa:['Див.'], bed:['Кр-ть']};
 const textW = (s, size, mono) => s.length * size * (mono ? 0.62 : 0.56) + 4;
+const LBL_V = /[аеёиоуыэюяaeiouy]/i;
+/* a word broken into lines that fit, with hyphens, at syllable-like places; null if it cannot be done in 3 lines */
+function hyphLines(word, fits){
+  const ok = p => { const a = word[p-1], b = word[p];
+    if(/[ьъй]/i.test(b) || !LBL_V.test(word.slice(0, p)) || !LBL_V.test(word.slice(p))) return false;
+    return LBL_V.test(a) || /[ьъй]/i.test(a) || !LBL_V.test(b); };
+  const lines = []; let start = 0;
+  while(!fits(word.slice(start))){
+    let q = -1;
+    for(let p = word.length - 2; p >= start + 2; p--) if(ok(p) && fits(word.slice(start, p) + '-')){ q = p; break; }
+    if(q < 0 || lines.length >= 2) return null;
+    lines.push(word.slice(start, q) + '-'); start = q;
+  }
+  lines.push(word.slice(start)); return lines;
+}
+/* the name in lines no wider than maxW: words on their own lines, a word too long – hyphenated (if hyph) */
+function wrapName(name, size, maxW, hyph, max = 3){
+  const fits = t => textW(t, size) <= maxW, out = []; let cur = '';
+  for(const w of name.split(' ')){
+    if(cur && fits(cur + ' ' + w)){ cur += ' ' + w; continue; }
+    if(cur) out.push(cur);
+    if(fits(w)){ cur = w; continue; }
+    if(!hyph) return null;
+    const h = hyphLines(w, fits); if(!h) return null;
+    out.push(...h.slice(0, -1)); cur = h[h.length-1];
+  }
+  out.push(cur); return out.length > max ? null : out;
+}
 function itemLabel(i, W, H, fs){
   const names = [itemName(i), ...(SHORT[i.t.startsWith('bed') ? 'bed' : i.t] || [])].map(esc);
   const dims = `${i.w}×${i.d}`, cx = W/2, cy = H/2, sizes = [fs, fs*0.8, fs*0.66];
-  const orient = vert => vert ? ` transform="rotate(-90 ${cx} ${cy})"` : '';
-  const tries = (fn) => { for(const name of names) for(const s of sizes) for(const vert of [false, true]){
-    if(vert && H <= W) continue;
-    const r = fn(name, s, vert, vert ? H : W, vert ? W : H); if(r) return r; } return null; };
-  return tries((name, s, vert, along, across) => {
-      const ds = s*0.82;
-      if(along >= Math.max(textW(name, s), textW(dims, ds, true)) && across >= s*2.9)
-        return `<g${orient(vert)}><text class="lbl" x="${cx}" y="${cy-s*0.55}" font-size="${s}">${name}</text><text class="lbl sm" x="${cx}" y="${cy+s*0.7}" font-size="${ds}">${dims}</text></g>`;
-      if(along >= textW(name, s) + textW(dims, ds, true) && across >= s*1.4)
-        return `<text class="lbl" x="${cx}" y="${cy}" font-size="${s}"${orient(vert)}>${name} <tspan class="dims" font-size="${ds}">${dims}</tspan></text>`;
-      return null;
-    })
-    || tries((name, s, vert, along, across) => along >= textW(name, s) && across >= s*1.2
-      ? `<text class="lbl" x="${cx}" y="${cy}" font-size="${s}"${orient(vert)}>${name}</text>` : null)
-    || `<text class="lbl" x="${cx}" y="${cy}" font-size="${sizes[2]}"${orient(H > W)}>${names[names.length-1]}</text>`;
+  /* a little air at the sides, so a label does not touch the edges */
+  W = Math.max(1, W - fs*0.8);
+  const block = (lines, s, withDims) => {
+    const ds = s*0.82, lh = s*1.15, total = lines.length*lh + (withDims ? ds*1.25 : 0);
+    let y = cy - total/2 + lh/2, out = '';
+    for(const l of lines){ out += `<text class="lbl" x="${cx}" y="${y}" font-size="${s}">${l}</text>`; y += lh; }
+    if(withDims) out += `<text class="lbl sm" x="${cx}" y="${y - lh/2 + ds*0.75}" font-size="${ds}">${dims}</text>`;
+    return lines.length===1 && !withDims ? out : `<g>${out}</g>`;
+  };
+  const fitsBlock = (lines, s, withDims) => {
+    const ds = s*0.82;
+    return lines.every(l => textW(l, s) <= W) && (!withDims || textW(dims, ds, true) <= W)
+      && H >= lines.length*s*1.15 + (withDims ? ds*1.25 : 0) + s*0.3;
+  };
+  for(const name of names){
+    for(const withDims of [true, false]){
+      for(const [hyph, max] of [[false, 3], [true, 2], [true, 3]]) for(const s of sizes){
+        if(!hyph){
+          if(fitsBlock([name], s, withDims)) return block([name], s, withDims);
+          /* name and size side by side on one line, when the piece is low */
+          if(withDims){ const ds = s*0.82;
+            if(W >= textW(name, s) + textW(dims, ds, true) && H >= s*1.4)
+              return `<text class="lbl" x="${cx}" y="${cy}" font-size="${s}">${name} <tspan class="dims" font-size="${ds}">${dims}</tspan></text>`; }
+        }
+        const lines = wrapName(name, s, W, hyph, max);
+        if(lines && lines.length > 1 && fitsBlock(lines, s, withDims)) return block(lines, s, withDims);
+      }
+    }
+  }
+  const last = names[names.length-1], s = sizes[2];
+  return block(wrapName(last, s, W, true) || [last], s, false);
 }
 /* handles in the middle of each side of the selected piece, in its own frame: r/l change the width, f/b the depth */
 /* the sink of the selected kitchen: drag it along the worktop (version 186) */
@@ -8554,7 +8601,8 @@ const scheme3d = () => state.scheme3d || state.styleFrozen || style3dDefault();
    otherwise the 3D's own; nothing chosen – the default (Provence lavender) */
 let uiColorMem = null;
 const uiColorPref = () => { if(uiColorMem) return uiColorMem; try{ uiColorMem = localStorage.getItem(LS_KEY + '-uicolor') === 'plain' ? 'plain' : 'style'; }catch(e){ uiColorMem = 'style'; } return uiColorMem; };
-const uiStyle = () => uiColorPref()==='plain' ? 'neutral' : state.scheme3d || (Object.keys(state.quiz || {}).length >= QUIZ.length ? quizScores()[0][0] : null) || state.styleFrozen || 'neutral';
+/* the example always shows the site in its usual colours (version 262); the 3D keeps the example's style */
+const uiStyle = () => uiColorPref()==='plain' || state?.demo ? 'neutral' : state.scheme3d || (Object.keys(state.quiz || {}).length >= QUIZ.length ? quizScores()[0][0] : null) || state.styleFrozen || 'neutral';
 const SCHEME_SW = {
   skandi:{furn:['#F4F3EF','#D9DAD6','#E2D3BC','#D2B48C','#C49A6C','#7E8E91','#A3B09A','#4B4F52'], wall:['#F3F2EE','#ECE8E0','#DCDDD8','#C9D1CF','#C7CDBE','#5B6B6E']},
   japandi:{furn:['#EAE4DA','#D3C5AF','#C9B8A0','#A88B6A','#8B755F','#5E4B3C','#7C8670','#3F3F3A'], wall:['#EAE4DA','#E2D8C8','#D3C5AF','#C9C4B5','#A9AE9A','#8B755F']},
@@ -10261,7 +10309,7 @@ function build3d(T){
         g.add(shut, open);
         /* for the walk: where the door is (on the room side) and a spot behind it, outside the wall */
         const mid = (o.s1 + o.s2)/2;
-        v.leaves.push({shut, open, c:at(mid, 0), back:at(mid, T0 + 90), into:at(mid, -100), g, sign:null});
+        v.leaves.push({shut, open, c:at(mid, 0), back:at(mid, T0 + 90), into:at(mid, -100), g, sign:null, lw, out:!!o.i.out});
       }
       if(o.i.t==='window'){
         /* two sashes: an upright bar in the middle */
@@ -11666,7 +11714,7 @@ function build3d(T){
   });
   cv.addEventListener('pointermove', e=>{
     if(v.walk){ const W = v.walk, L = W.look;
-      if(L && L.id===e.pointerId){ W.yaw -= (e.clientX - L.x)*0.005; W.pitch = Math.max(-1.2, Math.min(1.2, W.pitch - (e.clientY - L.y)*0.005)); L.x = e.clientX; L.y = e.clientY; v.dirty = true; }
+      if(L && L.id===e.pointerId){ W.glide = null; W.yaw -= (e.clientX - L.x)*0.005; W.pitch = Math.max(-1.2, Math.min(1.2, W.pitch - (e.clientY - L.y)*0.005)); L.x = e.clientX; L.y = e.clientY; v.dirty = true; }
       return; }
     /* the mouse over a handle, no button held: that handle lights up */
     if(e.pointerType==='mouse' && !e.buttons && !v.gdrag && !v.fdrag && !v.ldrag && !v.lhdrag && !v.ddrag && (v.giz.visible || v.lgz.visible || v.dgz.visible)){
@@ -11862,29 +11910,338 @@ function build3d(T){
       : 'W S или ↑ ↓ – идти, A D – шаг вбок, ← → – повернуть, мышь с зажатой кнопкой – смотреть, Shift – быстрее, колесо или + − – объектив, Esc – выйти';
   };
   /* the walk keeps every door shut; close to one, a key shows (E, or a button on a touch screen) to open it; behind an
-     opened door hangs a sign – a joke: the room has no way out (version 226) */
-  const doorSign = l => {
-    if(l.sign) return l.sign;
+     opened door – a surprise, a different one each time (version 267): a sign with a renovation joke, or now and then
+     a snowy winter evening with a lamp post (Narnia) */
+  const DOOR_JOKES = [
+    ['Русская шутка:', ['Выхода нет!']],
+    ['Народная мудрость:', ['Ремонт нельзя закончить,', 'его можно только прекратить']],
+    'cat',
+    'dark',
+    'fog',
+    ['Мастер:', ['Буду завтра'], () => 'записка от ' + new Date().toLocaleDateString('ru-RU')],
+    ['Правило ремонта:', ['Смета × 2', 'сроки × 3']],
+    ['Здесь мог быть', ['ваш ремонт']],
+    ['Осторожно!', ['Свежая шпаклёвка']],
+    ['Ушёл за плиточным клеем.', ['Скоро вернусь'], () => 'прораб'],
+  ];
+  /* a shuffled bag (version 281): every surprise shows once, in a random order, before any shows again – so people
+     don't see a repeat and think there are no more. The bag is kept in the browser, across rooms and visits; the
+     next bag never starts with the one just shown. Numbers: 0…DOOR_JOKES.length-1 – the list, DOOR_JOKES.length – Narnia */
+  const DOOR_BAG = LS_KEY + '-doorbag';
+  const doorNext = () => {
+    const N = DOOR_JOKES.length + 1;
+    let b = null; try{ b = JSON.parse(localStorage.getItem(DOOR_BAG) || 'null'); }catch(_){}
+    if(!b || !Array.isArray(b.left) || b.n !== N) b = {n:N, left:[], last:-1};
+    b.left = b.left.filter(k => Number.isInteger(k) && k >= 0 && k < N);
+    if(!b.left.length){
+      b.left = [...Array(N).keys()];
+      for(let i = N - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i + 1)); [b.left[i], b.left[j]] = [b.left[j], b.left[i]]; }
+      if(b.left[0]===b.last && N > 1) b.left.push(b.left.shift());
+    }
+    const k = b.left.shift(); b.last = k;
+    try{ localStorage.setItem(DOOR_BAG, JSON.stringify(b)); }catch(_){}
+    return k;
+  };
+  const signMesh = (top, lines, foot) => {
     const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d');
     x.fillStyle = '#f4efe4'; x.fillRect(0, 0, 1024, 512); x.strokeStyle = '#2b2b2b'; x.lineWidth = 14; x.strokeRect(22, 22, 980, 468);
-    x.fillStyle = '#2b2b2b'; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.font = '500 64px "Golos Text", system-ui, sans-serif'; x.fillText('Русская шутка:', 512, 175);
-    x.fillStyle = '#b3412f'; x.font = '700 120px "Golos Text", system-ui, sans-serif'; x.fillText('Выхода нет!', 512, 320);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = '#2b2b2b'; x.font = '500 60px "Golos Text", system-ui, sans-serif'; x.fillText(top, 512, lines.length > 1 ? 130 : 170);
+    let fsz = lines.length > 1 ? 96 : 120;
+    for(;;){ x.font = `700 ${fsz}px "Golos Text", system-ui, sans-serif`; if(fsz <= 40 || lines.every(t=>x.measureText(t).width <= 900)) break; fsz -= 4; }
+    x.fillStyle = '#b3412f';
+    lines.forEach((t, k)=>x.fillText(t, 512, (lines.length > 1 ? 255 : 315) + k*fsz*1.1));
+    if(foot){ x.fillStyle = '#6b6b6b'; x.font = 'italic 400 40px "Golos Text", system-ui, sans-serif'; x.fillText(foot, 512, 440); }
     const tex = new T.CanvasTexture(c); tex.encoding = T.sRGBEncoding; tex.anisotropy = 4;
-    const m = new T.Mesh(new T.PlaneGeometry(120, 60), new T.MeshBasicMaterial({map:tex}));
-    m.position.set(l.back[0], Math.min(150, H - 40), l.back[1]); m.lookAt(l.into[0], m.position.y, l.into[1]);
+    return new T.Mesh(new T.PlaneGeometry(120, 60), new T.MeshBasicMaterial({map:tex}));
+  };
+  /* Narnia: snow, a few firs, a lit lamp post and a starry evening sky, built in the door's frame (x along the wall,
+     z out of the room) */
+  const narnia = T0 => {
+    const g = new T.Group(), B = c => new T.MeshBasicMaterial({color:c, toneMapped:false});
+    const add = (geo, m, x, y, z) => { const o = new T.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
+    const ground = add(new T.PlaneGeometry(900, 700), B(0xd9e2ec), 0, 0.4, T0 + 350); ground.rotation.x = -Math.PI/2;
+    const sc = document.createElement('canvas'); sc.width = 512; sc.height = 256; const sx = sc.getContext('2d');
+    const gr = sx.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#1b2440'); gr.addColorStop(0.7, '#4a5f86'); gr.addColorStop(1, '#9fb3cf');
+    sx.fillStyle = gr; sx.fillRect(0, 0, 512, 256); sx.fillStyle = '#fff';
+    const rnd = seeded('narnia');
+    for(let k = 0; k < 90; k++){ sx.globalAlpha = 0.4 + rnd()*0.6; sx.fillRect(rnd()*512, rnd()*150, 1.5, 1.5); }
+    sx.globalAlpha = 1;
+    const st = new T.CanvasTexture(sc); st.encoding = T.sRGBEncoding;
+    const sky = add(new T.PlaneGeometry(1000, 600), new T.MeshBasicMaterial({map:st, toneMapped:false}), 0, 280, T0 + 650); sky.rotation.y = Math.PI;
+    const trunk = B(0x5a4030), fir = B(0x1d3b2c), fir2 = B(0x264a37), snow = B(0xeef3f8);
+    for(const [tx, tz, sz] of [[-140, 260, 1.1], [150, 330, 1.3], [-60, 470, 1.5], [260, 220, 0.9], [-280, 400, 1.2], [60, 560, 1.4]]){
+      add(new T.CylinderGeometry(5*sz, 6*sz, 40*sz, 8), trunk, tx, 20*sz, T0 + tz);
+      [[70, 80, 60], [55, 70, 105], [38, 60, 145]].forEach(([r, h, y], k)=>add(new T.ConeGeometry(r*sz, h*sz, 9), k%2 ? fir2 : fir, tx, y*sz, T0 + tz));
+      add(new T.ConeGeometry(16*sz, 22*sz, 9), snow, tx, 172*sz, T0 + tz);
+    }
+    const iron = B(0x262626);
+    add(new T.CylinderGeometry(3, 4, 230, 10), iron, -55, 115, T0 + 230);
+    add(new T.CylinderGeometry(10, 8, 6, 10), iron, -55, 3, T0 + 230);
+    add(new T.BoxGeometry(16, 24, 16), B(0xffd98a), -55, 242, T0 + 230);
+    add(new T.ConeGeometry(14, 12, 4), iron, -55, 260, T0 + 230).rotation.y = Math.PI/4;
+    const gc = document.createElement('canvas'); gc.width = gc.height = 128; const gx = gc.getContext('2d');
+    const rg = gx.createRadialGradient(64, 64, 0, 64, 64, 64); rg.addColorStop(0, 'rgba(255,220,150,0.9)'); rg.addColorStop(1, 'rgba(255,220,150,0)');
+    gx.fillStyle = rg; gx.fillRect(0, 0, 128, 128);
+    const glow = new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(gc), transparent:true, depthWrite:false, blending:T.AdditiveBlending, toneMapped:false}));
+    glow.position.set(-55, 242, T0 + 230); glow.scale.set(130, 130, 1); g.add(glow);
+    const pool = add(new T.CircleGeometry(70, 24), new T.MeshBasicMaterial({color:0xfff1cf, transparent:true, opacity:0.55, toneMapped:false}), -55, 0.8, T0 + 230); pool.rotation.x = -Math.PI/2;
+    g.userData.focus = [0, 140, T0 + 320];
+    const pts = []; for(let k = 0; k < 400; k++) pts.push((rnd() - 0.5)*700, rnd()*320, T0 + 30 + rnd()*560);
+    const fg = new T.BufferGeometry(); fg.setAttribute('position', new T.Float32BufferAttribute(pts, 3));
+    g.add(new T.Points(fg, new T.PointsMaterial({color:0xffffff, size:3, toneMapped:false})));
+    /* the snow falls (version 268): each flake at its own speed, swaying a little; at the ground – back to the top */
+    const N = pts.length/3, sp = [], ph = [], x0 = [];
+    for(let k = 0; k < N; k++){ sp.push(25 + rnd()*35); ph.push(rnd()*6.28); x0.push(pts[k*3]); }
+    let last = performance.now();
+    g.userData.fall = () => {
+      const now = performance.now(), dt = Math.min(0.05, (now - last)/1000), t = now/1000; last = now;
+      const p = fg.attributes.position.array;
+      for(let k = 0; k < N; k++){
+        let y = p[k*3+1] - sp[k]*dt; if(y < 0) y += 320;
+        p[k*3+1] = y; p[k*3] = x0[k] + Math.sin(t*0.8 + ph[k])*8;
+      }
+      fg.attributes.position.needsUpdate = true;
+    };
+    return g;
+  };
+  /* the cat (version 269): sits on two boxes from the move, the boxes say whose flat it is; its pupils – narrow slits –
+     always look at you, and its head turns after you a little */
+  const catScene = T0 => {
+    /* outside the room only the soft fill light reaches: a bit of self-light keeps the colours true */
+    const g = new T.Group(), L = c => new T.MeshLambertMaterial({color:c, emissive:new T.Color(c).multiplyScalar(0.45)}), B = c => new T.MeshBasicMaterial({color:c});
+    const add = (par, geo, m, x, y, z, sx = 1, sy = 1, sz = 1) => { const o = new T.Mesh(geo, m); o.position.set(x, y, z); o.scale.set(sx, sy, sz); par.add(o); return o; };
+    const ball = new T.SphereGeometry(1, 20, 14);
+    const boxFace = (lines) => {
+      const c = document.createElement('canvas'); c.width = 512; c.height = 512; const x = c.getContext('2d');
+      x.fillStyle = '#c49a6c'; x.fillRect(0, 0, 512, 512); x.fillStyle = '#d8b48a'; x.fillRect(0, 230, 512, 52);
+      x.fillStyle = '#2b2b2b'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.font = '700 62px "Comic Sans MS", "Golos Text", system-ui, sans-serif';
+      lines.forEach((t, k)=>x.fillText(t, 256, 256 + (k - (lines.length - 1)/2)*84));
+      const tex = new T.CanvasTexture(c); tex.encoding = T.sRGBEncoding; return tex;
+    };
+    const card = L(0xc49a6c), cardTop = L(0xd8b48a);
+    const box = (w, h, y, lines) => {
+      /* face 4 (+z) points out of the room, face 5 (−z) – into it: the writing goes on the side you see */
+      const face = new T.MeshLambertMaterial({map:boxFace(lines), emissive:0xffffff, emissiveIntensity:0.35}); face.emissiveMap = face.map;
+      const mats = [card, card, cardTop, card, card, face];
+      return add(g, new T.BoxGeometry(w, h, w*0.85), mats, 0, y, T0 + 75);
+    };
+    box(62, 52, 26, ['Ты здесь', 'гость.']); box(50, 44, 74, ['Это моя', 'квартира.']).rotation.y = 0.12;
+    const floor = add(g, new T.PlaneGeometry(260, 220), L(0x8a8680), 0, 0.3, T0 + 110); floor.rotation.x = -Math.PI/2;
+    /* the cat faces into the room (−z of the door frame) */
+    const cat = new T.Group(); cat.position.set(0, 96, T0 + 75); g.add(cat); g.userData.focus = [0, 112, T0 + 75];
+    const fur = L(0xd9893f), light = L(0xf3e3cc), dark = L(0xb36a2a);
+    add(cat, ball, fur, 0, 14, 2, 13, 16, 15);
+    add(cat, ball, light, 0, 14, -9, 8, 11, 6);
+    add(cat, ball, light, -5, 2, -11, 3.6, 2.6, 5.5); add(cat, ball, light, 5, 2, -11, 3.6, 2.6, 5.5);
+    const tail = add(cat, new T.TorusGeometry(13, 2.4, 8, 20, Math.PI*1.1), fur, 0, 2.5, 2); tail.rotation.x = -Math.PI/2; tail.rotation.z = -0.2;
+    const head = new T.Group(); head.position.set(0, 33, -4); cat.add(head);
+    add(head, ball, fur, 0, 0, 0, 11, 10, 10);
+    add(head, ball, dark, 0, 7.5, -3, 4, 1.6, 6);
+    add(head, ball, light, 0, -3.4, -8, 5.4, 3.6, 3.4);
+    add(head, ball, L(0xe58a96), 0, -1.6, -10.6, 1.3, 0.9, 0.8);
+    for(const sx of [-1, 1]){
+      const ear = add(head, new T.ConeGeometry(4.2, 8, 4), fur, sx*6.2, 8.4, -0.5); ear.rotation.z = -sx*0.32; ear.rotation.y = Math.PI/4;
+      const inner = add(head, new T.ConeGeometry(2.4, 5, 4), L(0xe8a0a8), sx*6.0, 8.0, -2.0); inner.rotation.z = -sx*0.32; inner.rotation.y = Math.PI/4;
+      for(const dy of [-0.6, 0.6]){ const wk = add(head, new T.CylinderGeometry(0.12, 0.12, 9, 4), B(0xffffff), sx*8, -3 + dy, -9.5); wk.rotation.z = Math.PI/2 + sx*dy*0.25; }
+    }
+    const eyes = [-4.1, 4.1].map(ex => {
+      const eye = add(head, new T.SphereGeometry(3, 18, 12), new T.MeshBasicMaterial({color:0xc9d64a, toneMapped:false}), ex, 1.6, -8);
+      const pupil = add(head, new T.SphereGeometry(2, 14, 10), B(0x111111), ex, 1.6, -10);
+      return {eye, pupil};
+    });
+    const E = new T.Vector3(), D = new T.Vector3(), C = new T.Vector3();
+    g.userData.look = camPos => {
+      /* the head turns after you, up to ~40° (the scene's matrices first: a just-made cat has none yet) */
+      g.updateWorldMatrix(true, true);
+      C.copy(camPos); cat.worldToLocal(C);
+      head.rotation.y = Math.max(-0.7, Math.min(0.7, Math.atan2(-C.x, -C.z)));
+      head.rotation.x = Math.max(-0.4, Math.min(0.4, Math.atan2(C.y - 33, Math.hypot(C.x, C.z))*0.6));
+      head.updateMatrixWorld(true);
+      for(const {eye, pupil} of eyes){
+        eye.getWorldPosition(E); D.copy(camPos).sub(E).normalize();
+        /* on the eye's surface, towards you (the eye is 3 cm, the slit 1,2 cm deep – its front just shows) */
+        C.copy(E).addScaledVector(D, 2.55); head.worldToLocal(C); pupil.position.copy(C);
+        pupil.lookAt(camPos); pupil.scale.set(0.4, 1, 0.6);
+      }
+    };
+    return g;
+  };
+  /* pitch darkness (version 270): a black space behind the door; now and then a ghost flits across it */
+  const darkScene = T0 => {
+    const g = new T.Group();
+    const room = new T.Mesh(new T.BoxGeometry(1200, 500, 700), new T.MeshBasicMaterial({color:0x000000, side:T.BackSide, toneMapped:false}));
+    room.position.set(0, 240, T0 + 352); g.add(room);
+    const ghost = new T.Group(), gm = new T.MeshBasicMaterial({color:0xf2f5ff, transparent:true, opacity:0, depthWrite:false, toneMapped:false});
+    const head = new T.Mesh(new T.SphereGeometry(18, 20, 14, 0, Math.PI*2, 0, Math.PI/2), gm); ghost.add(head);
+    /* the sheet: a widening tube with a wavy hem */
+    const sheet = new T.CylinderGeometry(18, 25, 46, 20, 4, true), sp = sheet.attributes.position;
+    for(let k = 0; k < sp.count; k++){ if(sp.getY(k) < -22){ const a = Math.atan2(sp.getZ(k), sp.getX(k)); sp.setY(k, sp.getY(k) + Math.sin(a*6)*4); } }
+    const body = new T.Mesh(sheet, gm); body.position.y = -23; ghost.add(body);
+    const em = new T.MeshBasicMaterial({color:0x000000, transparent:true, opacity:0, toneMapped:false});
+    for(const ex of [-6, 6]){ const e = new T.Mesh(new T.SphereGeometry(3, 10, 8), em); e.scale.set(1, 1.5, 0.5); e.position.set(ex, 4, -16.5); ghost.add(e); }
+    const mouth = new T.Mesh(new T.SphereGeometry(3.5, 10, 8), em); mouth.scale.set(1, 1.4, 0.5); mouth.position.set(0, -7, -17.5); ghost.add(mouth);
+    ghost.visible = false; g.add(ghost); g.userData.focus = [0, 150, T0 + 250];
+    /* «изредка»: a pause of 2–5 s (the first 0,8–2 s, version 274), then a flight of 1,2–2,2 s from one side to the other, fading in and out */
+    let last = performance.now(), wait = 0.8 + Math.random()*1.2, fly = null;
+    g.userData.tick = () => {
+      const now = performance.now(), dt = Math.min(0.05, (now - last)/1000); last = now;
+      if(!fly){
+        wait -= dt; if(wait > 0) return;
+        const dir = Math.random() < 0.5 ? 1 : -1;
+        fly = {t:0, d:1.2 + Math.random(), dir, z:T0 + 140 + Math.random()*220, y:120 + Math.random()*70};
+        ghost.visible = true;
+      }
+      fly.t += dt; const p = fly.t/fly.d;
+      if(p >= 1){ fly = null; ghost.visible = false; wait = 2 + Math.random()*3; return; }
+      ghost.position.set(fly.dir*(-260 + 520*p), fly.y + Math.sin(p*Math.PI*3)*10, fly.z);
+      ghost.rotation.z = -fly.dir*0.25; ghost.rotation.y = fly.dir*0.4;
+      const o = Math.sin(p*Math.PI); gm.opacity = 0.85*o; em.opacity = o;
+    };
+    return g;
+  };
+  /* a nod to a foggy horror town (version 275): grey mist, ash falling instead of snow, a chain-link fence, a dim street lamp and, by the door, a pocket radio hissing quietly – louder as you come closer.
+     The hiss is made by the page (noise through a filter), stops by itself when the door shuts or the walk ends */
+  const fogScene = T0 => {
+    const g = new T.Group(), B = (c, o) => new T.MeshBasicMaterial(Object.assign({color:c, toneMapped:false}, o || {}));
+    /* solid things in their true colours (the page draws in sRGB: a plain number would come out paler) */
+    const D = c => B(new T.Color(c).convertSRGBToLinear());
+    const add = (geo, m, x, y, z) => { const o = new T.Mesh(geo, m); o.position.set(x, y, z); g.add(o); return o; };
+    const FOG = 0x8e8d89;
+    add(new T.BoxGeometry(1400, 600, 900), B(FOG, {side:T.BackSide}), 0, 290, T0 + 452);
+    add(new T.PlaneGeometry(1400, 900), D(0x5f5d59), 0, 0.4, T0 + 452).rotation.x = -Math.PI/2;
+    /* the fence: posts and a diamond mesh of thin lines */
+    const fl = [], FZ = T0 + 330;
+    for(let x = -400; x <= 400; x += 12){ fl.push(x, 0, FZ, x + 180, 180, FZ, x, 0, FZ, x - 180, 180, FZ); }
+    g.add(new T.LineSegments(new T.BufferGeometry().setAttribute('position', new T.Float32BufferAttribute(fl, 3)), new T.LineBasicMaterial({color:new T.Color(0x5a5956).convertSRGBToLinear(), toneMapped:false})));
+    for(let x = -400; x <= 400; x += 160) add(new T.CylinderGeometry(2.5, 2.5, 190, 6), D(0x55534f), x, 95, FZ);
+    /* the street lamp, barely lit */
+    add(new T.CylinderGeometry(4, 5, 300, 8), D(0x3e3d3a), 150, 150, T0 + 270);
+    add(new T.BoxGeometry(40, 6, 14), D(0x3e3d3a), 132, 300, T0 + 270);
+    add(new T.BoxGeometry(18, 5, 12), B(0xcfc9a8), 118, 296, T0 + 270);
+    /* the radio, on the ground just behind the door */
+    const RX = 32, RZ = T0 + 45;
+    add(new T.BoxGeometry(18, 11, 6), D(0x3b3a36), RX, 5.5, RZ);
+    const gc = document.createElement('canvas'); gc.width = gc.height = 64; const gx = gc.getContext('2d');
+    gx.fillStyle = '#2a2926'; gx.fillRect(0, 0, 64, 64); gx.fillStyle = '#5a5852'; for(let y = 6; y < 64; y += 8) for(let x = 6; x < 64; x += 8) gx.fillRect(x, y, 4, 4);
+    const gt = new T.CanvasTexture(gc);
+    add(new T.PlaneGeometry(10, 8), B(0xffffff, {map:gt}), RX - 2.5, 5.5, RZ - 3.05).rotation.y = Math.PI;
+    const led = add(new T.SphereGeometry(0.9, 8, 6), B(0xff3b2f), RX + 5.5, 8.5, RZ - 3.1);
+    const ant = add(new T.CylinderGeometry(0.3, 0.3, 26, 4), D(0x9a9a96), RX + 7, 22, RZ); ant.rotation.z = -0.35;
+    /* a rusty crowbar lying next to the radio (version 277): a straight six-sided bar, at one end a tight gooseneck
+       bend ending in a flat split claw, at the other a flat chisel; dark, dull rust */
+    const rc = document.createElement('canvas'); rc.width = 128; rc.height = 32; const rx = rc.getContext('2d');
+    rx.fillStyle = '#45291a'; rx.fillRect(0, 0, 128, 32);
+    const rr = seeded('rust');
+    for(let k = 0; k < 260; k++){ rx.fillStyle = ['#56301c', '#38221a', '#5e3a22', '#2e2622', '#4a3a30'][Math.floor(rr()*5)]; rx.globalAlpha = 0.5 + rr()*0.5; rx.fillRect(rr()*128, rr()*32, 1 + rr()*5, 1 + rr()*3); }
+    const rt = new T.CanvasTexture(rc); rt.encoding = T.sRGBEncoding;
+    const rust = new T.MeshLambertMaterial({map:rt, emissive:0xffffff, emissiveMap:rt, emissiveIntensity:0.12});
+    const bar = new T.Group(); bar.position.set(RX + 24, 1.1, RZ + 8); bar.rotation.y = 0.55; g.add(bar);
+    const BL = 72, R0 = 1.1, HR = 3.2, HA = 2.4;
+    const shaft = new T.Mesh(new T.CylinderGeometry(R0, R0, BL, 6), rust); shaft.rotation.z = Math.PI/2; bar.add(shaft);
+    /* the gooseneck: an arc of HA radians, lying flat on the ground, starting where the bar ends */
+    const neck = new T.Mesh(new T.TorusGeometry(HR, R0, 6, 12, HA), rust);
+    neck.position.set(-BL/2, 0, HR); neck.rotation.set(Math.PI/2, 0, -Math.PI/2 - HA); bar.add(neck);
+    const te = -Math.PI/2 - HA, ex = -BL/2 + HR*Math.cos(te), ez = HR + HR*Math.sin(te), hx = Math.sin(te), hz = -Math.cos(te);
+    for(const off of [-0.75, 0.75]){
+      const prong = new T.Mesh(new T.BoxGeometry(5, 0.6, 0.9), rust);
+      prong.position.set(ex + hx*2.5 - hz*off, 0, ez + hz*2.5 + hx*off); prong.rotation.y = -Math.atan2(hz, hx); bar.add(prong);
+    }
+    const chisel = new T.Mesh(new T.BoxGeometry(5, 0.6, 2.2), rust); chisel.position.set(BL/2 + 2.3, 0, 0.4); chisel.rotation.y = -0.18; bar.add(chisel);
+    /* the mist: see-through layers, thicker further away */
+    for(let k = 0; k < 7; k++){ const z = T0 + 70 + k*85, o = add(new T.PlaneGeometry(1400, 600), B(FOG, {transparent:true, opacity:0.2, depthWrite:false}), 0, 290, z); o.rotation.y = Math.PI; }
+    /* the view after opening: a little down, so the radio and the crowbar are seen at once (version 278) */
+    g.userData.focus = [18, 40, T0 + 120]; g.userData.glide = 1.3;
+    /* the ash: grey flakes, slow, drifting */
+    const rnd = seeded('ash'), pts = []; for(let k = 0; k < 350; k++) pts.push((rnd() - 0.5)*800, rnd()*320, T0 + 20 + rnd()*520);
+    const fg = new T.BufferGeometry(); fg.setAttribute('position', new T.Float32BufferAttribute(pts, 3));
+    const dc = document.createElement('canvas'); dc.width = dc.height = 32; const dx = dc.getContext('2d'); dx.fillStyle = '#fff'; dx.beginPath(); dx.ellipse(16, 16, 14, 9, 0.5, 0, Math.PI*2); dx.fill();
+    g.add(new T.Points(fg, new T.PointsMaterial({color:0x55534f, size:4, map:new T.CanvasTexture(dc), alphaTest:0.5, toneMapped:false})));
+    const N = pts.length/3, spd = [], ph = [], x0 = []; for(let k = 0; k < N; k++){ spd.push(8 + rnd()*12); ph.push(rnd()*6.28); x0.push(pts[k*3]); }
+    let last = performance.now();
+    g.userData.fall = () => {
+      const now = performance.now(), dt = Math.min(0.05, (now - last)/1000), t = now/1000; last = now;
+      const p = fg.attributes.position.array;
+      for(let k = 0; k < N; k++){ let y = p[k*3+1] - spd[k]*dt; if(y < 0) y += 320; p[k*3+1] = y; p[k*3] = x0[k] + Math.sin(t*0.5 + ph[k])*14; }
+      fg.attributes.position.needsUpdate = true;
+      led.material.opacity = 1; led.visible = Math.sin(t*3) > -0.6;
+    };
+    /* the hiss */
+    let ac = null, gain = null, seen = 0, watch = null;
+    const stop = () => { clearInterval(watch); watch = null; if(ac){ try{ ac.close(); }catch(_){} } ac = null; };
+    const start = () => {
+      const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+      try{
+        ac = new AC(); const len = ac.sampleRate*2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+        /* noise with crackles now and then */
+        for(let k = 0; k < len; k++){ d[k] = (Math.random()*2 - 1)*(Math.random() < 0.0008 ? 4 : 1); }
+        const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+        const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 0.6;
+        const wob = ac.createGain(); wob.gain.value = 0.7;
+        const lfo = ac.createOscillator(); lfo.frequency.value = 0.35; const lg = ac.createGain(); lg.gain.value = 0.3; lfo.connect(lg).connect(wob.gain); lfo.start();
+        gain = ac.createGain(); gain.gain.value = 0;
+        src.connect(bp).connect(wob).connect(gain).connect(ac.destination); src.start();
+        watch = setInterval(()=>{ if(performance.now() - seen > 400) stop(); }, 250);
+      }catch(_){ stop(); }
+    };
+    const P = new T.Vector3();
+    g.userData.look = camPos => {
+      seen = performance.now();
+      if(!ac) start(); if(!ac) return;
+      P.set(RX, 5, RZ); g.localToWorld(P);
+      const d = camPos.distanceTo(P), vol = 0.006 + 0.045*Math.max(0, Math.min(1, 1 - (d - 60)/320));
+      gain.gain.setTargetAtTime(vol, ac.currentTime, 0.15);
+    };
+    g.userData.stop = stop;
+    return g;
+  };
+  const doorSign = l => {
+    if(l.sign){ l.sign.userData.stop?.(); l.g.remove(l.sign); l.sign.traverse(o=>{ o.geometry?.dispose(); for(const mt of [].concat(o.material || [])){ mt.map?.dispose(); mt.dispose(); } }); l.sign = null; }
+    const k = doorNext();
+    const out = [l.back[0] - l.c[0], l.back[1] - l.c[1]], len = Math.hypot(out[0], out[1]) || 1, T0 = Math.max(0, len - 90);
+    let m;
+    if(['cat', 'dark', 'fog'].includes(DOOR_JOKES[k])){
+      m = ({cat:catScene, dark:darkScene, fog:fogScene})[DOOR_JOKES[k]](T0); m.position.set(l.c[0], 0, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
+    } else if(k >= DOOR_JOKES.length){
+      m = narnia(T0); m.position.set(l.c[0], 0, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
+    } else {
+      const [top, lines, foot] = DOOR_JOKES[k];
+      m = signMesh(top, lines, foot && foot());
+      m.position.set(l.back[0], Math.min(150, H - 40), l.back[1]); m.lookAt(l.into[0], m.position.y, l.into[1]);
+    }
     l.g.add(m); l.sign = m; return m;
   };
-  const doorSet = (l, on) => { l.isOpen = on; l.open.visible = on; l.shut.visible = !on; if(on || l.sign) doorSign(l).visible = on; v.dirty = true; };
+  const doorSet = (l, on) => { l.isOpen = on; l.open.visible = on; l.shut.visible = !on; if(on) doorSign(l).visible = true; else if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } v.dirty = true; };
   const doorKey = v.el.querySelector('.v3d-doorkey');
   const doorNear = () => {
     const W = v.walk; if(!W || !doorKey) return;
-    let best = null, bd = 60;
-    for(const l of v.leaves){ const d = Math.hypot(W.x - l.c[0], W.z - l.c[1]); if(d < bd){ bd = d; best = l; } }
+    /* an open door stays in reach from where opening it put you (version 271) */
+    let best = null, bd = Infinity;
+    /* …and only while you look at it (within ~50° of where you look, version 273) */
+    const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw);
+    for(const l of v.leaves){ const dx = l.c[0] - W.x, dz = l.c[1] - W.z, d = Math.hypot(dx, dz);
+      if(d < (l.isOpen ? l.lw + 140 : 120) && d < bd && (d < 1 || (dx*fx + dz*fz)/d > 0.64)){ bd = d; best = l; } }
     W.near = best; doorKey.hidden = !best;
     if(best) doorKey.querySelector('.v3d-dk-t').textContent = best.isOpen ? 'закрыть дверь' : 'открыть дверь';
   };
-  v.walkDoor = () => { const l = v.walk?.near; if(!l) return; doorSet(l, !l.isOpen); doorNear(); };
+  /* opening a door (version 271): you step back out of the leaf's way and turn to what is behind it – the sign, the cat… */
+  const doorLook = l => {
+    const W = v.walk, m = l.sign; if(!W || !m) return;
+    const n = [(l.into[0] - l.c[0])/100, (l.into[1] - l.c[1])/100];
+    let p = null;
+    for(let d = (l.out ? 60 : l.lw + 35); d <= (l.out ? 60 : l.lw + 35) + 90 && !p; d += 10)
+      for(const s of [0, -20, 20, -40, 40]){ const x = l.c[0] + n[0]*d - n[1]*s, z = l.c[1] + n[1]*d + n[0]*s; if(walkable(x, z)){ p = [x, z]; break; } }
+    if(!p) p = [W.x, W.z];
+    const F = new T.Vector3();
+    if(m.userData.focus){ m.updateWorldMatrix(true, false); F.set(...m.userData.focus); m.localToWorld(F); } else F.copy(m.position);
+    /* eased in and out; a scene may ask for a slower glide (the fog: 1,3 s, version 280) */
+    const yaw = Math.atan2(F.x - p[0], F.z - p[1]);
+    W.glide = {x:p[0], z:p[1], yaw, pitch:Math.atan2(F.y - EYE, Math.hypot(F.x - p[0], F.z - p[1])),
+      from:{x:W.x, z:W.z, yaw:W.yaw, pitch:W.pitch}, t:0, dur:m.userData.glide || 0.7};
+    v.dirty = true;
+  };
+  v.walkDoor = () => { const l = v.walk?.near; if(!l) return; doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
   v.walkStart = () => {
     if(v.walk) return;
     if(v.moving) moveMode3d(false); v.drop?.(); pick3d(null); insp3d(null);
@@ -11914,18 +12271,35 @@ function build3d(T){
     v.dirty = true;
   };
   const lensIn = v.el.querySelector('[data-walklens]');
-  if(lensIn && !lensIn.dataset.on){ lensIn.dataset.on = '1'; lensIn.addEventListener('input', ()=>v3d?.walkLens?.(Number(lensIn.value))); }
+  if(lensIn && !lensIn.dataset.on){ lensIn.dataset.on = '1'; lensIn.addEventListener('input', ()=>v3d?.walkLens?.(Number(lensIn.value)));
+    /* let go of the slider – it lets go of the keyboard too, so the keys walk again (version 266) */
+    const lensFree = () => setTimeout(()=>lensIn.blur(), 0);
+    lensIn.addEventListener('change', lensFree); lensIn.addEventListener('pointerup', lensFree); lensIn.addEventListener('pointercancel', lensFree); }
   v.walkStop = () => {
     const W = v.walk; if(!W) return;
     v.walk = null; Object.assign(st, W.saved); cam.fov = 45; cam.updateProjectionMatrix();
     walkUi(false); v.dirty = true;
-    for(const l of v.leaves){ l.isOpen = false; if(l.sign) l.sign.visible = false; }
+    for(const l of v.leaves){ l.isOpen = false; if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } }
     if(doorKey) doorKey.hidden = true;
     showDoors3d();
   };
   const walkStep = () => {
     const W = v.walk, now = performance.now(), dt = Math.min(0.05, (now - W.last)/1000), K = c=>W.keys.has(c); W.last = now;
+    /* turning the head may bring a door into view or out of it */
+    if(W.yaw !== W.nearYaw){ W.nearYaw = W.yaw; doorNear(); }
     const turn = (K('ArrowLeft') ? 1 : 0) - (K('ArrowRight') ? 1 : 0);
+    /* the glide after a door opened: smooth, and any key or the stick takes over at once */
+    if(W.glide){
+      if(turn || W.keys.size || Math.hypot(W.joy[0], W.joy[1]) > 0.05) W.glide = null;
+      else {
+        const G = W.glide, A = G.from; G.t += dt;
+        const p = Math.min(1, G.t/G.dur), e = p*p*(3 - 2*p);
+        let dy = G.yaw - A.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+        W.x = A.x + (G.x - A.x)*e; W.z = A.z + (G.z - A.z)*e; W.yaw = A.yaw + dy*e; W.pitch = A.pitch + (G.pitch - A.pitch)*e;
+        if(p >= 1) W.glide = null;
+        v.dirty = true; doorNear(); return;
+      }
+    }
     if(turn){ W.yaw += turn*1.8*dt; v.dirty = true; }
     let f = (K('KeyW') || K('ArrowUp') ? 1 : 0) - (K('KeyS') || K('ArrowDown') ? 1 : 0) - W.joy[1], r = (K('KeyD') ? 1 : 0) - (K('KeyA') ? 1 : 0) + W.joy[0];
     const L = Math.hypot(f, r); if(L < 0.05) return;
@@ -11959,6 +12333,7 @@ function build3d(T){
     /* zoomed in or out a lot: the handles are drawn again at the new size */
     if(v.giz.visible && v.gizItem && Math.abs(st.r - v.gizR) > v.gizR*0.15){ const p = v.giz.position.clone(); v.gizmo(v.gizItem); v.giz.position.copy(p); }
     if(v.walk) walkStep();
+    if(v.walk) for(const l of v.leaves){ const u = l.sign?.userData; if(l.isOpen && (u?.fall || u?.tick)){ u.fall?.(); u.tick?.(); v.dirty = true; } }
     if(!v.dirty) return;
     v.dirty = false;
     const sp = Math.sin(st.phi), ty = st.ty ?? H*0.25;
@@ -11981,6 +12356,7 @@ function build3d(T){
     /* a picture hangs on its wall: it hides when that wall does */
     for(const f of v.furn) for(const [k, m] of f.dg?.userData.walls || []) m.visible = v.dcats.pics !== false && !v.walls.find(w=>w.k===k)?.see;
     for(const [k, g] of v.freeWalls || []) g.visible = v.dcats.pics !== false && !v.walls.find(w=>w.k===k)?.see;
+    if(v.walk) for(const l of v.leaves) if(l.isOpen && l.sign?.userData.look) l.sign.userData.look(cam.position);
     v.renderNow();
     const W2 = cv.clientWidth/2, H2 = cv.clientHeight/2;
     for(const t of [...v.tags, v.gizTag]){
@@ -13028,6 +13404,8 @@ app.addEventListener('click', e=>{
       ui.aptAutoPrev = null; changed(); }
     else if(a==='autoyes'){ ui.aptAutoAsk = false; ui.aptSel = null; ui.aptPick = null; ui.aptZoom = null; const before = flatSnap(); if(aptAutoAssemble()){ ui.aptAutoPrev = {before, after:null}; changed(); const c = aptAutoAssemble.check || [], f = aptAutoAssemble.refilled || [], A = aptAutoAssemble; aptAutoAssemble.check = null; toast(`Комнаты поставлены вокруг прихожей, двери – друг напротив друга.${A.grown ? ` Прихожая стала коридором ${A.grown} см, чтобы в неё выходили все комнаты (размеры пока типовые).` : ''}${A.lost?.length ? ` Не поместились у прихожей: ${A.lost.join(', ')}.` : ''}${A.noEntrance ? ' Входной двери не хватило места – добавьте её сами.' : ''}${f.length ? ` Мебель подобрана заново под новые двери: ${f.join(', ')}.` : ''}${c.length ? ` Мебель мешает: ${c.join(', ')} – передвиньте её на «Планировке».` : ''} Поправить – «Править план», вернуть – ↶ или «Комнаты в ряд».`); } }
     else if(a==='openv' && ui.aptView){ ui.planRoom = ui.aptView; ui.aptView = null; ui.sel = ui.selWall = ui.selCorner = null; go('layout'); return; }
+    /* 3D of the chosen room opens over «Квартира», closing it comes back here (version 262) */
+    else if(a==='view3d' && ui.aptView){ ui.planRoom = ui.aptView; ui.sel = ui.selWall = ui.selCorner = null; open3d(); return; }
     else if(a==='unv'){ ui.aptView = null; }
     else if(a==='open' && ui.aptSel){ ui.planRoom = ui.aptSel; ui.sel = ui.selWall = ui.selCorner = null; ui.aptEdit = false; go('layout'); return; }
     render(); return;
