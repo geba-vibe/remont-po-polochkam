@@ -531,6 +531,9 @@ svg.plan:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .plan .dimtxt{font-family:var(--f-mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--plan-bg);stroke-width:4px;stroke-linejoin:round;pointer-events:visiblePainted;cursor:text}
 .plan .dimtxt:hover{fill:var(--accent)}
 .plan .chtxt{font-family:var(--f-mono);fill:var(--muted);text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.apt-wrap .adim-arrow,.plan-wrap .adim-arrow{position:absolute;z-index:4;width:30px;height:30px;display:grid;place-items:center;pointer-events:none;
+  border-radius:50%;background:var(--surface);box-shadow:0 0 0 1.5px var(--accent),0 4px 12px -6px rgba(0,0,0,.35);color:var(--accent)}
+.adim-arrow svg{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .plan-wrap .adim-in{position:absolute;transform:translate(-50%,-50%);width:76px;height:30px;padding:0 6px;font:500 13px var(--f-mono);text-align:center;z-index:4;border:1px solid var(--accent);border-radius:7px;background:var(--surface);color:var(--ink);box-shadow:0 4px 14px -6px rgba(0,0,0,.3)}
 .plan .wallfill:hover{fill-opacity:.8}
 /* invisible zones that catch the pointer around thin walls, corner points and size handles; wider for a finger */
@@ -631,6 +634,11 @@ body.v3d-on{overflow:hidden}
 .sch{display:grid;gap:6px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;font:500 12.5px var(--f-body)}
 .sch:hover{border-color:var(--accent)}
 .sch.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+/* a long name («Средиземноморский») stretched the card's column to the word and the palette ran out of the card
+   (version 294): the column keeps to the card; the word is split with a hyphen («Средиземно-морский» – a soft hyphen in the
+   name, as not every browser hyphenates Russian by itself) */
+.sch{grid-template-columns:minmax(0,1fr);min-width:0}
+.sch-n{min-width:0;overflow-wrap:break-word;-webkit-hyphens:auto;hyphens:auto}
 .sch-pal{display:flex;height:22px;border-radius:6px;overflow:hidden}
 .sch-pal i{flex:1}
 @media (hover:hover){
@@ -718,6 +726,14 @@ body.v3d-on{overflow:hidden}
 @media (pointer:coarse){.v3d-doorkey kbd{display:none}.v3d-doorkey{padding:10px 18px}.v3d-dk-t::first-letter{text-transform:uppercase}}
 .v3d-joy{position:absolute;z-index:6;left:var(--headl, 12px);top:calc(var(--headb, 0px) + var(--availh, 300px) - 112px);width:112px;height:112px;border-radius:50%;box-sizing:border-box;touch-action:none;
   display:grid;place-items:center;border:1px solid var(--glass-line, var(--line));background:var(--glass, var(--surface));backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5)}
+/* the jump button on a touch screen (version 302): bottom right, its bottom level with the stick's */
+.v3d-jumpb{position:absolute;z-index:6;right:var(--headr, 12px);top:calc(var(--headb, 0px) + var(--availh, 300px) - 72px);width:72px;height:72px;padding:0;border-radius:50%;box-sizing:border-box;touch-action:none;cursor:pointer;
+  display:grid;place-items:center;color:var(--accent);border:1px solid var(--glass-line, var(--line));background:var(--glass, var(--surface));backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5)}
+.v3d-jumpb[hidden]{display:none}
+.v3d-jumpb svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.v3d-crouchb{top:calc(var(--headb, 0px) + var(--availh, 300px) - 156px)}
+.v3d-crouchb[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.v3d-jumpb:active{background:color-mix(in srgb, var(--accent) 22%, var(--surface))}
 .v3d-joy span{width:44px;height:44px;border-radius:50%;background:color-mix(in srgb, var(--accent) 75%, transparent);pointer-events:none}
 .v3d-ur-float .ur .ur-b{min-width:38px;height:34px;padding:2px 8px;font-size:15px;background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .v3d-ur-float .ur .ur-b:disabled{opacity:.5}
@@ -994,6 +1010,14 @@ label.tr-pick{cursor:pointer}
 .tr-offer{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-bottom:14px;border-color:var(--accent);background:var(--accent-soft)}
 .tr-offer > div{flex:1 1 260px;font-size:14px;line-height:1.45}
 .tr-offer b{font-weight:600}
+.tr-offer-b{gap:8px;flex-wrap:wrap}
+@media (max-width:560px){.tr-offer-b{width:100%}.tr-offer-b .btn{flex:1 1 100%}}
+/* a middle width (version 298, the owner's word): the two buttons one under the other beside the text, of one width, so
+   the text keeps its room; only on a phone (≤560 px) they go under the text, full width */
+@media (min-width:561px) and (max-width:899px){
+  .tr-offer{flex-wrap:nowrap}
+  .tr-offer-b{flex:none;flex-direction:column;flex-wrap:nowrap;align-items:stretch}
+}
 .plan .gapdim line{stroke:#c4623a;stroke-width:1;vector-effect:non-scaling-stroke}
 .plan .gapdim text{fill:#a2481f;font-family:var(--f-mono);font-weight:600;dominant-baseline:central;paint-order:stroke;stroke:var(--plan-bg);stroke-width:3px}
 .plan .gapdim{pointer-events:none}
@@ -1162,6 +1186,16 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:70ch}
   .op-row input,.op-row label.f{width:100%}
   .op-row select,.op-row .op-sel-ph{width:100%;flex:none}
 }
+/* the same two lines in a room card too narrow for the row in one line (version 299): three cards side by side at about
+   1000 px left a card 287 px inside, and the row (342 px at least) ran out of it */
+.room{container:roomcard / inline-size}
+@container roomcard (max-width:345px){
+  .op-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) minmax(0,1.2fr) auto;gap:6px}
+  .op-row .op-name{grid-column:1/5;grid-row:1}
+  .op-row [data-opdel]{grid-column:5;grid-row:1}
+  .op-row input,.op-row label.f{width:100%}
+  .op-row select,.op-row .op-sel-ph{width:100%;flex:none;grid-column:4/6}
+}
 .delask{display:flex;margin-top:6px;padding:8px;border-radius:8px;background:var(--bad-soft)}
 /* ===== «Студия дизайнера» (prototype) =====
    An architect's sheet: light plaster ground, ink lines, a drawing's title-block labels in mono, an elegant display serif
@@ -1284,6 +1318,10 @@ p.s-apply{display:block}
 .theme-b{width:32px;height:32px;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-size:16px;line-height:1;cursor:pointer}
 .theme-b:hover{border-color:var(--accent)}
 .skin-b{width:auto;padding:0 10px;font:500 12px var(--f-body)}
+/* the look as one square button (a phone): it shows the look it switches to – two see-through panes for «Стекло», one
+   solid card for «Студия», as ☾ / ☀ show the theme to come */
+.skin-ico{display:none}
+.skin-ico svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
 @media (max-width:520px){
   .brand{flex-wrap:wrap;row-gap:6px}
   .brand h1{font-size:17px}
@@ -1346,6 +1384,10 @@ p.s-apply{display:block}
   box-shadow:inset 0 1px 0 var(--gl-rim),0 2px 8px -4px rgba(30,40,60,.25)}
 :root.skin-glass:is([data-theme="dark"]:not(.ui-light),.ui-dark) :is(.btn:not(.primary),.seg,.opt input:not(:checked)+span,.vchip,.theme-b,input,select,textarea){background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04))}
 .skin-glass :is(input,select,textarea){border-radius:12px}
+/* …but not the checkboxes (version 285): the glass background above hid the tick – in «Стекло» they could not be seen ticked */
+:root.skin-glass input[type=checkbox]{border-radius:4px!important;background:color-mix(in srgb,var(--surface) 85%,transparent) center/12px 12px no-repeat!important;box-shadow:none!important;border-color:color-mix(in srgb,var(--muted) 55%,var(--line))}
+:root.skin-glass input[type=checkbox]:checked{background-color:var(--accent2, var(--accent))!important;border-color:var(--accent2, var(--accent));
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.4 2.4 4.6-5' fill='none' stroke='%23fff' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important}
 .skin-glass .btn:hover{background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.45))}
 .skin-glass :is(.btn.primary,.seg button.on,.opt input:checked+span){
   background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 78%,#fff),var(--accent) 55%);border-color:color-mix(in srgb,var(--accent) 70%,#fff);color:#fff;
@@ -1386,7 +1428,8 @@ html,body{margin:0}
 .proj-menu .proj-dl{justify-content:flex-start;color:var(--accent);font-weight:600}
 .proj-dl svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .proj-dl span{display:grid;gap:1px}
-.proj-dl small{font:400 11.5px var(--f-body);color:var(--muted)}
+.proj-dl small,.proj-s small{font:400 11.5px var(--f-body);color:var(--muted)}
+.proj-s{display:grid;gap:1px}
 .proj-rows{display:grid}
 .proj-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line)}
 .proj-row > div{flex:1;min-width:0;display:grid;gap:2px}
@@ -1418,6 +1461,7 @@ html,body{margin:0}
   .proj-w{grid-area:proj;margin-left:-8px}
   .brand-r{grid-area:r}
   .brand .skin-seg{display:none}
+  .brand .skin-ico{display:grid}
   .proj-skin{display:block}
 }
 @media (pointer:coarse){.proj-menu kbd{display:none}}
@@ -1661,8 +1705,11 @@ body.dw-file{margin:0;background:#8a8f8c;display:grid;gap:12mm;justify-content:c
       <div class="brand-r">
         <div class="status" id="status"><i></i><span class="st-l">Загрузка…</span><span class="st-s">Загрузка…</span></div>
         <div class="skin-seg" id="skinBtn" role="group" aria-label="Оформление"><button type="button" data-skin="studio" title="Оформление «Студия»">Студия</button><button type="button" data-skin="glass" title="Оформление «Стекло»">Стекло</button></div>
-        <button class="theme-b help-b" id="helpBtn" type="button" data-help title="Как пользоваться" aria-label="Как пользоваться">?</button>
+        <!-- the theme by the look switch, the help last (version 300): all that changes the look stands together -->
+        <!-- on a phone «Студия | Стекло» is one square button like the theme's (version 301) -->
+        <button class="theme-b skin-ico" id="skinIco" type="button" title="Оформление «Стекло»" aria-label="Оформление «Стекло»"></button>
         <button class="theme-b" id="themeBtn" type="button" title="Тёмная тема" aria-label="Тёмная тема">☾</button>
+        <button class="theme-b help-b" id="helpBtn" type="button" data-help title="Как пользоваться" aria-label="Как пользоваться">?</button>
       </div>
     </div>
     <div class="tabs-wrap" id="tabswrap">
@@ -1719,7 +1766,12 @@ body.dw-file{margin:0;background:#8a8f8c;display:grid;gap:12mm;justify-content:c
   paint();
   /* the second look, «Стекло»: html.skin-glass; the button names the look it switches to */
   const SK = 'remont-po-polochkam-v1-skin', sb = document.getElementById('skinBtn');
-  const paintSkin = () => { const g = r.classList.contains('skin-glass'); sb.querySelectorAll('[data-skin]').forEach(b=>b.setAttribute('aria-pressed', String((b.dataset.skin==='glass')===g))); };
+  const si = document.getElementById('skinIco');
+  const ICO_GLASS = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="10.5" height="10.5" rx="2.5"/><rect x="7" y="7" width="10.5" height="10.5" rx="2.5" fill="currentColor" fill-opacity=".18"/></svg>';
+  const ICO_STUDIO = '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="2.5" fill="currentColor" fill-opacity=".85"/></svg>';
+  const paintSkin = () => { const g = r.classList.contains('skin-glass'); sb.querySelectorAll('[data-skin]').forEach(b=>b.setAttribute('aria-pressed', String((b.dataset.skin==='glass')===g)));
+    if(si){ si.innerHTML = g ? ICO_STUDIO : ICO_GLASS; si.title = g ? 'Оформление «Студия»' : 'Оформление «Стекло»'; si.setAttribute('aria-label', si.title); } };
+  si?.addEventListener('click', () => sb.querySelector(`[data-skin="${r.classList.contains('skin-glass') ? 'studio' : 'glass'}"]`)?.click());
   try{ if(localStorage.getItem(SK)==='glass') r.classList.add('skin-glass'); }catch(e){}
   sb.addEventListener('click', e => {
     const b = e.target.closest('[data-skin]'); if(!b) return;
@@ -2187,8 +2239,9 @@ function projMenuDraw(){
   const meta = projMeta();
   b.querySelector('.proj-n').textContent = meta.name;
   const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-  m.innerHTML = `<button role="menuitem" data-proj="save"><span>Сохранить</span><kbd>${mac ? '⌘' : 'Ctrl+'}S</kbd></button>`
-    + `<button role="menuitem" data-proj="saveas"><span>Сохранить как…</span></button>`
+  /* what each way of saving does, in a quiet line under it (version 295: «Сохранить» was taken for saving to a file) */
+  m.innerHTML = `<button role="menuitem" data-proj="save"><span class="proj-s">Сохранить<small>точка возврата, в этом браузере</small></span><kbd>${mac ? '⌘' : 'Ctrl+'}S</kbd></button>`
+    + `<button role="menuitem" data-proj="saveas"><span class="proj-s">Сохранить как…<small>копия проекта под новым именем</small></span></button>`
     + `<button role="menuitem" data-proj="versions"><span>Версии…</span></button>`
     + `<button role="menuitem" data-proj="list"><span>Мои проекты…</span></button>`
     + `<hr><button role="menuitem" class="proj-dl" data-proj="download"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v8M4.5 7.5L8 11l3.5-3.5M3 13.5h10"/></svg><span>Скачать файлом<small>${meta.fileAt ? `последняя копия: ${agoOf(meta.fileAt)}` : 'копии на устройстве ещё нет'}</small></span></button>`
@@ -3170,7 +3223,7 @@ function aptSvg(o = {}){
         if(o.dims){
           let th = Math.atan2(u[1], u[0])*180/Math.PI; if(th >= 89.5) th -= 180; if(th < -90.5) th += 180;   /* upright; a vertical wall's number reads bottom to top, as on «Планировка» */
           const ly = [-Math.sin(th*Math.PI/180), Math.cos(th*Math.PI/180)], s = ly[0]*n[0] + ly[1]*n[1] > 0 ? 1 : -1;
-          dimList.push({id:r.id, c:[(A[0] + B[0])/2, (A[1] + B[1])/2], n, l:Math.round(len), svg:`<g class="adim-t" data-k="${k}" data-c="${P([(A[0] + B[0])/2, (A[1] + B[1])/2])}" data-r="${Math.round(th*10)/10}" data-o="${s}" data-l="${Math.round(len)}"><text y="${s*9}" font-size="11">${Math.round(len)}</text></g>`});
+          dimList.push({id:r.id, c:[(A[0] + B[0])/2, (A[1] + B[1])/2], n, l:Math.round(len), svg:`<g class="adim-t" data-k="${k}" data-a="${P(A)}" data-b="${P(B)}" data-c="${P([(A[0] + B[0])/2, (A[1] + B[1])/2])}" data-r="${Math.round(th*10)/10}" data-o="${s}" data-l="${Math.round(len)}"><text y="${s*9}" font-size="11">${Math.round(len)}</text></g>`});
         }
         if(o.hits){
           const e = Math.min(15, len*0.2), m = [-n[0]*w.t/2, -n[1]*w.t/2];
@@ -3503,8 +3556,8 @@ function vRooms(){
     <button class="lnk" data-go="setup" title="Тип жилья, жильцы, рабочие места, валюта">Изменить параметры квартиры</button></p>
   <!-- the quickest way in, so it is seen before anyone types sizes by hand -->
   <div class="card tr-offer">
-    <div><b>Есть план квартиры?</b> Сфотографируйте или загрузите его и обведите пальцем – комнаты, размеры, двери и окна заполнятся сами, вручную вписывать не нужно.</div>
-    <label class="btn primary tr-pick">Обвести план по фото<input type="file" accept="image/*" data-tracefile hidden></label>
+    <div><b>Есть план квартиры?</b> Сфотографируйте или загрузите его и обведите пальцем – комнаты, размеры, двери и окна заполнятся сами, вручную вписывать не нужно. <b>Плана нет</b> или хотите придумать свой – нарисуйте его с нуля на листе в клетку.</div>
+    <span class="row tr-offer-b"><label class="btn primary tr-pick">Обвести план по фото<input type="file" accept="image/*" data-tracefile hidden></label><button class="btn" data-act="traceblank">Нарисовать план</button></span>
   </div>
   ${state.rooms.length?`${aptView()}
   <p class="note" style="margin-top:6px">Пол: <b class="mono">${fmt(totals.f)} м²</b> · стены за вычетом проёмов: <b class="mono">${fmt(totals.w)} м²</b>.</p>`:'<div class="card"><p class="muted" style="margin:0">Комнат пока нет. Добавьте первую кнопкой ниже.</p></div>'}
@@ -3536,6 +3589,7 @@ function vRooms(){
   </div>
   <div class="row" style="margin-top:14px"><button class="btn" data-act="addroom">Добавить комнату</button>
   <label class="btn tr-pick">Обвести план по фото<input type="file" accept="image/*" data-tracefile hidden></label>
+  <button class="btn" data-act="traceblank">Нарисовать план</button>
   ${state.roomsExample?'<button class="btn ghost small" data-act="roomsreal" style="color:var(--accent)">Подтвердить размеры</button>':''}</div>
   <p class="note" style="margin-top:12px">Площадь дверей и окон вычитается из площади стен. Где они стоят на стенах, задаётся на вкладке «Планировка».</p>`;
 }
@@ -3753,6 +3807,7 @@ const HELP = [
   ['Квартира – комнаты и стены', `<p>Сверху план всей квартиры, у каждой стены написана длина в сантиметрах.</p>
     <ol><li>Измерьте стену рулеткой.</li><li>Нажмите на число у этой стены.</li><li>Впишите свою длину и нажмите Enter.</li></ol>
     <p>Есть фото плана? <b>«Обвести план по фото»</b>: обведите комнаты, впишите длину одной стены – остальное посчитается само.</p>
+    <p>Плана нет или хотите придумать свой? <b>«Нарисовать план»</b>: то же самое на чистом листе в клетку – клетка 50 см, размеры видны сразу, углы прилипают через 10 см.</p>
     <p>Нажмите на комнату на плане – под ним появится кнопка <b>«Открыть планировку»</b>.</p>
     <p>Ниже плана – карточки комнат: высота, двери, окна, пол, стены, потолок.</p>`],
   ['Общий план – комнаты вместе', `<p>Сначала каждая комната нарисована отдельно, в ряд. Сложить их в общий план квартиры – по желанию: размеры, мебель, смета и 3D работают и без этого.</p><p><b>Длину стены</b> можно поменять всегда: нажмите на число у стены и впишите свою.</p><p><b>«Составить автоматически»</b> поставит комнаты вокруг прихожей сама – окна наружу, двери в прихожую. <b>«Комнаты в ряд»</b> вернёт их обратно. Поправить вручную – нажмите над планом <b>«Править план»</b>:</p>
@@ -3770,11 +3825,14 @@ const HELP = [
     <p>Переключатель <b>Мебель · Электрика · Сантехника</b>: «Расставить» поставит розетки и краны по мебели.</p>`],
   ['3D – комната вживую', `<p>Нажмите <b>«Смотреть в 3D»</b>.</p><ul><li>Покрутить – зажмите мышку или палец и ведите.</li><li>Приблизить – колёсико или два пальца.</li>
     <li>Двигать предмет – нажмите на него и тяните цветные стрелки.</li><li>Цвета – кнопки наверху: Свет, Стены и пол, Шторы, Цвета.</li>
-    <li>Погулять внутри – «Вид сверху» слева → «Прогулка» (клавиши W A S D или кружок на телефоне).</li><li>Картинка – «Снимок» внизу.</li></ul><p>Всё, что двигаете в 3D, двигается и на плане.</p>`],
+    <li>Погулять внутри – «Вид сверху» слева → «Прогулка» (клавиши W A S D, пробел – прыжок, C – присесть; на телефоне – кружок и стрелки). У дивана, стула, кровати и выключателя – E или кнопка внизу: сесть, лечь, свет; так же открываются шкаф, комод, тумба и холодильник.</li><li>Картинка – «Снимок» внизу.</li></ul><p>Всё, что двигаете в 3D, двигается и на плане.</p>`],
   ['Стоимость – сколько всё стоит', `<p>Сколько нужно краски, плитки, ламината, приложение посчитало само. Впишите <b>цены</b> – суммы посчитаются. Не нужна строка – снимите галочку. <b>Резерв</b> – деньги на всякий случай, обычно 10–15%. <b>«Смета в файл»</b> – таблица для мастера.</p>`],
   ['План работ – что за чем делать', `<p>Дела уже стоят по порядку: сначала то, что прячется в стенах, потом отделка, потом мебель. Сделали дело – поставьте галочку. То, что уже сделано в приложении, отмечается само.</p><p>Открыт этап, который идёт сейчас; другие – нажатием на название. «Мастер» – работа мастеров, «заказать» – заказ, который долго ждать.</p>`],
-  ['Как не потерять проект', `<p>Всё сохраняется само в этом браузере. Но иногда сохраняйте проект <b>файлом</b>: нажмите на название проекта наверху → <b>«Скачать файлом»</b>. Файл появится в «Загрузках».</p>
-    <p>На другом устройстве – в том же меню <b>«Открыть файл…»</b>. Несколько проектов – «Мои проекты…». Старая версия – «Версии…».</p>`],
+  ['Как не потерять проект', `<p>Всё сохраняется само в этом браузере, после каждого изменения. Остальное – в меню с названием проекта наверху:</p>
+    <ul><li><b>«Сохранить»</b> (Ctrl+S, ⌘S) – точка возврата: вернуться к ней можно в «Версии…». Файла не делает.</li>
+    <li><b>«Сохранить как…»</b> – копия проекта под новым именем, чтобы попробовать другой вариант. Старый останется в «Моих проектах».</li>
+    <li><b>«Скачать файлом»</b> – весь проект одним файлом в «Загрузках». Только он сохраняет проект вне браузера: если почистить браузер или открыть приложение на другом устройстве, версий и копий там не будет, а файл останется.</li></ul>
+    <p>На другом устройстве – в том же меню <b>«Открыть файл…»</b>.</p>`],
   ['Если что-то пошло не так', `<ul><li>Случайно сдвинули – <b>↶</b> или Ctrl+Z (⌘+Z).</li><li>Мебель мешает – передвиньте или «Подобрать мебель».</li><li>Непонятное слово – нажмите кружок <b>?</b> рядом с ним.</li><li>Не знаете цену – на «Стоимости» нажмите «Где взять цены?».</li>
     <li>3D не открывается – проверьте интернет и подождите.</li><li>Начать заново – меню проекта → «Новый проект», старый останется в «Моих проектах».</li>
     <li>Тёмный или светлый экран – кнопка ☾ / ☀.</li></ul><p><b>Главное:</b> пробуйте смело – всё сохраняется само и почти всё отменяется.</p>`]];
@@ -5096,7 +5154,7 @@ function planSvg(L, W, items, bad){
     let ang = Math.atan2(e.u[1], e.u[0])*180/Math.PI; if(ang>=90) ang -= 180; if(ang<-90) ang += 180;
     /* the number above the line: on the side away from the wall */
     const m = off([(e.a[0]+e.b[0])/2, (e.a[1]+e.b[1])/2], dd + fs*0.55);
-    return `${ext(e.a)}${ext(e.b)}<line class="dimline" x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}"/>${tick(A)}${tick(B)}<text class="dimtxt" data-k="${k}" data-l="${Math.round(e.len)}" x="${m[0]}" y="${m[1]}" font-size="${fs*0.85}" transform="rotate(${ang} ${m[0]} ${m[1]})"><title>Нажмите, чтобы вписать длину</title>${Math.round(e.len)}</text>`;
+    return `${ext(e.a)}${ext(e.b)}<line class="dimline" x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}"/>${tick(A)}${tick(B)}<text class="dimtxt" data-k="${k}" data-l="${Math.round(e.len)}" data-a="${A[0]},${A[1]}" data-b="${B[0]},${B[1]}" x="${m[0]}" y="${m[1]}" font-size="${fs*0.85}" transform="rotate(${ang} ${m[0]} ${m[1]})"><title>Нажмите, чтобы вписать длину</title>${Math.round(e.len)}</text>`;
   }).join('');
   /* while the shape is being edited (a wall or a corner is selected): corner handles and corner angles */
   const shapeMode = ui.selWall!=null || ui.selCorner!=null;
@@ -5963,9 +6021,11 @@ function deleteCorner(room, k){
   const base = shapeBase(room); if(base.poly.length<=3) return false;
   return applyShape(room, base, base.poly.filter((_,i)=>i!==k), {del:k});
 }
-function setWallLength(room, k, len){
+function setWallLength(room, k, len, end){
   const base = shapeBase(room), g = geoFromPoly(base.poly), e = g.edges[k], n = base.poly.length;
-  const poly = base.poly.map((p,i)=> i===(k+1)%n ? [e.a[0]+e.u[0]*len, e.a[1]+e.u[1]*len] : p);
+  /* end 'a' (version 296): the wall's start moves, its end stays */
+  const poly = end==='a' ? base.poly.map((p,i)=> i===k ? [e.b[0]-e.u[0]*len, e.b[1]-e.u[1]*len] : p)
+    : base.poly.map((p,i)=> i===(k+1)%n ? [e.a[0]+e.u[0]*len, e.a[1]+e.u[1]*len] : p);
   return applyShape(room, base, poly, 'same');
 }
 /* every corner to a right angle: each wall turns to the nearest of the four directions, keeping its length; walls that
@@ -7893,6 +7953,28 @@ function traceOpen(file){
   img.onerror = () => { URL.revokeObjectURL(url); alert('Не получилось открыть эту картинку. Попробуйте фото в формате JPG или PNG.'); };
   img.src = url;
 }
+/* «Нарисовать план» (version 286): the same tool on a blank squared sheet instead of a photo – for those who have no
+   plan or want to make one up. The sheet is 20 × 14 m at 0,5 cm a pixel, so sizes show at once (no «Размеры» step
+   needed – it stays for typing exact lengths); a light square every 50 cm, a darker one every metre, metres marked
+   along the top and left; corners stick to a 10 cm grid */
+const BLANK_CM = 0.5;
+function traceBlank(){
+  const w = 4000, h = 2800, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+  x.fillStyle = '#fbfbf9'; x.fillRect(0, 0, w, h);
+  const step = 50/BLANK_CM;
+  for(let i = 0; i <= w; i += step){ x.strokeStyle = i % (2*step) ? '#ecece7' : '#d6d6cf'; x.lineWidth = i % (2*step) ? 1.5 : 2.5; x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); }
+  for(let j = 0; j <= h; j += step){ x.strokeStyle = j % (2*step) ? '#ecece7' : '#d6d6cf'; x.lineWidth = j % (2*step) ? 1.5 : 2.5; x.beginPath(); x.moveTo(0, j); x.lineTo(w, j); x.stroke(); }
+  x.fillStyle = '#a3a39c'; x.font = '500 26px "JetBrains Mono", monospace'; x.textBaseline = 'top';
+  for(let m = 1; m*2*step < w; m++) x.fillText(m + ' м', m*2*step + 6, 6);
+  for(let m = 1; m*2*step < h; m++) x.fillText(m + ' м', 6, m*2*step + 6);
+  tr = {w, h, src:c.toDataURL('image/jpeg', 0.85), blank:true, mode:'room', draw:'rect', adding:true, rect:null, guides:null, scale:BLANK_CM, rooms:[], cur:[], naming:false, kind:'door', op:null, sel:null, hist:[], vb:{x:0, y:0, w, h}, confirm:false, msg:'', ok:'', intro:true};
+  traceBuild();
+  /* start on about 9 × 7 m near the top left, not the whole sheet: rooms are big enough to draw by finger */
+  const svg = document.querySelector('.tr-svg'), sw = svg?.clientWidth || 1, sh = svg?.clientHeight || 1, k = Math.max(1800/sw, 1400/sh);
+  tr.vb = {x:100, y:100, w:sw*k, h:sh*k}; traceView();
+}
+/* the words of the hints follow the device (version 287): a finger on a phone, the mouse on a computer */
+const trTouch = () => matchMedia('(pointer:coarse)').matches;
 function traceClose(){ document.querySelector('.trace')?.remove(); document.body.classList.remove('esheet-on'); tr = null; }
 /* «Шаг назад»: a copy of what was traced, taken before every change */
 /* «Шаг вперёд» takes back a step undone; any new change clears it */
@@ -7903,8 +7985,8 @@ function trBack(){ const s = tr.hist.pop(); if(!s) return false; (tr.fut || (tr.
 function trFwd(){ const s = (tr.fut || []).pop(); if(!s) return false; tr.hist.push(trSnapNow()); trApply(s); return true; }
 function traceBuild(){
   const el = document.createElement('div');
-  el.className = 'trace'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Обвести план по фото');
-  el.innerHTML = `<div class="tr-bar"><b>Обвести план</b><div class="seg tr-steps" role="group" aria-label="Шаг">
+  el.className = 'trace'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', tr.blank ? 'Нарисовать план' : 'Обвести план по фото');
+  el.innerHTML = `<div class="tr-bar"><b>${tr.blank ? 'Нарисовать план' : 'Обвести план'}</b><div class="seg tr-steps" role="group" aria-label="Шаг">
       <button data-tr="mode" data-m="room">1. Комнаты</button><button data-tr="mode" data-m="size">2. Размеры</button><button data-tr="mode" data-m="open">3. Двери и окна</button></div>
       <button class="zb tr-x" data-tr="close" aria-label="Закрыть">✕</button></div>
     <div class="tr-help"></div>
@@ -7914,13 +7996,13 @@ function traceBuild(){
       <div class="tr-loupe" hidden aria-hidden="true"><svg><image href="${tr.src}" x="0" y="0" width="${tr.w}" height="${tr.h}"/><g class="tr-lov"></g></svg></div>
       <div class="zoombar tr-zoom" role="group" aria-label="Масштаб фото"><button class="zb" data-tr="zin" aria-label="Приблизить">+</button><button class="zb" data-tr="zout" aria-label="Отдалить">−</button><button class="zb" data-tr="zfit" aria-label="Всё фото">⤢</button></div>
       <div class="tr-intro" role="dialog" aria-label="Как обвести план"><div class="tr-intro-box">
-        <h3>Как обвести план – три обязательных шага</h3>
+        <h3>${tr.blank ? 'Как нарисовать план' : 'Как обвести план – три обязательных шага'}</h3>
         <ol class="tr-steps-ill">
-          <li>${TRACE_ILL.room}<div><b>Комнаты.</b> Тяните пальцем прямоугольник от угла до угла комнаты – можно неточно, потом поправите. Для сложной формы – «По углам». Двойное касание по стене добавит на ней угол.</div></li>
-          <li>${TRACE_ILL.size}<div><b>Размеры.</b> Нажмите на стену и впишите её настоящую длину. Хватит одной стены, но чем больше впишете, тем точнее план.</div></li>
+          <li>${TRACE_ILL.room}<div><b>Комнаты.</b> ${trTouch() ? 'Тяните пальцем' : 'Тяните мышью'} прямоугольник от угла до угла комнаты – можно неточно, потом поправите. Для сложной формы – «По углам». ${trTouch() ? 'Двойное касание' : 'Двойной щелчок'} по стене добавит на ней угол.</div></li>
+          <li>${TRACE_ILL.size}<div><b>Размеры.</b> ${tr.blank ? 'По желанию: размеры видны сразу, клетка – 50 см, углы прилипают через 10 см. Чтобы вписать точную длину, нажмите на стену.' : 'Нажмите на стену и впишите её настоящую длину. Хватит одной стены, но чем больше впишете, тем точнее план.'}</div></li>
           <li>${TRACE_ILL.open}<div><b>Двери и окна.</b> Нажмите на стене у одного края проёма, потом у другого.</div></li>
         </ol>
-        <details class="tr-tip"><summary><b>Совет</b><span>Любой угол или стену можно потянуть пальцем – над пальцем появится лупа.</span></summary><p class="note">Всю комнату – за крестик со стрелками над названием. Тянется строго по горизонтали или вертикали; галочка «Свободно» – в любую сторону. «Выровнять углы» сделает все стены прямыми. Фото приближается двумя пальцами или кнопками + −. Ошиблись – стрелка ↶, передумали – ↷.</p></details>
+        <details class="tr-tip"><summary><b>Совет</b><span>${trTouch() ? 'Любой угол или стену можно потянуть пальцем – над пальцем появится лупа.' : 'Любой угол или стену можно потянуть мышью – рядом появится лупа.'}</span></summary><p class="note">Всю комнату – за крестик со стрелками над названием. Тянется строго по горизонтали или вертикали; галочка «Свободно» – в любую сторону. «Выровнять углы» сделает все стены прямыми. ${tr.blank ? 'Лист' : 'Фото'} ${trTouch() ? 'приближается двумя пальцами' : 'приближается колесом мыши'} или кнопками + −. Ошиблись – стрелка ↶, передумали – ↷.</p></details>
         <button class="btn primary tr-start" data-tr="start">Начать</button>
       </div></div></div>`;
   document.body.appendChild(el); document.body.classList.add('esheet-on');
@@ -8139,6 +8221,7 @@ function traceSnap(q, skip){
   for(const v of traceSnapTargets(skip)){ const ax = Math.abs(v[0]-q[0]), ay = Math.abs(v[1]-q[1]); if(ax < bx){ bx = ax; gx = v[0]; } if(ay < by){ by = ay; gy = v[1]; } }
   const guides = [];
   if(gx!=null){ q[0] = gx; guides.push({x:gx}); } if(gy!=null){ q[1] = gy; guides.push({y:gy}); }
+  if(tr.blank){ const g = 10/tr.scale; if(gx==null) q[0] = Math.round(q[0]/g)*g; if(gy==null) q[1] = Math.round(q[1]/g)*g; }
   return {q, guides};
 }
 /* the same for points being carried by (dx, dy): only along the way they go, unless «Свободно» */
@@ -8151,6 +8234,10 @@ function traceSnapMove(pts, dx, dy, skip){
       if(canX && Math.abs(ex) < bx){ bx = Math.abs(ex); ax = ex; gx = v[0]; }
       if(canY && Math.abs(ey) < by){ by = Math.abs(ey); ay = ey; gy = v[1]; } } }
   const guides = []; if(gx!=null) guides.push({x:gx}); if(gy!=null) guides.push({y:gy});
+  /* the blank sheet: what is carried lands on the 10 cm grid (by its first point) */
+  if(tr.blank && pts.length){ const g = 10/tr.scale, p = pts[0];
+    if(gx==null && canX) ax = Math.round((p[0]+dx)/g)*g - (p[0]+dx);
+    if(gy==null && canY) ay = Math.round((p[1]+dy)/g)*g - (p[1]+dy); }
   return {dx:dx+ax, dy:dy+ay, guides};
 }
 /* a wall split in two at a point: a new corner there; the two halves are walls of their own – a size typed for the
@@ -8193,7 +8280,7 @@ function traceTapOne(p){
   if(tr.mode==='room'){
     if(tr.naming){ tr.msg = 'Выберите название комнаты и нажмите «Сохранить комнату».'; }
     else if(!tr.adding && !tr.cur.length){ /* nothing being drawn: a tap does nothing */ }
-    else if(tr.draw==='rect' && !tr.cur.length){ tr.msg = 'Поставьте палец в угол комнаты и, не отпуская, тяните в противоположный угол.'; }
+    else if(tr.draw==='rect' && !tr.cur.length){ tr.msg = (trTouch() ? 'Поставьте палец' : 'Нажмите мышью') + ' в угол комнаты и, не отпуская, тяните в противоположный угол.'; }
     else {
       const cur = tr.cur;
       /* closing on the first corner */
@@ -8333,9 +8420,9 @@ function traceDraw(){
     const next = tr.rooms.length && !n && !tr.naming ? '<button class="btn small primary" data-tr="next">Далее →</button>' : '';
     const more = tr.rooms.length && !tr.naming ? (tr.adding ? '<button class="btn small" data-tr="stopadd">Не добавлять</button>' : '<button class="btn small" data-tr="addroom">+ Добавить комнату</button>') : '';
     help = tr.naming ? say('', 'Как называется эта комната?') + `<label class="f">Комната<select data-trname>${[...new Set([tr.name, ...TRACE_NAMES])].map(n=>`<option ${n===tr.name ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label><button class="btn small primary" data-tr="saveroom">Сохранить комнату</button><button class="btn small" data-tr="cancelroom">Отмена</button>`
-      : !tr.adding && n===0 ? say('', `Готово комнат: ${tr.rooms.length}. Поправьте, если нужно: тяните углы, стены или крестик комнаты; одним пальцем по фото – сдвиг. Нарисовать ещё одну – «Добавить комнату».`) + sqBtn + more + next
-      : n===0 && tr.draw==='rect' ? way + ill('size') + say('', `Поставьте палец в <b>угол</b> ${tr.rooms.length ? 'новой ' : ''}комнаты и, не отпуская, <b>тяните в противоположный угол</b>. Можно неточно. Пока рисуете, фото сдвигается двумя пальцами.`) + more
-      : n===0 ? way + ill('room') + say('', `Нажмите на <b>первый угол</b> ${tr.rooms.length ? 'новой ' : ''}комнаты. Можно неточно: углы потом потянете пальцем, а размеры впишете на шаге 2.`) + more
+      : !tr.adding && n===0 ? say('', `Готово комнат: ${tr.rooms.length}. Поправьте, если нужно: тяните углы, стены или крестик комнаты; ${trTouch() ? 'одним пальцем' : 'мышью'} по ${tr.blank ? 'листу' : 'фото'} – сдвиг. Нарисовать ещё одну – «Добавить комнату».`) + sqBtn + more + next
+      : n===0 && tr.draw==='rect' ? way + ill('size') + say('', `${trTouch() ? 'Поставьте палец' : 'Нажмите мышью'} в <b>угол</b> ${tr.rooms.length ? 'новой ' : ''}комнаты и, не отпуская, <b>тяните в противоположный угол</b>. Можно неточно. ${trTouch() ? `Пока рисуете, ${tr.blank ? 'лист' : 'фото'} сдвигается двумя пальцами.` : 'Колесо мыши приближает и отдаляет.'}`) + more
+      : n===0 ? way + ill('room') + say('', `Нажмите на <b>первый угол</b> ${tr.rooms.length ? 'новой ' : ''}комнаты. Можно неточно: углы потом потянете ${trTouch() ? 'пальцем' : 'мышью'}, а размеры впишете на шаге 2.`) + more
       : n < 3 ? ill('room') + say(`угол ${n}`, 'Нажмите на <b>следующий угол</b> комнаты. Нужно хотя бы 3 угла.')
       : say(`углов: ${n}`, 'Нажмите на следующий угол – или, если обошли все углы, замкните комнату.') + '<button class="btn small primary" data-tr="closeroom">Замкнуть комнату</button>';
   }
@@ -8484,14 +8571,15 @@ document.addEventListener('keydown', e=>{
    World axes: x – plan x, y – up, z – plan y; seen from above, the room looks exactly as on the plan. */
 const THREE_URL = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
 let threeLoad = null, v3d = null;
-/* «Фотореализм»: the post-processing parts of three.js r128 (soft shadows in corners – SSAO, glow – bloom, smooth edges),
-   loaded one after another, and only when the box is ticked. The choice is kept on this device. */
-const PHOTO_LIBS = ['shaders/CopyShader', 'shaders/SSAOShader', 'math/SimplexNoise', 'shaders/LuminosityHighPassShader', 'shaders/GammaCorrectionShader',
-  'shaders/FXAAShader', 'postprocessing/EffectComposer', 'postprocessing/RenderPass', 'postprocessing/ShaderPass', 'postprocessing/SSAOPass',
-  'postprocessing/UnrealBloomPass'].map(p=>`https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/${p}.js`);
+/* «Высокое качество»: the post-processing parts of three.js r128 (soft shadows in corners – SAO, glow – bloom, smooth
+   edges), loaded one after another, and only when it is switched on. The choice is kept on this device.
+   (SSAO until version 287; the lens blur of version 288 taken out in 289 at the owner's word.) */
+const PHOTO_LIBS = ['shaders/CopyShader', 'shaders/SAOShader', 'shaders/DepthLimitedBlurShader', 'shaders/UnpackDepthRGBAShader',
+  'shaders/LuminosityHighPassShader', 'shaders/GammaCorrectionShader', 'shaders/FXAAShader', 'postprocessing/EffectComposer', 'postprocessing/RenderPass',
+  'postprocessing/ShaderPass', 'postprocessing/SAOPass', 'postprocessing/UnrealBloomPass'].map(p=>`https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/${p}.js`);
 let photoLoad = null;
 function loadPhotoLibs(){
-  if(window.THREE && THREE.SSAOPass && THREE.UnrealBloomPass) return Promise.resolve();
+  if(window.THREE && THREE.SAOPass && THREE.UnrealBloomPass) return Promise.resolve();
   return photoLoad || (photoLoad = PHOTO_LIBS.reduce((p, src)=>p.then(()=>new Promise((ok, fail)=>{
     const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = ()=>{ s.remove(); fail(new Error('load')); };
     document.head.appendChild(s);
@@ -8559,6 +8647,44 @@ async function export3dBlender(){
     say('Не получилось сделать файл: ' + (err && err.message==='load' ? 'проверьте интернет.' : (err && err.message) || 'ошибка.'));
   }finally{ ui.exporting = false; }
 }
+/* «Высокое качество» (version 290): shadows of the sun and the lamps sharp where a thing touches the floor or a wall and
+   softer further from it, as real ones (PCSS – percentage-closer soft shadows). three.js r128 has no such shadows: its
+   shadow code (ShaderChunk) is changed for a photo build and given back for a usual one; each build has its own renderer,
+   so its shaders are made with the right code. First the blockers around the point are looked for in the shadow map
+   (their depth turned back into cm: every shadow camera of a photo build has near 5 and far `far`), then the shadow is
+   averaged over a disc that grows with the gap between the blocker and the point; «Солнце: размер» (shadowRadius) sets
+   the size of the light. Spiral of PCSS_N samples, turned at random from point to point (no rings or stripes) */
+let PCSS_BASE = null;
+function pcssChunk(T, on, far){
+  const C = T.ShaderChunk, k = 'shadowmap_pars_fragment';
+  if(PCSS_BASE===null) PCSS_BASE = C[k];
+  if(!on){ C[k] = PCSS_BASE; return; }
+  const n = '5.0', f = Math.max(50, far).toFixed(1);
+  const fn = `
+	#define PCSS_N 24
+	float pcssLin( const in float d ){ return ${n}*${f}/( ${f} - d*( ${f} - ${n} ) ); }
+	vec2 pcssAt( const in int i, const in float a ){ float t = float( i ) + 0.5; float an = a + t*2.399963; return sqrt( t/float( PCSS_N ) )*vec2( cos( an ), sin( an ) ); }
+	float pcssShadow( sampler2D map, const in vec2 uv, const in float z, const in float size ){
+		/* a surface turned away from the light must not shade itself where the wide disc reaches past it ("teeth" along
+		   edges): the farther a sample goes, the more depth it is allowed */
+		float a = rand( uv )*6.283185, dR = pcssLin( z ), sum = 0.0, cnt = 0.0, zb = 0.00003 + size*0.015;
+		for( int i = 0; i < PCSS_N; i ++ ){
+			float d = unpackRGBAToDepth( texture2D( map, uv + pcssAt( i, a )*size ) );
+			if( d < z - zb ){ sum += pcssLin( d ); cnt += 1.0; }
+		}
+		if( cnt < 0.5 ) return 1.0;
+		float dB = sum/cnt, r = clamp( ( dR - dB )/dB*size*2.0, size*0.06, size );
+		float sh = 0.0;
+		float zf = z - 0.00003 - r*0.015;
+		for( int i = 0; i < PCSS_N; i ++ ) sh += texture2DCompare( map, uv + pcssAt( i, a + 1.7 )*r, zf );
+		return sh/float( PCSS_N );
+	}
+	`;
+  let c = PCSS_BASE.replace('float getShadow( sampler2D shadowMap', fn + 'float getShadow( sampler2D shadowMap');
+  c = c.replace(/(if \( frustumTest \) \{)(\s*#if defined\( SHADOWMAP_TYPE_PCF \))/, '$1\n\t\t\treturn pcssShadow( shadowMap, shadowCoord.xy, shadowCoord.z, shadowRadius*PCSS_UV );$2');
+  C[k] = c.includes('return pcssShadow') ? c.replace('#define PCSS_N 24', `#define PCSS_N 24\n\t#define PCSS_UV ${PCSS_UV.toFixed(5)}`) : PCSS_BASE;
+}
+const PCSS_UV = 0.0016;   /* the light's size in parts of the shadow map, per step of «Солнце: размер» (tuned by eye) */
 const PHOTO_KEY = LS_KEY + '-photo3d';
 const photo3dOn = () => { try{ return localStorage.getItem(PHOTO_KEY)==='1'; }catch(e){ return false; } };
 /* decor in 3D (rugs, plants, books…): off unless switched on on this device */
@@ -8694,13 +8820,28 @@ function curtainsCalc(){
 /* swatches for `what`: 'item' (the picked piece), 'wall' or 'floor'; `cur` is its colour or ''. A scheme's circles
    come first and the colour wheel closes the row (picked when the colour is none of the circles); with no scheme
    only the wheel */
+/* no piece of furniture pitch black (version 293, the owner's word): black jumps out of the picture like a hole. A colour
+   darker than DARK_MIN (HSL lightness, 0…1) is lifted to a soft charcoal of the same hue – in the swatches of the schemes
+   and in 3D for every colour of furniture, also one taken in the colour wheel */
+const DARK_MIN = 0.3;   /* #000 → #4D4D4D; 0.2 (#333) still read as black on the screen */
+function liftHex(h){
+  const n = parseInt(String(h).replace('#', ''), 16); if(!Number.isFinite(n)) return h;
+  const r = (n >> 16 & 255)/255, g = (n >> 8 & 255)/255, b = (n & 255)/255, l = (Math.max(r, g, b) + Math.min(r, g, b))/2;
+  if(l >= DARK_MIN) return h;
+  const d = DARK_MIN - l, f = x => Math.round(Math.min(1, x + d)*255).toString(16).padStart(2, '0');
+  return '#' + f(r) + f(g) + f(b);
+}
+const liftNum = n => parseInt(liftHex('#' + n.toString(16).padStart(6, '0')).slice(1), 16);
+/* the colours of a setting (version 293): the colour wheel first, then «Как в стиле» and the scheme's colours; without a
+   scheme – the wheel and «Как в стиле» */
 function colorPick(what, cur, kind){
-  const sw = SCHEME_SW[scheme3d()], list = sw && (kind==='floor' ? FLOOR_SW : sw[kind]), lc = (cur || '').toLowerCase();
+  const sw = SCHEME_SW[scheme3d()], list0 = sw && (kind==='floor' ? FLOOR_SW : sw[kind]), lc = (cur || '').toLowerCase();
+  const list = list0 && kind==='furn' ? [...new Set(list0.map(liftHex))] : list0;
   const reset = `<button class="sw sw-reset${cur ? '' : ' on'}" data-color="${what}" data-c="" title="Как в стиле" aria-label="Как в стиле" aria-pressed="${!cur}"></button>`;
   const own = cur && !(list || []).some(c=>c.toLowerCase()===lc);
   const wheel = `<label class="sw-wheel${own ? ' on' : ''}" title="Любой цвет"><span class="wheel"${own ? ` style="--c:${cur}"` : ''}></span><input type="color" data-colorpick="${what}" value="${cur || '#b88b5e'}" aria-label="Выбрать любой цвет">${list ? '' : '<span>Любой цвет</span>'}</label>`;
-  if(list) return `<div class="cswatch" role="group" aria-label="Цвет">${reset}${list.map(c=>`<button class="sw${lc===c.toLowerCase() ? ' on' : ''}" data-color="${what}" data-c="${c}" style="--c:${c}" title="${c}" aria-label="Цвет ${c}" aria-pressed="${lc===c.toLowerCase()}"></button>`).join('')}${wheel}</div>`;
-  return `<div class="cswatch">${reset}${wheel}</div>`;
+  if(list) return `<div class="cswatch" role="group" aria-label="Цвет">${wheel}${reset}${list.map(c=>`<button class="sw${lc===c.toLowerCase() ? ' on' : ''}" data-color="${what}" data-c="${c}" style="--c:${c}" title="${c}" aria-label="Цвет ${c}" aria-pressed="${lc===c.toLowerCase()}"></button>`).join('')}</div>`;
+  return `<div class="cswatch">${wheel}${reset}</div>`;
 }
 const schemeNote = () => SCHEME_SW[scheme3d()] ? `Цвета схемы «${STYLES[scheme3d()].name}»; в круге – любой другой цвет.` : 'Схема цветов не выбрана: можно взять любой цвет. Выберите схему в 3D («Цвета») – здесь появятся её цвета.';
 /* the main colour of a piece (its biggest part, not glass, metal or a dark screen) goes over to the chosen colour,
@@ -9206,7 +9347,7 @@ function refreshColors3d(){
   const p = v3d && v3d.el.querySelector('.v3d-colors'); if(!p) return;
   const cur = scheme3d(), n = S3.neutral;
   p.innerHTML = `<div class="sch-grid">${[['neutral', 'Нейтральные', [n.wall, n.light, n.wood, n.fabric, n.tile].map(hex6)], ...Object.entries(STYLES).map(([k, s])=>[k, s.name, s.pal])]
-    .map(([k, name, pal])=>`<button class="sch${k===cur ? ' on' : ''}" data-scheme3d="${k}" aria-pressed="${k===cur}"><span class="sch-pal">${pal.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="sch-n">${name}</span></button>`).join('')}</div>
+    .map(([k, name, pal])=>`<button class="sch${k===cur ? ' on' : ''}" data-scheme3d="${k}" aria-pressed="${k===cur}"><span class="sch-pal">${pal.map(c=>`<i style="background:${c}"></i>`).join('')}</span><span class="sch-n">${name.replace('Средиземноморский', 'Средиземно&shy;морский')}</span></button>`).join('')}</div>
     <p class="note" style="margin:10px 0 0">Цвета стен, пола, мебели, штор и декора. Свой цвет комнаты или предмета, заданный вручную, остаётся.</p>`;
 }
 function open3d(){
@@ -9235,6 +9376,8 @@ function open3d(){
       <div class="v3d-walkbar" hidden><span class="v3d-walk-t"></span><label class="v3d-lens" title="Фокусное расстояние, как у фотоаппарата: меньше мм – шире охват, больше – ближе и уже. Ещё колесо мыши или клавиши + и −">Объектив <input type="range" min="12" max="85" step="1" data-walklens aria-label="Фокусное расстояние, мм"><b class="v3d-lens-v"></b></label><button class="btn small" data-v3d="walkclean" title="Спрятать панели – больше места для вида">Спрятать панели</button><button class="btn small" data-v3d="walkexit">Выйти из прогулки</button></div>
       <button class="v3d-uncl" type="button" data-v3d="walkclean" aria-label="Показать панели" title="Показать панели"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <div class="v3d-joy" hidden aria-hidden="true"><span></span></div>
+      <button class="v3d-jumpb v3d-crouchb" type="button" data-v3d="walkcrouch" hidden aria-pressed="false" aria-label="Присесть" title="Присесть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v13M6 12.5l6 6 6-6"/></svg></button>
+      <button class="v3d-jumpb" type="button" data-v3d="walkjump" hidden aria-label="Прыжок" title="Прыжок"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V6M6 11.5l6-6 6 6"/></svg></button>
       <button class="v3d-doorkey" type="button" data-v3d="walkdoor" hidden><kbd>E</kbd><span class="v3d-dk-t">открыть дверь</span></button>
       <div class="v3d-rail" role="toolbar" aria-label="Вид" aria-orientation="vertical">
         <div class="rb-blur" aria-hidden="true"></div><svg class="rb-shape" aria-hidden="true"><path/></svg>
@@ -9367,6 +9510,8 @@ function open3d(){
     if(a==='walkexit'){ v3d.walkStop?.(); return; }
     if(a==='walkclean'){ v3d.el?.classList.toggle('walk-clean'); return; }
     if(a==='walkdoor'){ v3d.walkDoor?.(); return; }
+    if(a==='walkjump'){ v3d.walkJump?.(); return; }
+    if(a==='walkcrouch'){ v3d.walkCrouch?.(); return; }
     if(a==='export'){ export3dBlender(); return; }
     if(v3d.walk && ['top','persp','zin','zout','fit','fitroom','focus'].includes(a)) v3d.walkStop?.();
     if(a==='top') v3d.goal = {phi:0.001, theta:0, r:v3d.fit(true), tx:v3d.c[0], tz:v3d.c[1]};
@@ -9466,7 +9611,7 @@ function photoSet3d(on){
   v3d.photo = on; try{ localStorage.setItem(PHOTO_KEY, on ? '1' : '0'); }catch(_){}
   if(b){ b.setAttribute('aria-pressed', String(on)); b.dataset.tip = on ? 'Высокое качество включено – нажмите, чтобы выключить' : 'Высокое качество: мягкие тени в углах и от ламп, блеск, чёткие края (медленнее)'; }
   if(!v3d.cam) return;
-  if(on && !(THREE.SSAOPass && THREE.UnrealBloomPass)){
+  if(on && !(THREE.SAOPass && THREE.UnrealBloomPass)){
     msg.textContent = 'Включаю высокое качество…';
     loadPhotoLibs().then(()=>{ msg.textContent = ''; if(v3d && v3d.photo) rebuild3d(); })
       .catch(()=>{ msg.textContent = 'Высокое качество не загрузилось. Проверьте интернет и попробуйте ещё раз.'; });
@@ -9637,18 +9782,44 @@ function refreshWf(){
   p.innerHTML = `<b>Стены</b>${colorPick('wall', c3.wall || '', 'wall')}<div class="insp-sec"><b>Пол</b>${colorPick('floor', c3.floor || '', 'floor')}</div>`
     + `<details class="insp-help"><summary>? Как это работает</summary><p class="note">${schemeNote()} Цвет хранится для этой комнаты.</p></details>`;
 }
-/* the current view as a picture: drawn once more and saved as PNG, the viewer confirms the save */
+/* the current view as a sharp picture (version 288): drawn once more off screen with up to 4 times as many pixels on each
+   side (4096 on the long side at most, 3072 on a touch screen), then shrunk by halves – edges come out smooth and fine
+   lines clean; the picture is at least as big as the screen draws it, up to half the drawn size. The screen is then
+   drawn as before. Saved as PNG, the viewer confirms the save */
+function shotCanvas(v){
+  const r = v.renderer, cv = r.domElement, w = cv.clientWidth, h = cv.clientHeight, pr0 = r.getPixelRatio(), gl = r.getContext();
+  const cap = Math.min(r.capabilities.maxTextureSize, gl.getParameter(gl.MAX_RENDERBUFFER_SIZE), ...gl.getParameter(gl.MAX_VIEWPORT_DIMS),
+    matchMedia('(pointer:coarse)').matches ? 3072 : 4096);
+  const big = v.sizeAt ? Math.max(pr0, Math.min(4, cap/Math.max(w, h, 1))) : pr0, pr = Math.max(pr0, big/2);
+  const ow = Math.round(w*pr), oh = Math.round(h*pr);
+  try{
+    if(big > pr0) v.sizeAt(big);
+    if(v.renderNow) v.renderNow(); else r.render(v.scene, v.cam);
+    /* the drawn picture is copied at once: the browser clears it after this task */
+    let cur = cv;
+    while(cur.width > ow*2){
+      const c = document.createElement('canvas'); c.width = Math.round(cur.width/2); c.height = Math.round(cur.height/2);
+      const x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, c.width, c.height); cur = c;
+    }
+    const out = document.createElement('canvas'); out.width = ow; out.height = oh;
+    const x = out.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, ow, oh);
+    return out;
+  }finally{
+    if(big > pr0){ v.sizeAt(pr0); v.dirty = true; }
+  }
+}
 function snapshot3d(){
   const v = v3d; if(!v) return;
   const msg = v.el.querySelector('.v3d-shotmsg');
-  if(v.renderNow) v.renderNow(); else v.renderer.render(v.scene, v.cam);
-  const url = v.renderer.domElement.toDataURL('image/png');
-  v.renderer.domElement.toBlob(blob=>{
+  let c = null; try{ c = shotCanvas(v); }catch(e){}
+  if(!c){ msg.textContent = 'Не получилось сделать снимок'; return; }
+  c.toBlob(blob=>{
     if(!blob){ msg.textContent = 'Не получилось сделать снимок'; return; }
-    if(!v.downloads){ shotPicture(v, url); return; }
+    const url = () => c.toDataURL('image/png');
+    if(!v.downloads){ shotPicture(v, url()); return; }
     v.downloads.save({filename:`${v.room.name} – 3D.png`, data:blob})
       .then(()=>{ msg.textContent = 'Снимок сохранён'; })
-      .catch(err=>{ if(err && err.code==='declined') msg.textContent = ''; else if(err && err.code==='rate_limited') msg.textContent = 'Подождите немного и попробуйте ещё раз'; else shotPicture(v, url); });
+      .catch(err=>{ if(err && err.code==='declined') msg.textContent = ''; else if(err && err.code==='rate_limited') msg.textContent = 'Подождите немного и попробуйте ещё раз'; else shotPicture(v, url()); });
   }, 'image/png');
 }
 /* the view rail on the right of the 3D scene, as in a 3D editor: line icons, the name in a tip; toggles carry
@@ -10076,7 +10247,7 @@ function build3d(T){
   try{ renderer = new T.WebGLRenderer({antialias:true}); }
   catch(e){ view.querySelector('.v3d-msg').textContent = 'Этот браузер не умеет показывать 3D.'; return; }
   /* «Фотореализм» (box in «Свет»): the extra parts are loaded first, the scene is then built again with them */
-  const photo = !!(v.photo && T.SSAOPass && T.UnrealBloomPass);
+  const photo = !!(v.photo && T.SAOPass && T.UnrealBloomPass);
   if(v.photo && !photo) loadPhotoLibs().then(()=>{ if(v3d===v && v.photo) rebuild3d(); }).catch(()=>{});
   /* photo: at least 1.5 pixels per screen pixel, so the edges stay smooth after the post-processing */
   renderer.setPixelRatio(photo ? Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)) : Math.min(2, window.devicePixelRatio || 1));
@@ -10106,15 +10277,28 @@ function build3d(T){
     scene.environment = pm.fromScene(env, 0.04).texture; pm.dispose();
   }
   const size = Math.max(GEO.L, GEO.W, H);
+  pcssChunk(T, photo, size*8);
   /* materials that react to light as real ones do: rough matte walls and fabric, half-gloss floors and lacquered
      wood, shiny tiles and appliances; colours are given in sRGB and converted for the light calculation */
   /* a material with a drawn texture also gets its relief (normal map) and, for wood and planks, an uneven gloss
      (roughness map), made from the same drawing; the photo mode shows the relief a little stronger */
-  const MAT = o => {
+  /* photo (version 290): `sheen` – the soft light along the edges of fabric seen at a slant (velvet, upholstery, curtains),
+     `coat` – a thin lacquer over the colour with its own sharp highlight (lacquered fronts and wood, floors, glazed tile);
+     both need the costlier MeshPhysicalMaterial, so only in the photo mode */
+  const MAT = o0 => {
+    let {sheen, coat, ...o} = o0;
     const n = o.map && o.map.nrm;
     if(n && o.normalMap===undefined){ const k = n.k*(photo ? 1.4 : 1); o = {...o, normalMap:n.tex, normalScale:new T.Vector2(k, k), ...(n.rough ? {roughnessMap:n.rough} : {})}; }
-    const m = new T.MeshStandardMaterial({roughness:0.85, metalness:0, ...o, color:new T.Color(o.color ?? 0xffffff).convertSRGBToLinear()}); v.stdMats.push(m); return m;
+    const phys = photo && (sheen || coat);
+    const m = new (phys ? T.MeshPhysicalMaterial : T.MeshStandardMaterial)({roughness:0.85, metalness:0, ...o, color:new T.Color(o.color ?? 0xffffff).convertSRGBToLinear()});
+    if(phys && sheen) m.sheen = new T.Color(sheen, sheen, sheen);
+    if(phys && coat){ m.clearcoat = coat; m.clearcoatRoughness = 0.14; }
+    v.stdMats.push(m); return m;
   };
+  /* the doors of this build only (version 292): a scene built again (the photo mode switched on, a piece turned…) kept
+     the doors of the old one in the list; the walk then opened the old copy, gone from the screen, while the new one
+     stayed shut */
+  v.leaves = []; v.switches = []; v.swSpare = [];
   v.stdMats = []; v.curtMats = []; v.tulleMats = []; v.curtCount = 0; const CC = curtCfg(room);
   /* a texture from texCanvas; `uvCm` – how many cm one unit of the surface's texture coordinates is */
   const texture = (kind, uvCm) => { const {canvas, cm} = texCanvas(kind), t = new T.CanvasTexture(canvas);
@@ -10148,14 +10332,16 @@ function build3d(T){
   const mats = v.mats = {};
   const MAP = {[C3.wood]:'wood', [C3.fabric]:'fabric', [C3.linen]:'fabric'};
   const ROUGH = {[C3.wood]:0.55, [C3.fabric]:0.95, [C3.linen]:0.95, [C3.light]:0.6, [C3.white]:0.35, [C3.dark]:0.25, [C3.metal]:0.3};
+  /* photo: fabric gets a sheen, lacquered fronts and wood a coat (see MAT) */
+  const FINISH = {[C3.fabric]:{sheen:0.35}, [C3.linen]:{sheen:0.3}, [C3.white]:{coat:0.5}, [C3.dark]:{coat:0.6}, [C3.wood]:{coat:0.3}};
   const mat = c => c==='glass' ? (mats.glass || (mats.glass = MAT({color:C3.glass, transparent:true, opacity:0.3, depthWrite:false, roughness:0.05})))
     : c==='apron:tile' ? (mats[c] || (mats[c] = MAT({color:0xEDEEEA, map:texture('apronTile', 100), roughness:0.3})))
     : c==='apron:glass' ? (mats[c] || (mats[c] = MAT({color:0xD3DEDD, roughness:0.06, metalness:0.15})))
     : c==='apron:panel' ? (mats[c] || (mats[c] = MAT({color:0xC4BBAE, roughness:0.45})))
     : c==='mirror' ? (mats.mirror || (mats.mirror = MAT({color:0xE4EAEE, metalness:1, roughness:0.04})))
     /* a piece's own colour (recolor): the texture and finish of the part it replaces */
-    : typeof c==='string' ? mats[c] || (mats[c] = (([hx, role])=>MAT({color:parseInt(hx.slice(1), 16), map:MAP[role] ? texture(MAP[role], 100) : null, roughness:ROUGH[role] ?? 0.8, metalness:0}))(c.split('/').map((s,k)=>k ? Number(s) : s)))
-    : mats[c] || (mats[c] = MAT({color:c, map:MAP[c] ? texture(MAP[c], 100) : null, roughness:ROUGH[c] ?? 0.8, metalness:c===C3.metal ? 0.5 : 0}));
+    : typeof c==='string' ? mats[c] || (mats[c] = (([hx, role])=>MAT({color:liftNum(parseInt(hx.slice(1), 16)), map:MAP[role] ? texture(MAP[role], 100) : null, roughness:ROUGH[role] ?? 0.8, metalness:0, ...FINISH[role]}))(c.split('/').map((s,k)=>k ? Number(s) : s)))
+    : mats[c] || (mats[c] = MAT({color:liftNum(c), map:MAP[c] ? texture(MAP[c], 100) : null, roughness:ROUGH[c] ?? 0.8, metalness:c===C3.metal ? 0.5 : 0, ...FINISH[c]}));
   const edgeMat = new T.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.18});
   /* a vertical block over a convex quad of plan points (cm), from height z0 to z1. `side(p, q)` (optional) is asked for
      each side between plan points p and q (the very arrays passed in): undefined – the whole side, null – no side,
@@ -10277,7 +10463,7 @@ function build3d(T){
     /* skirting, the curtain rod and the curtains fade with their wall too */
     const skirtM = MAT({color:C3.white, roughness:0.5, transparent:true}), rodM = MAT({color:0x55595c, metalness:0.6, roughness:0.35, transparent:true});
     /* curtains and tulle in the room's curtain colours (applyStyle3d sets them; the tulle lets light through) */
-    const curtM = MAT({color:0xEDE6DA, map:texture('fabric', 100), roughness:0.95, transparent:true}), tulleM = MAT({color:0xF4F1EA, roughness:0.9, transparent:true, opacity:0.45, depthWrite:false, side:T.DoubleSide});
+    const curtM = MAT({color:0xEDE6DA, map:texture('fabric', 100), roughness:0.95, transparent:true, sheen:0.3}), tulleM = MAT({color:0xF4F1EA, roughness:0.9, transparent:true, opacity:0.45, depthWrite:false, side:T.DoubleSide});
     v.curtMats.push(curtM); v.tulleMats.push(tulleM);
     const wm = [[m, 1], [fr, 1], [gl, 0.3], [dm, 1], [hm, 1], [aoFoot, 0.34], [aoTop, 0.16], [aoSide, 0.2], [skirtM, 1], [rodM, 1], [curtM, 1], [tulleM, 0.45]];
     const so0 = (outer[k][0]-e.a[0])*e.u[0] + (outer[k][1]-e.a[1])*e.u[1];
@@ -10342,6 +10528,19 @@ function build3d(T){
         /* for the walk: where the door is (on the room side) and a spot behind it, outside the wall */
         const mid = (o.s1 + o.s2)/2;
         v.leaves.push({shut, open, c:at(mid, 0), back:at(mid, T0 + 90), into:at(mid, -100), g, sign:null, lw, out:!!o.i.out});
+        /* the walk's light switch (version 304) when the electrics plan has none in this room: beside the door on the
+           handle side, 12 cm from the opening, at 90 cm; hidden outside the walk */
+        /* the first place 6…40 cm from the opening, handle side first, where no furniture stands in front of the plate */
+        const swIn = a => a > 6 && a < len - 6 && !ops.some(q=>a > q.s1 - 5 && a < q.s2 + 5);
+        const swFree = a => [a - 5, a, a + 5].every(x=>{ const p = at(x, -8); return !items.some(it=>{ if(isOpening(it)) return false; const b = bbox(it); return p[0] > b.x1 - 1 && p[0] < b.x2 + 1 && p[1] > b.y1 - 1 && p[1] < b.y2 + 1; }); });
+        const swC = [];
+        for(const dir of o.i.flip ? [-1, 1] : [1, -1]) for(let d = 6; d <= 40; d += 1) swC.push(dir > 0 ? o.s2 + d : o.s1 - d);
+        const sa = swC.find(a=>swIn(a) && swFree(a)) ?? (o.i.flip ? [o.s1 - 6, o.s2 + 6] : [o.s2 + 6, o.s1 - 6]).find(swIn);   /* no free place: right by the opening */
+        if(sa!=null){
+          const swm = MAT({color:C3.white, roughness:0.4}), sg = new T.Group();
+          sg.add(prism([at(sa-4.5,-1.2), at(sa+4.5,-1.2), at(sa+4.5,0), at(sa-4.5,0)], 85.5, 94.5, swm), prism([at(sa-3,-1.6), at(sa+3,-1.6), at(sa+3,-1.2), at(sa-3,-1.2)], 86.5, 93.5, swm));
+          sg.visible = false; g.add(sg); v.swSpare.push({c:at(sa, 0), mesh:sg});
+        }
       }
       if(o.i.t==='window'){
         /* two sashes: an upright bar in the middle */
@@ -10428,7 +10627,8 @@ function build3d(T){
       g.add(prism([at(a-w2,dep), at(a+w2,dep), at(a+w2,0), at(a-w2,0)], z-hh, z+hh, p.k==='power' ? grey : plate));
       /* a socket shows its socket holes, two for a double one; a switch its key */
       if(isSocket(p.k)) for(const c of p.k==='sock2' ? [a-3.8, a+3.8] : [a]) g.add(prism([at(c-2.2,dep-0.2), at(c+2.2,dep-0.2), at(c+2.2,dep), at(c-2.2,dep)], z-2.2, z+2.2, hole));
-      else if(p.k==='sw' || p.k==='sw2') g.add(prism([at(a-3,dep-0.4), at(a+3,dep-0.4), at(a+3,dep), at(a-3,dep)], z-3.5, z+3.5, plate));
+      if(p.k==='sw' || p.k==='sw2') v.switches.push({c:at(a, 0)});
+      if(p.k==='sw' || p.k==='sw2') g.add(prism([at(a-3,dep-0.4), at(a+3,dep-0.4), at(a+3,dep), at(a-3,dep)], z-3.5, z+3.5, plate));
     }
     /* the plumbing on this wall: water outlets as short blue and red stubs (a mixer has both, 15 cm apart), drains as
        grey ones of their size, a towel rail as a small chrome ladder */
@@ -10526,7 +10726,7 @@ function build3d(T){
       if(photo && v.lamps.length < 4){
         spot = new T.SpotLight(0xffd9a8, 0, H*3.2, 1.25, 0.7, 2); spot.position.set(x, H - drop - 10, y);
         spot.target.position.set(x, 0, y); lg.add(spot, spot.target);
-        spot.castShadow = true; spot.shadow.mapSize.set(2048, 2048); spot.shadow.camera.near = 5; spot.shadow.camera.far = H*3; spot.shadow.bias = -0.0005; spot.shadow.normalBias = 1.5;
+        spot.castShadow = true; spot.shadow.mapSize.set(2048, 2048); spot.shadow.camera.near = 5; spot.shadow.camera.far = photo ? size*8 : H*3; spot.shadow.bias = -0.0005; spot.shadow.normalBias = 1.5;
       }
       const hb = new T.Mesh(hitBall, lampHit); hb.position.set(x, H - drop - 4, y); lg.add(hb);
       /* what moves when the hang is changed with the handle: everything under the rod, and the rod grows */
@@ -10629,7 +10829,7 @@ function build3d(T){
      on a bedside table…) are built into the piece's own group, so they move with it; plants go into free corners.
      Each piece's decor comes from a random generator seeded by its id: the same room always looks the same. */
   const dmats = {};
-  const DM = (c, kind, rough = 0.85) => dmats[c + (kind || '')] || (dmats[c + (kind || '')] = MAT({color:parseInt(c.slice(1), 16), map:kind ? texture(kind, 100) : null, roughness:rough}));
+  const DM = (c, kind, rough = 0.85) => dmats[c + (kind || '')] || (dmats[c + (kind || '')] = MAT({color:parseInt(c.slice(1), 16), map:kind ? texture(kind, 100) : null, roughness:rough, ...(kind==='fabric' ? {sheen:0.3} : {})}));
   const seeded = s => { let h = 2166136261; for(const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
     return () => { h = (h + 0x6D2B79F5)|0; let t = Math.imul(h ^ h>>>15, h|1); t ^= t + Math.imul(t ^ t>>>7, t|61); return ((t ^ t>>>14)>>>0)/4294967296; }; };
   const ACC = ['#c9a37a', '#8b9e8a', '#b5654a', '#5d7891', '#d8c7a8', '#7a6a8c', '#d4a73c', '#9c4f4f', '#e6ddd0'];
@@ -10863,7 +11063,10 @@ function build3d(T){
       dcat = 'textile';
       part('tex', ov=>{ const tc = DM(ov.c || c1, 'fabric', 0.97);
         box(0, i.d - 38, i.w, i.d + 1, top + 5, top + 7.5, tc, 1); box(0, i.d + 1, i.w, i.d + 3, top - 22, top + 7.5, tc, 1);
-        box(i.w*0.25, 14, i.w*0.75, 26, top + 4, top + 34, DM(ov.c || c2, 'fabric', 0.95), 6); });
+        /* the cushion lies flat on top of the white pillows, in the middle – over the gap between two (version 308, the
+           owner's choice; it went through them to 305, stood upright in front in 306, leaned on them in 307). Pillows:
+           y py…py+30, tops at top+12 */
+        const py = bm==='low' ? 6 : 12; box(i.w*0.34, py + 4, i.w*0.66, py + 26, top + 12, top + 21, DM(ov.c || c2, 'fabric', 0.95), 4); });
       dcat = 'books';
       rug(-55, i.d*0.4, i.w + 55, i.d + 45, pick(P.rug));
       picture(Math.min(i.w*0.7, 140), Math.min(i.w*0.7, 140)*0.5, Math.max(head, top + 40) + 18, (r2=>['abstract', 'landscape', 'gallery', 'tapestry', 'abstract'][Math.floor(r2()*5)])(seeded(i.id + ':wall')));
@@ -11344,37 +11547,86 @@ function build3d(T){
   Object.assign(v, {T, renderer, scene, cam, H, dirty:true});
   const st = v.st = {phi:0.95, theta:-0.45, r:1000, tx:v.c[0], tz:v.c[1], ty:H*0.25};
   v.goal = null;
-  /* photo: the picture goes through soft shadows in corners and under furniture (SSAO), a soft glow of lamps and bright
-     windows (bloom), sRGB output and smoothed edges (FXAA) */
+  /* photo (version 288): the picture is drawn, then darkened softly in corners and under furniture (SAO: smoother than the
+     SSAO before it – no grain, no light rims along edges), a soft glow of lamps and bright windows (bloom), sRGB, a light grade
+     (a touch more colour and contrast, edges a little darker) and smoothed edges (FXAA) */
+  /* SAO, tuned by eye on the sample flat, from above and walking: AO_R (cm) – how fast the darkening fades away from
+     a corner; AO_K – its strength; AO_MAX – the darkest it gets (a part of the colour). The reach is in pixels and grows
+     with the picture, so a sharper snapshot keeps the same shadows. Version 289: lighter (0.45 → AO_K, capped) – close up
+     the corners of a narrow hall came out as black bands */
+  const AO_R = 15, AO_K = 0.3, AO_MAX = 0.3;
+  /* helpers that are not drawn hidden for an extra pass (the depth for SAO): the unseen ceiling that makes
+     the sun's shadows, a see-through wall, hit zones and handles, faint patches, lines and glows; gives a function that
+     shows them again */
+  const helpersOff = () => {
+    const hid = [];
+    scene.traverse(o=>{
+      if(!o.visible) return;
+      const ms = [].concat(o.material || []);
+      if(o.isLine || o.isLineSegments || o.isSprite || o.isPoints || (o.isMesh && ms.some(m=>m.colorWrite===false || m.depthTest===false || m.visible===false || (m.transparent && m.opacity < 0.6)))){ o.visible = false; hid.push(o); }
+    });
+    return () => { for(const o of hid) o.visible = true; };
+  };
   v.composer = null;
   if(photo){
     const comp = new T.EffectComposer(renderer);
-    const ssao = new T.SSAOPass(scene, cam, 2, 2);
-    /* in cm: corners and the floor under furniture darken up to about half a metre out (tuned by eye); distances are parts of the camera's depth range */
-    ssao.kernelRadius = 50; ssao.minDistance = 0.0002; ssao.maxDistance = 0.02;
-    /* the depth and normals pass must not see helpers that are not drawn: the unseen ceiling that makes the sun's
-       shadows, a see-through wall, hit zones and handles, faint patches; nor re-render the shadow maps */
-    const over = ssao.renderOverride.bind(ssao);
-    ssao.renderOverride = (...a) => {
-      const hid = [];
-      scene.traverse(o=>{
-        if(!o.visible) return;
-        const m = o.material;
-        if(o.isLine || o.isLineSegments || (o.isMesh && m && (m.colorWrite===false || m.depthTest===false || (m.transparent && m.opacity < 0.6)))){ o.visible = false; hid.push(o); }
-      });
-      /* the floor is built facing down (it shows from both sides): mirrored in height for this pass it faces up,
-         where the one-sided normals pass sees it; the one-sided ceiling stays unseen from above */
-      const au = renderer.shadowMap.autoUpdate; renderer.shadowMap.autoUpdate = false; v.floorMesh.scale.y = -1;
-      over(...a);
-      renderer.shadowMap.autoUpdate = au; v.floorMesh.scale.y = 1; for(const o of hid) o.visible = true;
+    comp.addPass(new T.RenderPass(scene, cam));
+    const sao = new T.SAOPass(scene, cam, true, false);
+    /* 24-bit depth: the 16 bits it has by default are too coarse for a room in cm seen from metres away */
+    sao.beautyRenderTarget.depthTexture.type = T.UnsignedIntType;
+    /* r128 hands its shaders the argument «true» instead of the depth picture: given here */
+    for(const m of [sao.saoMaterial, sao.vBlurMaterial, sao.hBlurMaterial]) m.uniforms.tDepth.value = sao.beautyRenderTarget.depthTexture;
+    /* never black (version 289): the darkening grows softly and stops at AO_MAX – a corner seen close up, where all
+       the samples fall on the other wall, gets a light grey, not a black band */
+    sao.saoMaterial.fragmentShader = sao.saoMaterial.fragmentShader.replace(/gl_FragColor\.xyz \*=\s*1\.0 - ambientOcclusion;/,
+      `gl_FragColor.xyz *= 1.0 - ${AO_MAX.toFixed(3)}*(1.0 - exp(-ambientOcclusion/${AO_MAX.toFixed(3)}));`);
+    /* the pass draws the scene once more, only for its depth: in one plain material, without the helpers that are not drawn
+       (the unseen ceiling that makes the sun's shadows, a see-through wall, hit zones and handles, faint patches), without
+       drawing the shadow maps again; the floor is built facing down (it shows from both sides): mirrored in height for
+       this pass it faces up, where the one-sided depth pass sees it; the one-sided ceiling stays unseen from above */
+    const depthOnly = new T.MeshBasicMaterial({colorWrite:false});
+    const saoDraw = sao.render.bind(sao);
+    sao.render = (...a) => {
+      const back = helpersOff(), au = renderer.shadowMap.autoUpdate; renderer.shadowMap.autoUpdate = false; v.floorMesh.scale.y = -1; scene.overrideMaterial = depthOnly;
+      try{ saoDraw(...a); }
+      finally{ scene.overrideMaterial = null; renderer.shadowMap.autoUpdate = au; v.floorMesh.scale.y = 1; back(); }
     };
-    comp.addPass(ssao);
+    comp.addPass(sao);
     comp.addPass(new T.UnrealBloomPass(new T.Vector2(256, 256), 0.25, 0.5, 0.88));
     comp.addPass(new T.ShaderPass(T.GammaCorrectionShader));
+    const grade = new T.ShaderPass({uniforms:{tDiffuse:{value:null}, aspect:{value:1}},
+      vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.0); }',
+      fragmentShader:`uniform sampler2D tDiffuse; uniform float aspect; varying vec2 vUv;
+        void main(){
+          vec4 c = texture2D(tDiffuse, vUv); vec3 x = c.rgb;
+          float l = dot(x, vec3(0.2126, 0.7152, 0.0722));
+          x = mix(vec3(l), x, 1.06);
+          x = clamp((x - 0.5)*1.04 + 0.5, 0.0, 1.0);
+          vec2 d = (vUv - 0.5)*vec2(aspect, 1.0);
+          x *= 1.0 - 0.14*smoothstep(0.45, 1.0, length(d)/length(vec2(aspect, 1.0)*0.5));
+          gl_FragColor = vec4(x, c.a);
+        }`});
+    comp.addPass(grade);
     const fx = new T.ShaderPass(T.FXAAShader); comp.addPass(fx);
-    v.composer = comp; v.fxaa = fx; v.ssao = ssao;
+    v.composer = comp; v.fxaa = fx; v.sao = sao; v.grade = grade;
   }
-  v.renderNow = () => { if(v.composer) v.composer.render(); else renderer.render(scene, cam); };
+  v.renderNow = () => {
+    if(!v.composer){ renderer.render(scene, cam); return; }
+    const sao = v.sao, px = sao.saoMaterial.uniforms.size.value.y;
+    Object.assign(sao.params, {saoScale:cam.far/AO_R, saoBias:1, saoIntensity:AO_K, saoKernelRadius:84*px/1000,
+      saoBlurRadius:12, saoBlurStdDev:6, saoBlurDepthCutoff:8/(cam.far - cam.near)});
+    sao.saoMaterial.uniforms.cameraInverseProjectionMatrix.value.copy(cam.projectionMatrixInverse);
+    v.grade.uniforms.aspect.value = cam.aspect;
+    v.composer.render();
+  };
+  /* version 290 had two kinds of reflections here (the floor as a mirror, drawn again every frame, and a cube probe of the
+     room for glossy things); taken out in 291 at the owner's word – the view slowed down and the gain was small */
+  /* the drawing buffer at pr pixels per screen pixel: the sharp snapshot draws at more, then comes back */
+  v.sizeAt = pr => {
+    const w = view.clientWidth, h = view.clientHeight; if(!w || !h) return;
+    renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
+    if(v.composer){ v.composer.setPixelRatio(pr); v.composer.setSize(w, h); v.fxaa.uniforms.resolution.value.set(1/(w*pr), 1/(h*pr)); }
+  };
   const resize = () => {
     /* the floating head covers the top of the scene: the view rail keeps below it (--headb, px from the scene's top) */
     /* the rail and undo keep to the floating head: the same left edge (--headl), 8 px under it (--headb), and no lower
@@ -11931,30 +12183,62 @@ function build3d(T){
   let wPlants = [];   /* the potted plants stop you too (taken when the walk starts: they are placed after this) */
   const segD = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0])*dx + (z - a[1])*dz)/((dx*dx + dz*dz) || 1)));
     return Math.hypot(x - a[0] - t*dx, z - a[1] - t*dz); };
-  const walkable = (x, z) => pointInPoly(x, z, wPoly) && wPoly.every((p, k)=>segD(x, z, p, wPoly[(k + 1)%wPoly.length]) >= WR)
-    && !wBoxes.some(b=>x > b.x1 - WR && x < b.x2 + WR && z > b.y1 - WR && z < b.y2 + WR) && !wPlants.some(p=>Math.hypot(x - p.x, z - p.y) < WR + 22);
+  /* the jump (version 302): Space or a button on a touch screen; one can stand on furniture and jump down. Each piece is
+     taken as the boxes of its parts (taken when the walk starts, `wParts`): a part in the way of the body – above the
+     knee (STEP) and below the top of the head – stops you; the highest part under your feet (no higher than a step) is
+     what you stand on. So a table, a bed or a sofa seat can be jumped onto, and one walks under a high shelf */
+  const STEP = 25, JUMP = 80, GRAV = 1400, FOOT = 10;
+  /* crouching (version 303): C held, or the button on a touch screen – eyes at CROUCH, slower steps, one gets under
+     what is lower than the standing head; one stands up only where there is room overhead */
+  const CROUCH = Math.min(90, EYE);
+  let wParts = [];
+  const partsNear = (x, z, r) => wParts.filter(f=>x > f.x1 - r && x < f.x2 + r && z > f.z1 - r && z < f.z2 + r);
+  const boxHit = (b, x, z, r) => Math.hypot(Math.max(b.x1 - x, 0, x - b.x2), Math.max(b.z1 - z, 0, z - b.z2)) < r;
+  const fits = (x, z, y, h = v.walk?.eye ?? EYE) => pointInPoly(x, z, wPoly) && wPoly.every((p, k)=>segD(x, z, p, wPoly[(k + 1)%wPoly.length]) >= WR)
+    && (wParts.length ? !partsNear(x, z, WR).some(f=>f.boxes.some(b=>b.y2 > y + STEP && b.y1 < y + h + 12 && boxHit(b, x, z, WR)))
+      : !wBoxes.some(b=>x > b.x1 - WR && x < b.x2 + WR && z > b.y1 - WR && z < b.y2 + WR))
+    && !(y < 60 && wPlants.some(p=>Math.hypot(x - p.x, z - p.y) < WR + 22));
+  const walkable = (x, z) => fits(x, z, 0);
+  /* what one stands on at (x, z): the top of the highest part under the feet, no higher than a step up from y */
+  const groundAt = (x, z, y) => { let g = 0;
+    for(const f of partsNear(x, z, FOOT)) for(const b of f.boxes) if(b.y2 <= y + STEP && b.y2 > g && boxHit(b, x, z, FOOT)) g = b.y2;
+    return g; };
+  const takeParts = () => {
+    const box = new T.Box3();
+    wParts = [];
+    for(const f of v.furn){ if(!f.grp) continue; f.grp.updateMatrixWorld(true);
+      const boxes = [];
+      const walk = o => { if(o===f.pick || o.visible===false) return;
+        if(o.isMesh && o.geometry){ const m = o.material, mm = Array.isArray(m) ? m[0] : m;
+          if(mm && mm.depthWrite!==false && !(mm.transparent && mm.opacity < 0.35)){
+            if(!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+            box.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld);
+            if(box.max.y - box.min.y > 0.5 || box.max.y > 2) boxes.push({x1:box.min.x, x2:box.max.x, y1:box.min.y, y2:box.max.y, z1:box.min.z, z2:box.max.z}); } }
+        for(const c of o.children) walk(c); };
+      walk(f.grp);
+      if(boxes.length) wParts.push({boxes, x1:Math.min(...boxes.map(b=>b.x1)), x2:Math.max(...boxes.map(b=>b.x2)), z1:Math.min(...boxes.map(b=>b.z1)), z2:Math.max(...boxes.map(b=>b.z2))});
+    }
+  };
   const walkUi = on => {
     const touch = matchMedia('(pointer:coarse)').matches, bar = v.el.querySelector('.v3d-walkbar'), joy = v.el.querySelector('.v3d-joy');
     v.el.classList.toggle('walking', on);
     v.el.querySelectorAll('[data-v3d="walk"]').forEach(x=>x.setAttribute('aria-pressed', String(on)));
     bar.hidden = !on; joy.hidden = !(on && touch);
-    bar.querySelector('.v3d-walk-t').textContent = touch ? 'Кружок слева – идти, палец по экрану – смотреть'
-      : 'W S или ↑ ↓ – идти, A D – шаг вбок, ← → – повернуть, мышь с зажатой кнопкой – смотреть, Shift – быстрее, колесо или + − – объектив, Esc – выйти';
+    const jb = v.el.querySelector('.v3d-jumpb:not(.v3d-crouchb)'); if(jb) jb.hidden = !(on && touch);
+    const cb = v.el.querySelector('.v3d-crouchb'); if(cb){ cb.hidden = !(on && touch); cb.setAttribute('aria-pressed', 'false'); }
+    bar.querySelector('.v3d-walk-t').textContent = touch ? 'Кружок слева – идти, стрелки справа – прыжок и присесть, палец по экрану – смотреть'
+      : 'W S или ↑ ↓ – идти, A D – шаг вбок, ← → – повернуть, пробел – прыжок, C – присесть и встать, мышь с зажатой кнопкой – смотреть, Shift – быстрее, колесо или + − – объектив, Esc – выйти';
   };
   /* the walk keeps every door shut; close to one, a key shows (E, or a button on a touch screen) to open it; behind an
      opened door – a surprise, a different one each time (version 267): a sign with a renovation joke, or now and then
      a snowy winter evening with a lamp post (Narnia) */
   const DOOR_JOKES = [
-    ['Русская шутка:', ['Выхода нет!']],
-    ['Народная мудрость:', ['Ремонт нельзя закончить,', 'его можно только прекратить']],
+    /* version 285: of the signs only the foreman's note stays, plus an advert space; 0 must stay a sign (the fallback) */
+    ['Мастер:', ['Буду завтра'], () => 'записка от ' + new Date().toLocaleDateString('ru-RU')],
     'cat',
     'dark',
     'fog',
-    ['Мастер:', ['Буду завтра'], () => 'записка от ' + new Date().toLocaleDateString('ru-RU')],
-    ['Правило ремонта:', ['Смета × 2', 'сроки × 3']],
-    ['Здесь мог быть', ['ваш ремонт']],
-    ['Осторожно!', ['Свежая шпаклёвка']],
-    ['Ушёл за плиточным клеем.', ['Скоро вернусь'], () => 'прораб'],
+    ['Здесь могла быть', ['ваша реклама']],
   ];
   /* a shuffled bag (version 281): every surprise shows once, in a random order, before any shows again – so people
      don't see a repeat and think there are no more. The bag is kept in the browser, across rooms and visits; the
@@ -12232,6 +12516,8 @@ function build3d(T){
     return g;
   };
   const doorSign = l => {
+    /* already made while you came up to the door and not shown yet – just use it */
+    if(l.sign && l.signFresh){ l.signFresh = false; return l.sign; }
     if(l.sign){ l.sign.userData.stop?.(); l.g.remove(l.sign); l.sign.traverse(o=>{ o.geometry?.dispose(); for(const mt of [].concat(o.material || [])){ mt.map?.dispose(); mt.dispose(); } }); l.sign = null; }
     let k = doorNext();
     try{ return doorDress(l, k); }catch(err){ console.warn('door surprise', err); return doorDress(l, 0); }
@@ -12252,6 +12538,205 @@ function build3d(T){
   };
   const doorSet = (l, on) => { l.isOpen = on; l.open.visible = on; l.shut.visible = !on; if(on) doorSign(l).visible = true; else if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } v.dirty = true; };
   const doorKey = v.el.querySelector('.v3d-doorkey');
+  /* make the next surprise behind a door ready before it is opened (version 285): on a phone the first opening took
+     a while (the graphics card prepares every new kind of material once) and looked as if the door did not open.
+     Built hidden, its materials prepared in advance (renderer.compile), shown at once when the door opens */
+  const doorPrep = l => {
+    if(!l || l.isOpen || l.signFresh) return;
+    try{
+      const m = doorSign(l); l.signFresh = true; m.visible = true;
+      v.renderer.compile(v.scene, v.cam);
+      m.traverse(o=>{ for(const mt of [].concat(o.material || [])) if(mt.map && v.renderer.initTexture) v.renderer.initTexture(mt.map); });
+      m.visible = false;
+    }catch(err){ console.warn('door prep', err); }
+  };
+  /* sitting and lying (version 304): sofas, armchairs, chairs, the WC – sit, eyes 70 cm over the seat, looking ahead of
+     the piece; beds – lie down near the head end, eyes 22 cm over the mattress, looking up a little. A long sofa or bed:
+     the place along it nearest to you. The light switch: the lamps of the room on and off, as the box «Лампы включены» */
+  const SEATS = new Set(['sofa', 'sofaL', 'armchair', 'chair', 'wc']);
+  const wSeats = items.filter(i=>!isOpening(i) && (SEATS.has(i.t) || /^bed/.test(i.t)));
+  let wSw = [];
+  const seatOf = (i, W) => {
+    const F = furnFrame(i), lay = i.t.startsWith('bed'), m = lay ? i.w/2 : Math.min(i.w/2, 35);
+    /* a chair: its back is on the side away from the nearest table (as it is built) – one sits in its middle, facing the table */
+    if(i.t==='chair'){
+      const c = centreOf(i), near = items.filter(x=>['desk','dining','coffee'].includes(x.t)).map(x=>centreOf(x)).sort((p, q)=>Math.hypot(p[0]-c[0], p[1]-c[1]) - Math.hypot(q[0]-c[0], q[1]-c[1]))[0];
+      let dir = F.v;
+      if(near){ const dx = near[0] - c[0], dy = near[1] - c[1], pu = dx*F.u[0] + dy*F.u[1], pv = dx*F.v[0] + dy*F.v[1];
+        dir = Math.abs(pv) >= Math.abs(pu) ? (pv > 0 ? F.v : [-F.v[0], -F.v[1]]) : (pu > 0 ? F.u : [-F.u[0], -F.u[1]]); }
+      return {x:c[0], z:c[1], yaw:Math.atan2(dir[0], dir[1]), lay:false};
+    }
+    const s0 = (W.x - F.p[0])*F.u[0] + (W.z - F.p[1])*F.u[1], s = Math.max(m, Math.min(i.w - m, s0)), t = lay ? Math.min(45, i.d*0.3) : i.d*0.55;
+    return {x:F.p[0] + F.u[0]*s + F.v[0]*t, z:F.p[1] + F.u[1]*s + F.v[1]*t, yaw:Math.atan2(F.v[0], F.v[1]), lay};
+  };
+  const lampsLit = () => { const l = v.light; return !!(l.lampsOn ?? (l.mode==='evening' || !v.wins.length)); };
+  const sitDown = st0 => {
+    const W = v.walk, top = groundAt(st0.x, st0.z, 95);
+    W.sit = {x:W.x, z:W.z, y:W.y}; W.vy = 0;
+    W.glide = {lock:true, x:st0.x, z:st0.z, y:top, eye:st0.lay ? 22 : 70, yaw:st0.yaw, pitch:st0.lay ? 0.45 : -0.05,
+      from:{x:W.x, z:W.z, y:W.y, eye:W.eye, yaw:W.yaw, pitch:W.pitch}, t:0, dur:0.8};
+    v.dirty = true;
+  };
+  const standUp = () => {
+    const W = v.walk, S = W.sit; if(!S) return; W.sit = null;
+    W.glide = {lock:true, x:S.x, z:S.z, y:S.y, eye:EYE, yaw:W.yaw, pitch:-0.08, from:{x:W.x, z:W.z, y:W.y, eye:W.eye, yaw:W.yaw, pitch:W.pitch}, t:0, dur:0.6};
+    v.dirty = true;
+  };
+  /* opening cabinets in the walk (version 305): a wardrobe with swing doors, a chest of drawers, a bedside table, a
+     fridge. In the scene they are solid boxes with seams drawn on the front; opened, the piece is shown for the time
+     being as a hollow one of the same size and colours (sides, back, top, shelves or drawer boards), its doors swing
+     out on their hinges, its drawers slide out; the drawn front (seams, handles) and the solid body hide. All shut –
+     the piece is as before. Inside each opened door or drawer – a little toy, a different one each time (a shuffled
+     bag, toyBag). Not described anywhere, like the surprises behind the doors */
+  const CABS = new Set(['wardrobe', 'dresser', 'night', 'fridge']);
+  const wCabItems = items.filter(i=>CABS.has(i.t) && !(i.t==='wardrobe' && i.model==='slide'));
+  const cabs = new Map();
+  let cabBoxG = null, cabSph = null, cabCyl = null;
+  const cabMat = {};
+  const tmat = (c, o = {}) => { const k = c + JSON.stringify(o); return cabMat[k] || (cabMat[k] = new T.MeshStandardMaterial({color:new T.Color(c).convertSRGBToLinear(), roughness:0.6, ...o})); };
+  const cabOf = i => {
+    if(cabs.has(i.id)) return cabs.get(i.id);
+    const fu = v.furn.find(x=>x.id===i.id); if(!fu) return null;
+    const w = i.w, d = i.d, comps = []; let z0 = 0, H;
+    if(i.t==='wardrobe'){ H = i.h || 220; const n = Math.max(1, Math.round(w/48)), top = H > 235 ? H - 45 : H;
+      for(let k = 0; k < n; k++){ const x1 = w*k/n, x2 = w*(k + 1)/n, hinge = k%2 ? 'r' : 'l', hx = w*(k + (k%2 ? 0.12 : 0.88))/n;
+        comps.push({kind:'door', x1, x2, z1:0, z2:top, hinge, hx, hz:[95, 125], hw:1});
+        if(top < H) comps.push({kind:'door', x1, x2, z1:top, z2:H, hinge, hx, hz:[top + 6, top + 8], hw:4}); }
+      return set(); }
+    if(i.t==='fridge'){ H = i.h || 185; const z = H > 150 ? Math.round(H*0.38) : 0;
+      comps.push({kind:'door', fridge:true, x1:0, x2:w, z1:z, z2:H, hinge:'l', hx:w - 6, hz:z ? [z + 10, z + 40] : [H - 40, H - 10], hw:1});
+      if(z) comps.push({kind:'door', fridge:true, freezer:true, x1:0, x2:w, z1:0, z2:z, hinge:'l', hx:w - 6, hz:[z - 30, z - 8], hw:1});
+      return set(); }
+    H = i.h || (i.t==='night' ? 55 : 85); z0 = modelOf(i)==='legs' ? 16 : 6;
+    const cols = i.t==='night' ? 1 : w > 100 ? 2 : 1, rows = i.t==='night' ? (H >= 45 ? 2 : 1) : Math.max(2, Math.round((H - 12)/20)), rh = (H - z0 - 2)/rows;
+    for(let r = 0; r < rows; r++) for(let c = 0; c < cols; c++) comps.push({kind:'drawer', x1:w*c/cols, x2:w*(c + 1)/cols, z1:z0 + r*rh, z2:z0 + (r + 1)*rh, hx:w*(c + 0.5)/cols, hz:[z0 + (r + 0.65)*rh, 0]});
+    return set();
+    function set(){ const cb = {i, fu, F:furnFrame(i), w, d, H, z0, comps, rows:i.t==='night' || i.t==='dresser' ? comps : null};
+      for(const cp of comps){ cp.a = 0; cp.target = 0; } cabs.set(i.id, cb); return cb; }
+  };
+  /* a point of the piece (x along it, z up, y into its depth towards the front) in the room */
+  const cabPt = (cb, x, z, y) => { const F = cb.F; return [F.p[0] + F.u[0]*x + F.v[0]*y, z, F.p[1] + F.u[1]*x + F.v[1]*y]; };
+  /* the little toys: a rubber duck, a ball, a teddy bear, a matryoshka, a stash of money, a Rubik's cube, an odd sock */
+  const TOYS = [
+    (s, S) => { const y = 0xF5C518; S(0, .3*s, 0, .42*s, .3*s, .32*s, y); S(.24*s, .68*s, 0, .2*s, .2*s, .2*s, y); S(.45*s, .65*s, 0, .11*s, .05*s, .09*s, 0xF08A24);
+      for(const e of [-1, 1]) S(.37*s, .75*s, e*.1*s, .03*s, .03*s, .03*s, 0x1d1d1d); S(-.38*s, .45*s, 0, .1*s, .13*s, .08*s, y); },
+    (s, S) => { S(0, .35*s, 0, .35*s, .35*s, .35*s, 0xD8433A); S(0, .35*s, 0, .356*s, .08*s, .356*s, 0xF4F1EA); S(0, .35*s, 0, .08*s, .356*s, .356*s, 0x2E6FB7); },
+    (s, S) => { const b = 0x9A6A3F; S(0, .3*s, 0, .26*s, .3*s, .22*s, b); S(0, .72*s, 0, .2*s, .2*s, .2*s, b);
+      for(const e of [-1, 1]){ S(e*.15*s, .88*s, 0, .07*s, .07*s, .05*s, b); S(e*.07*s, .77*s, .17*s, .025*s, .025*s, .025*s, 0x1d1d1d); S(e*.22*s, .38*s, .08*s, .09*s, .09*s, .09*s, b); S(e*.12*s, .06*s, .1*s, .09*s, .06*s, .1*s, b); }
+      S(0, .68*s, .17*s, .08*s, .06*s, .06*s, 0xD9B48A); S(0, .7*s, .23*s, .025*s, .025*s, .025*s, 0x1d1d1d); },
+    (s, S) => { const r = 0xC8302C; S(0, .33*s, 0, .27*s, .34*s, .27*s, r); S(0, .75*s, 0, .19*s, .19*s, .19*s, r); S(0, .75*s, .12*s, .12*s, .13*s, .08*s, 0xF3D9C0);
+      S(0, .3*s, .2*s, .12*s, .15*s, .08*s, 0xF2C94C); for(const e of [-1, 1]){ S(e*.045*s, .77*s, .195*s, .018*s, .018*s, .018*s, 0x1d1d1d); S(e*.07*s, .71*s, .18*s, .03*s, .02*s, .02*s, 0xE58C8C); } },
+    (s, S, B) => { for(const [y, r] of [[0, 0], [.14*s, .4]]){ B(0, y + .07*s, 0, .6*s, .14*s, .3*s, 0x6B9A62, r); B(0, y + .07*s, 0, .1*s, .145*s, .305*s, 0xF4F1EA, r); } },
+    (s, S, B) => { const c = .5*s, cols = [0xD8433A, 0xF08A24, 0xF4F1EA, 0xF5C518, 0x3A9D5D, 0x2E6FB7], q = c/3, rnd = () => cols[Math.floor(Math.random()*6)];
+      B(0, c/2, 0, c, c, c, 0x1d1d1d);
+      for(let a = 0; a < 3; a++) for(let b = 0; b < 3; b++){ const u = (a - 1)*q, w2 = (b - 1)*q, t = q*0.82;
+        B(u, c + 0.2, w2, t, 0.4, t, rnd()); B(u, c/2 + w2, c/2 + 0.2, t, t, 0.4, rnd()); B(c/2 + 0.2, c/2 + u, w2, 0.4, t, t, rnd()); } },
+    (s, S, B, C) => { for(let k = 0; k < 4; k++) C(-.3*s + k*.15*s, .1*s, 0, .1*s, .15*s, k%2 ? 0xF4F1EA : 0xC8302C, 'x');
+      C(.25*s, .1*s, .12*s, .1*s, .28*s, 0xC8302C, 'z'); S(.25*s, .1*s, .27*s, .1*s, .1*s, .1*s, 0xC8302C); }
+  ];
+  const toyMake = s => {
+    if(!cabSph){ cabSph = new T.SphereGeometry(1, 20, 14); cabCyl = new T.CylinderGeometry(1, 1, 1, 18); }
+    const g = new T.Group();
+    const S = (x, y, z, rx, ry, rz, c) => { const m = new T.Mesh(cabSph, tmat(c, {roughness:0.45})); m.scale.set(rx, ry, rz); m.position.set(x, y, z); g.add(m); };
+    const B = (x, y, z, sx, sy, sz, c, r = 0) => { const m = new T.Mesh(cabBoxG, tmat(c)); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.rotation.y = r; g.add(m); };
+    const C = (x, y, z, r, len, c, ax) => { const m = new T.Mesh(cabCyl, tmat(c, {roughness:0.8})); m.scale.set(r, len, r); m.position.set(x, y, z); if(ax==='x') m.rotation.z = Math.PI/2; else m.rotation.x = Math.PI/2; g.add(m); };
+    if(!toyBag.length || toyBag.n !== TOYS.length){ toyBag = [...TOYS.keys()]; for(let k = toyBag.length - 1; k > 0; k--){ const j = Math.floor(Math.random()*(k + 1)); [toyBag[k], toyBag[j]] = [toyBag[j], toyBag[k]]; } toyBag.n = TOYS.length; }
+    TOYS[toyBag.shift()](s, S, B, C);
+    g.rotation.y = (Math.random() - 0.5)*1.4;
+    return g;
+  };
+  /* the hollow stand-in: in the piece's own frame (x along, y up, z towards the front) */
+  const cabBuild = cb => {
+    if(!cabBoxG) cabBoxG = new T.BoxGeometry(1, 1, 1);
+    const {i, F, w, d, H, z0} = cb, Tk = 1.8, fridge = i.t==='fridge';
+    const g = new T.Group(); g.matrixAutoUpdate = false;
+    g.matrix.set(F.u[0], 0, F.v[0], F.p[0], 0, 1, 0, 0, F.u[1], 0, F.v[1], F.p[1], 0, 0, 0, 1);
+    /* the solid body (the biggest block) and the drawn front (whatever lies on the front face) hide */
+    const kids = cb.fu.grp.children.filter(o=>o!==cb.fu.pick && o!==cb.fu.dg && o.isMesh);
+    const bx = new T.Box3(), info = kids.map(o=>{ bx.setFromObject(o); const c = bx.getCenter(new T.Vector3()), sz = bx.getSize(new T.Vector3());
+      return {o, y:(c.x - F.p[0])*F.v[0] + (c.z - F.p[1])*F.v[1], vol:sz.x*sz.y*sz.z}; });
+    const body = info.reduce((a, b)=>b.vol > a.vol ? b : a, info[0]);
+    cb.hid = info.filter(x=>x===body || x.y >= d - 0.3).map(x=>x.o);
+    const front = info.find(x=>x.y >= d - 0.3 && x.o.material?.metalness > 0.3);
+    const bm = body.o.material, hm = front ? front.o.material : tmat(0xb9bdc1, {metalness:0.7, roughness:0.35});
+    const im = fridge ? tmat(0xEEF1F3, {roughness:0.5}) : tmat('#' + bm.color.clone().convertLinearToSRGB().multiplyScalar(0.82).getHexString(), {roughness:0.9});
+    const B = (x1, y1, x2, y2, z1, z2, m, par = g) => { const ms = new T.Mesh(cabBoxG, m); ms.scale.set(Math.max(0.1, x2 - x1), Math.max(0.1, z2 - z1), Math.max(0.1, y2 - y1));
+      ms.position.set((x1 + x2)/2, (z1 + z2)/2, (y1 + y2)/2); ms.castShadow = ms.receiveShadow = true; par.add(ms); return ms; };
+    /* the shell */
+    B(0, 0, w, Tk, z0, H, im); B(0, 0, Tk, d - Tk, z0, H, bm); B(w - Tk, 0, w, d - Tk, z0, H, bm);
+    B(0, 0, w, d - Tk, H - Tk, H, bm); B(0, 0, w, d - Tk, z0, z0 + Tk, bm);
+    if(i.t==='wardrobe'){
+      const top = cb.comps[0].z2;
+      if(top < H) B(Tk, Tk, w - Tk, d - Tk, top - 0.9, top + 0.9, bm);
+      if(top > 140){ const sh = top - 38; B(Tk, Tk, w - Tk, d - Tk, sh - 0.9, sh + 0.9, bm); B(Tk, d/2 - 0.8, w - Tk, d/2 + 0.8, sh - 9, sh - 7.4, hm);
+        /* a few clothes on the rail */
+        const cl = [0x7FA6A1, 0xD9C7A7, 0x5E6B7A, 0xC98F7B, 0xEDE6DA, 0x8C7AA0];
+        for(let x = Tk + 8, k = 0; x < w - Tk - 8; x += 13, k++) B(x - 0.8, d/2 - 22, x + 0.8, d/2 + 22, sh - 9 - (k%3 ? 70 : 95), sh - 9, tmat(cl[(k*7 + Math.round(w))%cl.length], {roughness:0.95}));
+      }
+    } else if(fridge){
+      const z = cb.comps.length > 1 ? cb.comps[1].z2 : 0;
+      if(z) B(Tk, Tk, w - Tk, d - Tk, z - 1.5, z + 1.5, bm);
+      for(let k = 1; k < 4; k++){ const zz = z + (H - z)*k/4; B(Tk, Tk, w - Tk, d - Tk - 4, zz - 0.4, zz + 0.4, tmat(0xD8E4EA, {roughness:0.15, transparent:true, opacity:0.55})); }
+      if(z) B(Tk, Tk, w - Tk, d - Tk - 4, z/2 - 0.4, z/2 + 0.4, im);
+    } else {
+      const xs = [...new Set(cb.comps.map(c=>c.x1))].filter(x=>x > 0.1), zs = [...new Set(cb.comps.map(c=>c.z1))].filter(z=>z > z0 + 0.1);
+      for(const z of zs) B(Tk, Tk, w - Tk, d - Tk, z - 0.8, z + 0.8, bm);
+      for(const x of xs) B(x - 0.8, Tk, x + 0.8, d - Tk, z0, H - Tk, bm);
+    }
+    /* the movers: doors on their hinges, drawers on their runners */
+    for(const cp of cb.comps){
+      const cx = (cp.x1 + cp.x2)/2;
+      if(cp.kind==='door'){
+        const hx = cp.hinge==='l' ? cp.x1 + 0.15 : cp.x2 - 0.15, sg = cp.hinge==='l' ? 1 : -1, wd = cp.x2 - cp.x1 - 0.3, pv = new T.Group();
+        pv.position.set(hx, 0, d); g.add(pv);
+        B(Math.min(0, sg*wd), -Tk, Math.max(0, sg*wd), 0, cp.z1 + 0.15, cp.z2 - 0.15, bm, pv);
+        const r = cp.hx - hx; B(r - cp.hw, 0, r + cp.hw, 2.5, cp.hz[0], cp.hz[1], hm, pv);
+        if(fridge) B(Math.min(sg*3, sg*(wd - 3)), -Tk - 9, Math.max(sg*3, sg*(wd - 3)), -Tk, cp.z1 + (cp.z2 - cp.z1)*0.3, cp.z1 + (cp.z2 - cp.z1)*0.3 + 1, im, pv);
+        cp.apply = e => { pv.rotation.y = -sg*e*1.75; };
+        cp.slot = {par:g, x:cx, y:cp.z1 + (cp.z1 < z0 + 1 ? z0 + Tk : 0.9), z:d*0.5, s:Math.min(18, (cp.z2 - cp.z1) - 8, (cp.x2 - cp.x1)*0.5, d*0.45)};
+      } else {
+        const mv = new T.Group(), L = d - 2*Tk - 1, th = (cp.z2 - cp.z1)*0.7, P = Math.min(L*0.75, 40), y0 = d - Tk - L;
+        g.add(mv);
+        B(cp.x1 + 0.15, d - Tk, cp.x2 - 0.15, d, cp.z1 + 0.15, cp.z2 - 0.15, bm, mv);
+        B(cp.hx - 7, d, cp.hx + 7, d + 2, cp.hz[0] - 0.8, cp.hz[0] + 0.8, hm, mv);
+        B(cp.x1 + 2, y0, cp.x2 - 2, d - Tk, cp.z1 + 1.5, cp.z1 + 2.5, im, mv);
+        B(cp.x1 + 2, y0, cp.x1 + 3, d - Tk, cp.z1 + 1.5, cp.z1 + 1.5 + th, im, mv); B(cp.x2 - 3, y0, cp.x2 - 2, d - Tk, cp.z1 + 1.5, cp.z1 + 1.5 + th, im, mv);
+        B(cp.x1 + 2, y0, cp.x2 - 2, y0 + 1, cp.z1 + 1.5, cp.z1 + 1.5 + th, im, mv);
+        cp.apply = e => { mv.position.z = e*P; };
+        cp.slot = {par:mv, x:cx, y:cp.z1 + 2.5, z:d - Tk - P*0.5, s:Math.min(15, (cp.z2 - cp.z1) - 5, (cp.x2 - cp.x1)*0.4, P*0.8)};
+      }
+      cp.apply(cp.a*cp.a*(3 - 2*cp.a));
+    }
+    cb.fu.grp.add(g); cb.ov = g;
+    for(const o of cb.hid) o.visible = false;
+  };
+  const cabRestore = cb => {
+    if(!cb.ov) return;
+    cb.fu.grp.remove(cb.ov); cb.ov = null;
+    for(const o of cb.hid || []) o.visible = true;
+    for(const cp of cb.comps){ cp.a = 0; cp.target = 0; cp.toy = null; cp.apply = null; }
+    v.dirty = true;
+  };
+  const cabToggle = (cb, cp) => {
+    if(!cb.ov) cabBuild(cb);
+    cp.target = cp.target ? 0 : 1;
+    if(cp.target && !cp.toy && cp.slot && cp.slot.s > 4){ const t = toyMake(cp.slot.s); t.position.set(cp.slot.x, cp.slot.y, cp.slot.z); cp.slot.par.add(t); cp.toy = t; }
+    v.dirty = true;
+  };
+  let cabLast = performance.now();
+  v.cabTick = () => {
+    const now = performance.now(), dt = Math.min(0.05, (now - cabLast)/1000); cabLast = now;
+    for(const cb of cabs.values()){ if(!cb.ov) continue;
+      let any = false;
+      for(const cp of cb.comps){
+        if(cp.a!==cp.target){ cp.a = cp.target > cp.a ? Math.min(1, cp.a + dt*2.6) : Math.max(0, cp.a - dt*2.6); cp.apply?.(cp.a*cp.a*(3 - 2*cp.a)); v.dirty = true;
+          if(cp.a===0 && cp.toy){ cp.toy.parent?.remove(cp.toy); cp.toy = null; } }
+        if(cp.a > 0 || cp.target > 0) any = true;
+      }
+      if(!any) cabRestore(cb);
+    }
+  };
+  const cabWord = (cb, cp) => cb.i.t==='fridge' ? (cp.freezer ? 'морозилку' : 'холодильник') : cp.kind==='drawer' ? 'ящик' : 'дверцу';
   const doorNear = () => {
     const W = v.walk; if(!W || !doorKey) return;
     /* an open door stays in reach from where opening it put you (version 271) */
@@ -12262,8 +12747,33 @@ function build3d(T){
       /* of two doors in reach, the one nearest the middle of the view wins (version 283) */
       const c = d < 1 ? 1 : (dx*fx + dz*fz)/d, score = d*(2 - c);
       if(d < (l.isOpen ? l.lw + 140 : 120) && c > 0.64 && score < bd){ bd = score; best = l; } }
-    W.near = best; doorKey.hidden = !best;
-    if(best) doorKey.querySelector('.v3d-dk-t').textContent = best.isOpen ? 'закрыть дверь' : 'открыть дверь';
+    /* sitting or lying (version 304): the key stands one up */
+    const kt = doorKey.querySelector('.v3d-dk-t');
+    if(W.sit){ W.near = null; W.act = {kind:'stand'}; doorKey.hidden = false; kt.textContent = 'встать'; return; }
+    /* a seat or bed in reach and in view, or a light switch – whichever is nearest the middle of the view, a door too */
+    let act = null;
+    for(const sw of wSw){ const dx = sw.c[0] - W.x, dz = sw.c[1] - W.z, d = Math.hypot(dx, dz), c = d < 1 ? 1 : (dx*fx + dz*fz)/d, score = d*(2 - c);
+      if(d < 110 && c > 0.64 && score < bd){ bd = score; best = null; act = {kind:'sw'}; } }
+    /* a seat: within 100 cm of its edge on the plan (a wide bed counts from its side; a bedspread hangs out past the edge
+       and keeps one about 75 cm off it), the nearest point of it in view */
+    if(W.y < 5) for(const i of wSeats){ const bb = bbox(i), px = Math.max(bb.x1, Math.min(bb.x2, W.x)), pz = Math.max(bb.y1, Math.min(bb.y2, W.z));
+      const dx = px - W.x, dz = pz - W.z, d = Math.hypot(dx, dz), c = d < 1 ? 1 : (dx*fx + dz*fz)/d, score = d*(2 - c);
+      if(d < 100 && c > 0.64 && score < bd){ bd = score; best = null; act = {kind:'seat', seat:seatOf(i, W)}; } }
+    /* a cabinet's door or drawer: the piece within 100 cm and in view, of its doors and drawers the one nearest where one
+       looks (up and down too) */
+    if(wCabItems.length){ const ey = (W.y || 0) + (W.eye ?? EYE), cp0 = Math.cos(W.pitch), L3 = [cp0*fx, Math.sin(W.pitch), cp0*fz];
+      for(const i of wCabItems){ const bb = bbox(i), px = Math.max(bb.x1, Math.min(bb.x2, W.x)), pz = Math.max(bb.y1, Math.min(bb.y2, W.z));
+        const dh = Math.hypot(px - W.x, pz - W.z); if(dh > 100) continue;
+        const cb = cabOf(i); if(!cb) continue;
+        for(const cp of cb.comps){ const p = cabPt(cb, (cp.x1 + cp.x2)/2, (cp.z1 + cp.z2)/2, cb.d), dx = p[0] - W.x, dy = p[1] - ey, dz = p[2] - W.z, d3 = Math.hypot(dx, dy, dz) || 1;
+          const c = (dx*L3[0] + dy*L3[1] + dz*L3[2])/d3, score = Math.max(dh, 20)*(1 + 6*(1 - c));
+          if(c > 0.55 && score < bd){ bd = score; best = null; act = {kind:'cab', cb, cp}; } } } }
+    W.near = best; W.act = act; doorKey.hidden = !best && !act;
+    if(best && !best.isOpen && !best.signFresh) setTimeout(()=>{ if(v.walk) doorPrep(best); }, 0);
+    if(best) kt.textContent = best.isOpen ? 'закрыть дверь' : 'открыть дверь';
+    else if(act?.kind==='sw') kt.textContent = lampsLit() ? 'выключить свет' : 'включить свет';
+    else if(act?.kind==='cab') kt.textContent = (act.cp.target ? 'закрыть ' : 'открыть ') + cabWord(act.cb, act.cp);
+    else if(act) kt.textContent = act.seat.lay ? 'лечь' : 'сесть';
   };
   /* opening a door (version 271): you step back out of the leaf's way and turn to what is behind it – the sign, the cat… */
   const doorLook = l => {
@@ -12281,11 +12791,27 @@ function build3d(T){
       from:{x:W.x, z:W.z, yaw:W.yaw, pitch:W.pitch}, t:0, dur:m.userData.glide || 0.7};
     v.dirty = true;
   };
-  v.walkDoor = () => { const l = v.walk?.near; if(!l) return; audioWake(); doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
+  v.walkDoor = () => { const W = v.walk; if(!W) return;
+    if(W.glide?.lock) return;
+    if(W.sit){ standUp(); doorNear(); return; }
+    if(W.act?.kind==='seat'){ sitDown(W.act.seat); doorNear(); return; }
+    if(W.act?.kind==='cab'){ cabToggle(W.act.cb, W.act.cp); doorNear(); return; }
+    if(W.act?.kind==='sw'){ v.light.lampsOn = !lampsLit(); light3dSave(v.light); placeDays(); v.dirty = true; doorNear(); return; }
+    const l = W.near; if(!l) return; audioWake();
+    const now = performance.now(); if(now - (l.at || 0) < 600) return; l.at = now; doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
+  /* crouch / stand up (version 306: a press, not held); the touch button shows it pressed */
+  v.walkCrouch = () => { const W = v.walk; if(!W || W.sit) return; W.crouchT = !W.crouchT;
+    v.el.querySelector('.v3d-crouchb')?.setAttribute('aria-pressed', String(W.crouchT)); v.dirty = true; };
+  /* the jump: only from something one stands on (not in the air) */
+  v.walkJump = () => { const W = v.walk; if(!W || W.sit || W.glide?.lock || W.vy || W.y > groundAt(W.x, W.z, W.y) + 0.5) return;
+    W.glide = null; W.vy = Math.sqrt(2*GRAV*JUMP); v.dirty = true; };
   v.walkStart = () => {
     if(v.walk) return;
     if(v.moving) moveMode3d(false); v.drop?.(); pick3d(null); insp3d(null);
     wPlants = v.dcats?.plants===false || !v.decor ? [] : (state.decor?.[room.id]?.plants || v.autoPlants || []).filter(p=>Number.isFinite(p.x));
+    try{ takeParts(); }catch(_){ wParts = []; }
+    wSw = v.switches.length ? v.switches : v.swSpare;
+    for(const sw of v.swSpare) sw.mesh.visible = !v.switches.length;
     /* start just inside the door, looking into the room; without a door – near the middle of the floor */
     let s = null;
     const door = items.find(i=>isOpening(i) && i.t==='door' && E[i.side]);
@@ -12295,7 +12821,7 @@ function build3d(T){
       for(let r = 0; r <= 800 && !s; r += 15) for(let a = 0; a < 24 && !s; a++){ const x = c[0] + r*Math.cos(a*Math.PI/12), z = c[1] + r*Math.sin(a*Math.PI/12);
         if(walkable(x, z)) s = [x, z, Math.atan2(c[0] - x, c[1] - z) || 0]; } }
     if(!s){ v.el.querySelector('.v3d-shotmsg').textContent = 'В этой комнате негде встать: всё занято мебелью.'; return; }
-    v.walk = {x:s[0], z:s[1], yaw:s[2], pitch:-0.08, keys:new Set(), joy:[0, 0], last:performance.now(), saved:{...st}};
+    v.walk = {x:s[0], z:s[1], y:0, vy:0, eye:EYE, crouchT:false, yaw:s[2], pitch:-0.08, keys:new Set(), joy:[0, 0], last:performance.now(), saved:{...st}};
     /* st.phi near the horizon: the hanging lamps show whole, as from the side; the lens – the last one used, 17 mm at first */
     v.goal = null; st.phi = 1.45; v.walkLens(walkLensMm);
     walkUi(true); v.dirty = true;
@@ -12321,32 +12847,49 @@ function build3d(T){
     walkUi(false); v.el.classList.remove('walk-clean'); v.dirty = true;
     for(const l of v.leaves){ l.isOpen = false; if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } }
     if(doorKey) doorKey.hidden = true;
+    for(const sw of v.swSpare) sw.mesh.visible = false;
+    for(const cb of cabs.values()) cabRestore(cb);
     showDoors3d();
   };
   const walkStep = () => {
     const W = v.walk, now = performance.now(), dt = Math.min(0.05, (now - W.last)/1000), K = c=>W.keys.has(c); W.last = now;
+    /* up and down (version 302): flying after a jump or falling off an edge; a low step is climbed smoothly */
+    const held = W.sit || W.glide?.lock;
+    if(!held){ const g = groundAt(W.x, W.z, W.y);
+      if(W.vy || W.y > g + 0.5){
+        W.vy -= GRAV*dt; let ny = W.y + W.vy*dt;
+        if(W.vy > 0 && ny + W.eye + 12 > H){ ny = Math.max(W.y, H - W.eye - 12); W.vy = 0; }
+        if(ny <= g){ ny = g; W.vy = 0; }
+        W.y = ny; v.dirty = true;
+      } else if(W.y < g){ W.y = Math.min(g, W.y + 150*dt); v.dirty = true; } }
+    if(!held){ const want = W.crouchT ? CROUCH : EYE;
+      if(want > W.eye && !fits(W.x, W.z, W.y, Math.min(want, W.eye + 300*dt))){ /* no room to stand up yet */ }
+      else if(want !== W.eye){ W.eye = want > W.eye ? Math.min(want, W.eye + 300*dt) : Math.max(want, W.eye - 300*dt); v.dirty = true; } }
     /* turning the head may bring a door into view or out of it */
-    if(W.yaw !== W.nearYaw){ W.nearYaw = W.yaw; doorNear(); }
+    if(W.yaw !== W.nearYaw || W.pitch !== W.nearPitch){ W.nearYaw = W.yaw; W.nearPitch = W.pitch; doorNear(); }
     const turn = (K('ArrowLeft') ? 1 : 0) - (K('ArrowRight') ? 1 : 0);
     /* the glide after a door opened: smooth, and any key or the stick takes over at once */
     if(W.glide){
-      if(turn || W.keys.size || Math.hypot(W.joy[0], W.joy[1]) > 0.05) W.glide = null;
+      if(!W.glide.lock && (turn || W.keys.size || Math.hypot(W.joy[0], W.joy[1]) > 0.05)) W.glide = null;
       else {
         const G = W.glide, A = G.from; G.t += dt;
         const p = Math.min(1, G.t/G.dur), e = p*p*(3 - 2*p);
         let dy = G.yaw - A.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
         W.x = A.x + (G.x - A.x)*e; W.z = A.z + (G.z - A.z)*e; W.yaw = A.yaw + dy*e; W.pitch = A.pitch + (G.pitch - A.pitch)*e;
+        if(G.y!=null){ W.y = A.y + (G.y - A.y)*e; W.eye = A.eye + (G.eye - A.eye)*e; }
         if(p >= 1) W.glide = null;
         v.dirty = true; doorNear(); return;
       }
     }
     if(turn){ W.yaw += turn*1.8*dt; v.dirty = true; }
+    /* seated: the arrows still turn the head; a step or the stick stands one up */
+    if(W.sit){ if(['KeyW','KeyS','KeyA','KeyD','ArrowUp','ArrowDown'].some(K) || Math.hypot(W.joy[0], W.joy[1]) > 0.3){ standUp(); doorNear(); } return; }
     let f = (K('KeyW') || K('ArrowUp') ? 1 : 0) - (K('KeyS') || K('ArrowDown') ? 1 : 0) - W.joy[1], r = (K('KeyD') ? 1 : 0) - (K('KeyA') ? 1 : 0) + W.joy[0];
     const L = Math.hypot(f, r); if(L < 0.05) return;
     if(L > 1){ f /= L; r /= L; }
-    const sp = (K('ShiftLeft') || K('ShiftRight') ? 300 : 140)*dt, sy = Math.sin(W.yaw), cy = Math.cos(W.yaw);
+    const sp = (K('ShiftLeft') || K('ShiftRight') ? 300 : 140)*dt*(W.eye < EYE - 10 ? 0.5 : 1), sy = Math.sin(W.yaw), cy = Math.cos(W.yaw);
     const dx = (f*sy - r*cy)*sp, dz = (f*cy + r*sy)*sp;
-    if(walkable(W.x + dx, W.z + dz)){ W.x += dx; W.z += dz; } else if(walkable(W.x + dx, W.z)) W.x += dx; else if(walkable(W.x, W.z + dz)) W.z += dz;
+    if(fits(W.x + dx, W.z + dz, W.y)){ W.x += dx; W.z += dz; } else if(fits(W.x + dx, W.z, W.y)) W.x += dx; else if(fits(W.x, W.z + dz, W.y)) W.z += dz;
     v.dirty = true; doorNear();
   };
   /* the stick (touch screens): its listeners are put on once per 3D window; they act on whatever room is open */
@@ -12373,6 +12916,7 @@ function build3d(T){
     /* zoomed in or out a lot: the handles are drawn again at the new size */
     if(v.giz.visible && v.gizItem && Math.abs(st.r - v.gizR) > v.gizR*0.15){ const p = v.giz.position.clone(); v.gizmo(v.gizItem); v.giz.position.copy(p); }
     if(v.walk) walkStep();
+    if(v.walk) v.cabTick?.();
     if(v.walk) for(const l of v.leaves){ const u = l.sign?.userData; if(l.isOpen && (u?.fall || u?.tick)){ u.fall?.(); u.tick?.(); v.dirty = true; } }
     if(!v.dirty) return;
     v.dirty = false;
@@ -12381,8 +12925,8 @@ function build3d(T){
     /* looking straight down, "up" on the screen is the top of the plan */
     cam.up.set(st.phi < 0.05 ? -Math.sin(st.theta) : 0, st.phi < 0.05 ? 0 : 1, st.phi < 0.05 ? -Math.cos(st.theta) : 0);
     cam.lookAt(st.tx, ty, st.tz);
-    if(v.walk){ const W = v.walk, cp = Math.cos(W.pitch); cam.position.set(W.x, EYE, W.z); cam.up.set(0, 1, 0);
-      cam.lookAt(W.x + cp*Math.sin(W.yaw)*100, EYE + Math.sin(W.pitch)*100, W.z + cp*Math.cos(W.yaw)*100); }
+    if(v.walk){ const W = v.walk, cp = Math.cos(W.pitch), ey = Math.min((W.eye ?? EYE) + (W.y || 0), H - 8); cam.position.set(W.x, ey, W.z); cam.up.set(0, 1, 0);
+      cam.lookAt(W.x + cp*Math.sin(W.yaw)*100, ey + Math.sin(W.pitch)*100, W.z + cp*Math.cos(W.yaw)*100); }
     /* walls between the camera and the room turn see-through, like a doll's house */
     fadeLamps();
     for(const w of v.walls){
@@ -12423,6 +12967,9 @@ document.addEventListener('keydown', e=>{
     if(e.target!==document.body && e.target.blur && (typing || e.target.tagName==='BUTTON')) e.target.blur();
     if(e.key==='Escape'){ e.preventDefault(); v3d.walkStop(); }
     else if(e.code==='KeyE' && !e.ctrlKey && !e.metaKey && !e.repeat){ e.preventDefault(); v3d.walkDoor?.(); }
+    else if(e.code==='Space' && !e.ctrlKey && !e.metaKey){ e.preventDefault(); if(!e.repeat) v3d.walkJump?.(); }
+    /* C: crouch, C again: stand up (version 306; was held before) – the same as the button on a touch screen */
+    else if(e.code==='KeyC' && !e.ctrlKey && !e.metaKey){ e.preventDefault(); if(!e.repeat) v3d.walkCrouch?.(); }
     else if(['Equal','NumpadAdd','Minus','NumpadSubtract'].includes(e.code) && !e.ctrlKey && !e.metaKey){ e.preventDefault(); v3d.walkLens?.(walkLensMm + (/Equal|Add/.test(e.code) ? 3 : -3)); }
     else if(WALK_KEYS.includes(e.code) && !e.ctrlKey && !e.metaKey){ e.preventDefault(); v3d.walk.keys.add(e.code); v3d.dirty = true; }
     return; }
@@ -12447,6 +12994,7 @@ function audioWake(){
     return audioCtx;
   }catch(_){ return null; }
 }
+let toyBag = [];   /* the toys inside cabinets in the walk (version 305): each once, in a random order */
 let walkLensMm = 17;   /* the walk's lens, mm – kept while the page is open */
 const WALK_KEYS = ['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight'];
 document.addEventListener('keyup', e=>{ if(v3d?.walk) v3d.walk.keys.delete(e.code); });
@@ -12713,6 +13261,7 @@ app.addEventListener('click', e=>{
   const de = e.target.closest('[data-delexp]'); if(de){ state.expenses = state.expenses.filter(x=>x.id!==de.dataset.delexp); changed(); render(); return; }
   const a = e.target.closest('[data-act]'); if(!a) return;
   const act = a.dataset.act;
+  if(act==='traceblank'){ traceBlank(); return; }
   if(act==='addroom'){ state.rooms.push({id:uid(),name:'Новая комната',l:3,w:3,h:2.7,floor:'laminate',walls:'paint',openings:mkOpenings(1,1)}); sizesChanged(); }
   if(act==='roomsreal'){ state.roomsExample=false; state.roomsEdited=false; }
   /* leaving the example: the questionnaire of one's own project (the example is replaced when it is created) */
@@ -13383,11 +13932,50 @@ function aptCornerMove(d, p){
 }
 /* a wall made v cm long: if the next wall stands square to it, that wall moves along (the corners stay 90°); otherwise
    only the far corner moves, as «Длина, см» on «Планировка» */
-function aptSetLen(room, k, v){
-  const base = shapeBase(room), n = base.poly.length, g = geoFromPoly(base.poly), e = g.edges[k], en = g.edges[(k+1)%n];
-  const dot = -(e.u[0]*en.n[0] + e.u[1]*en.n[1]);
+function aptSetLen(room, k, v, end){
+  const base = shapeBase(room), n = base.poly.length, g = geoFromPoly(base.poly), e = g.edges[k];
+  /* the wall at the moving end goes along, parallel, when it stands at 90° (the corners stay right); end 'a' – the wall
+     before this one (version 296), otherwise the one after */
+  if(end==='a'){
+    const ep = g.edges[(k-1+n)%n], dot = e.u[0]*ep.n[0] + e.u[1]*ep.n[1];
+    if(Math.abs(dot) > 0.999) return applyShape(room, base, moveEdge(base.poly, (k-1+n)%n, (v - e.len)*Math.sign(dot)), 'same');
+    return setWallLength(room, k, v, 'a');
+  }
+  const en = g.edges[(k+1)%n], dot = -(e.u[0]*en.n[0] + e.u[1]*en.n[1]);
   if(Math.abs(dot) > 0.999) return applyShape(room, base, moveEdge(base.poly, (k+1)%n, (v - e.len)*Math.sign(dot)), 'same');
   return setWallLength(room, k, v);
+}
+/* which end of wall k moves when its length is typed over its number (version 296, chosen by the owner):
+   - the end whose next wall does not stand against another room of the flat (closer than 60 cm, face to face) – so
+     the room does not run into its neighbour or come away from it;
+   - if both ends or neither – the right end of a wall across the screen, the lower end of a wall up and down, as the
+     wall is seen where its number was typed (`world`: on the plan of the flat, turned as the room stands there).
+   Only rooms put in their place on the plan of the flat count as neighbours (not the ones still in a row). */
+function wallMoveEnd(room, k, world){
+  const poly = shapeBase(room).poly, g = geoFromPoly(poly), n = poly.length, e = g.edges[k];
+  const W = p => world && validAt(room.at) ? aptPt(room.at, p) : world ? aptPt(aptPlaces()[room.id] || {x:0, y:0, r:0}, p) : p;
+  const against = j => {
+    if(!validAt(room.at)) return false;
+    const ej = g.edges[j], a = aptPt(room.at, ej.a), b = aptPt(room.at, ej.b), len = Math.hypot(b[0]-a[0], b[1]-a[1]); if(len < 1) return false;
+    const u = [(b[0]-a[0])/len, (b[1]-a[1])/len], nn = aptVec(room.at, ej.n);
+    for(const r of state.rooms){
+      if(r.id===room.id || !validAt(r.at)) continue;
+      const q = shapeBase(r).poly, m = q.length;
+      for(let i = 0; i < m; i++){
+        const c = aptPt(r.at, q[i]), d = aptPt(r.at, q[(i+1)%m]), l2 = Math.hypot(d[0]-c[0], d[1]-c[1]); if(l2 < 1) continue;
+        const v = [(d[0]-c[0])/l2, (d[1]-c[1])/l2];
+        if(u[0]*v[0] + u[1]*v[1] > -0.99) continue;
+        const gap = (c[0]-a[0])*(-nn[0]) + (c[1]-a[1])*(-nn[1]); if(gap < -2 || gap > 60) continue;
+        const t1 = (c[0]-a[0])*u[0] + (c[1]-a[1])*u[1], t2 = (d[0]-a[0])*u[0] + (d[1]-a[1])*u[1];
+        if(Math.min(len, Math.max(t1, t2)) - Math.max(0, Math.min(t1, t2)) > Math.min(30, 0.3*len)) return true;
+      }
+    }
+    return false;
+  };
+  const ta = against((k-1+n)%n), tb = against((k+1)%n);
+  if(ta!==tb) return ta ? 'b' : 'a';
+  const A = W(e.a), B = W(e.b), dx = B[0]-A[0], dy = B[1]-A[1];
+  return Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'b' : 'a') : (dy > 0 ? 'b' : 'a');
 }
 /* a wall's length typed over its number on the plan of the flat */
 function aptDimEdit(el){
@@ -13400,14 +13988,31 @@ function aptDimEdit(el){
   inp.setAttribute('aria-label', 'Длина стены, см');
   inp.style.left = (b.left + b.width/2 - wb.left) + 'px'; inp.style.top = (b.top + b.height/2 - wb.top) + 'px';
   wrap.appendChild(inp); inp.focus(); inp.select();
+  /* the end that will move (wallMoveEnd), shown by an arrow at it along the wall: outward while the typed length is
+     longer, inward while shorter (version 296) */
+  const room0 = state.rooms.find(r=>r.id===id), end = wallMoveEnd(room0, k, !onPlan);
+  const svgEl = el.ownerSVGElement || el.closest('svg'), toScr = s => { const [x, y] = String(s || '').split(',').map(Number);
+    const m = svgEl && svgEl.getScreenCTM(); if(!m || !Number.isFinite(x)) return null; const p = svgEl.createSVGPoint(); p.x = x; p.y = y; return p.matrixTransform(m); };
+  const pa = toScr(el.dataset.a), pb = toScr(el.dataset.b);
+  let arrow = null;
+  if(pa && pb){
+    const [from, to] = end==='a' ? [pb, pa] : [pa, pb], ang = Math.atan2(to.y - from.y, to.x - from.x)*180/Math.PI;
+    arrow = document.createElement('span'); arrow.className = 'adim-arrow'; arrow.setAttribute('aria-hidden', 'true');
+    arrow.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 12h14M13 6l6 6-6 6"/></svg>';
+    arrow.style.left = (to.x - wb.left) + 'px'; arrow.style.top = (to.y - wb.top) + 'px';
+    const turn = () => { const v = num(inp.value); arrow.style.transform = `translate(-50%,-50%) rotate(${ang + (v && v < was ? 180 : 0)}deg)`; };
+    turn(); inp.addEventListener('input', turn);
+    wrap.appendChild(arrow);
+  }
+  inp.title = `Длина стены, см – Enter, чтобы применить. Сдвинется край, отмеченный стрелкой`;
   let done = false;
   const finish = ok => {
     if(done) return; done = true;
-    const v = Math.round(num(inp.value)); inp.remove();
+    const v = Math.round(num(inp.value)); inp.remove(); arrow?.remove();
     if(!ok || !(v >= 10) || v===was) return;
     const room = state.rooms.find(r=>r.id===id); if(!onPlan) aptFix(aptPlaces());
     const prev = ui.planRoom; ui.planRoom = id; pushUndo(); ui.planRoom = prev;
-    let res = false; dwKeep(()=>{ ui.planRoom = id; setGeom(room); setCurrentWalls(room); res = aptSetLen(room, k, v); });
+    let res = false; dwKeep(()=>{ ui.planRoom = id; setGeom(room); setCurrentWalls(room); res = aptSetLen(room, k, v, end); });
     if(res) sizesChanged(); else { ui.undo[id]?.pop(); toast('Такая длина не получится: стены пересекутся или станут короче 10 см.'); }
     changed(); render();
   };
