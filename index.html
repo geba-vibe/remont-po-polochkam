@@ -293,6 +293,13 @@ td input[type=number]{width:104px}
 .apt-vbar > span:first-child{margin-right:auto}
 .apt-vbar .btn.v3d-tq{background:var(--accent2);border-color:var(--accent2);color:var(--accent2-ink)}
 .apt-vbar .btn.v3d-tq:hover{filter:brightness(1.06)}
+@media (max-width:560px){
+  .row.apt-vbar{display:grid;grid-template-columns:1fr 1fr auto;align-items:center}
+  .apt-vbar > span:first-child{grid-column:1 / 3;grid-row:1;margin:0}
+  .apt-vbar [data-apt="unv"]{grid-column:3;grid-row:1}
+  .apt-vbar [data-apt="view3d"]{grid-column:1;grid-row:2;min-width:0}
+  .apt-vbar [data-apt="openv"]{grid-column:2 / 4;grid-row:2;min-width:0}
+}
 .c-where{margin:-4px 0 14px;font-size:14px}
 .c-where summary{cursor:pointer;color:var(--accent);width:max-content}
 .c-where ul{margin:8px 0 0;padding-left:20px;color:var(--muted);display:grid;gap:4px}
@@ -498,6 +505,7 @@ p.lead,.note,.hint{text-wrap:pretty}
   .lay-top .seg button{flex:1}
 }
 @media (max-width:860px){.lay{grid-template-columns:minmax(0,1fr)}}
+svg.plan.locked{touch-action:pan-y}
 svg.plan{display:block;width:100%;height:auto;max-height:72vh;touch-action:none;user-select:none;-webkit-user-select:none;background-color:var(--plan-bg);border-radius:8px}
 svg.plan:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .plan *{vector-effect:non-scaling-stroke}
@@ -535,6 +543,11 @@ svg.plan:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .zb:hover{border-color:var(--accent)}
 .zb:disabled{opacity:.35;cursor:default}
 .touchnote{display:none;margin:0}
+/* «Изменять» under the plan: only on touch screens (version 282) */
+.zb.zb-edit{display:none;width:auto;gap:6px;padding:0 14px;font-size:14px;grid-auto-flow:column}
+.zb-edit svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
+.zb-edit.on{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (pointer:coarse){.zb.zb-edit{display:grid}}
 .zb.b3d{width:auto;padding:0 12px;font:600 14px var(--f-body);color:var(--accent);border-color:var(--accent);flex:0 0 auto}
 /* 3D view: a large window over the page; on a phone, the whole screen */
 body.v3d-on{overflow:hidden}
@@ -686,6 +699,12 @@ body.v3d-on{overflow:hidden}
   display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;padding:6px 6px 6px 14px;border-radius:12px;font-size:13px;color:var(--ink);
   border:1px solid var(--glass-line, var(--line));background:var(--glass, var(--surface));backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5)}
 .v3d-walkbar[hidden],.v3d-joy[hidden]{display:none}
+/* the walk with the panels hidden (version 282): only the scene, the stick, the door key and a small eye to bring them back */
+.v3d-uncl{display:none}
+.v3d.walking.walk-clean .v3d-head,.v3d.walking.walk-clean .v3d-walkbar,.v3d.walking.walk-clean .v3d-foot{visibility:hidden}
+.v3d.walking.walk-clean .v3d-uncl{display:grid;place-items:center;position:absolute;z-index:7;top:calc(10px + env(safe-area-inset-top, 0px));right:10px;width:40px;height:40px;padding:0;border-radius:12px;cursor:pointer;
+  border:1px solid var(--glass-line, var(--line));background:var(--glass, var(--surface));color:var(--ink);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5)}
+.v3d-uncl svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6}
 /* the walk's lens (version 256): focal length in mm of a full-frame camera – the vertical angle of view is 2·atan(12/f) */
 .v3d-lens{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
 .v3d-lens input{width:110px;accent-color:var(--accent);padding:0;border:0;background:none}
@@ -801,6 +820,7 @@ body.v3d-on{overflow:hidden}
 .plan .ep .eb{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
 .plan .ep .et{stroke:var(--accent);stroke-width:1.4}
 .plan .ep .em{font-family:var(--f-body);font-weight:600;fill:var(--accent);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.plan .ep .eh{font-family:var(--f-mono);fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;paint-order:stroke;stroke:var(--plan-floor, #fff);stroke-width:3px;stroke-linejoin:round}
 .plan .ep.w .eb,.plan .ep.w .et{stroke:var(--warn)} .plan .ep.w .em{fill:var(--warn)}
 .plan .ep.p .eb{fill:var(--bad-soft)} .plan .ep.p .eb,.plan .ep.p .et{stroke:var(--bad)} .plan .ep.p .em{fill:var(--bad)}
 .plan .ep.l .eb,.plan .ep.l .et{stroke:var(--good)} .plan .ep.l .em{fill:var(--good)}
@@ -867,6 +887,10 @@ body.v3d-on{overflow:hidden}
 .chk-res b{font-weight:600}
 .chk-res ul{margin:6px 0 0;padding-left:18px}
 @media (max-width:560px){.help-dlg{padding:8px}.help-box{max-height:94vh}.help-head{gap:10px}}
+/* «Стекло»: the sheet is see-through there and the page showed through the text (version 282) – almost solid, the page behind blurred */
+:root.skin-glass .help-dlg{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+:root.skin-glass .help-box{background:rgba(250,250,248,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+:root.skin-glass:is([data-theme="dark"]:not(.ui-light),.ui-dark) .help-box{background:rgba(26,30,28,.97)}
 .shop-box{width:min(560px,100%);max-height:min(86vh,760px);display:flex;flex-direction:column;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
 .shop-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
 .shop-head b{flex:1;font-weight:600;font-size:15px;min-width:0}
@@ -5109,7 +5133,7 @@ function planSvg(L, W, items, bad){
   /* the whole drawing; when the plan is zoomed in, only a part of it is shown */
   planBox = {x:-pad, y:-pad, w:L+pad*2, h:W+pad*2};
   const vb = planView(planBox);
-  return `<svg class="plan${pmode() ? ' elec-mode' : ''}" id="plan" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" tabindex="0" role="application" aria-label="План комнаты, ${n} ${plural(n,'стена','стены','стен')}. Выделите предмет и двигайте стрелками.">
+  return `<svg class="plan${pmode() ? ' elec-mode' : ''}${planLocked() ? ' locked' : ''}" id="plan" viewBox="${vb.x} ${vb.y} ${vb.w} ${vb.h}" tabindex="0" role="application" aria-label="План комнаты, ${n} ${plural(n,'стена','стены','стен')}. Выделите предмет и двигайте стрелками.">
     <defs><filter id="psh" x="-10%" y="-10%" width="120%" height="125%"><feGaussianBlur stdDeviation="6"/><feOffset dy="6"/></filter><pattern id="g50" width="50" height="50" patternUnits="userSpaceOnUse"><path class="gl" d="M50 0H0V50"/></pattern><pattern id="wh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="whb" width="6" height="6"/><line class="whl" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>
     <g class="pshadow" filter="url(#psh)"><polygon points="${floorPts}"/>${bands.replace(/<title>[^<]*<\/title>/g, '').replace(/ data-[a-z]+="[^"]*"/g, '')}</g>
     <polygon class="floor" data-bg="1" points="${floorPts}"/>
@@ -5331,8 +5355,9 @@ function vLayout(){
           <button class="zb" data-zoom="out" aria-label="Уменьшить план" title="Уменьшить" ${ui.view[room.id]?'':'disabled'}>−</button>
           <button class="zb" data-zoom="fit" aria-label="Показать комнату целиком" title="Вся комната" ${ui.view[room.id]?'':'disabled'}>⤢</button>
         </div>
+        <button class="zb zb-edit${ui.planEdit ? ' on' : ''}" data-planedit aria-pressed="${!!ui.planEdit}" title="${ui.planEdit ? 'Закончить – план снова только для просмотра' : 'Двигать мебель, стены и точки на плане'}"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.6 2.6l2.8 2.8L5.6 13.2 2.4 13.6l.4-3.2z"/></svg><span>${ui.planEdit ? 'Готово' : 'Изменять'}</span></button>
         <span class="zb-ur">${undoBtns(room.id)}</span>
-        <p class="note touchnote">Двумя пальцами план можно увеличить, одним – сдвинуть увеличенный.</p>
+        <p class="note touchnote">${ui.planEdit ? 'Двумя пальцами план можно увеличить, одним – сдвинуть увеличенный.' : 'План пока только для просмотра – листайте страницу спокойно. Чтобы двигать, нажмите «Изменять».'}</p>
         ${em ? '' : `<details class="viewset" data-viewset ${ui.viewOpen ? 'open' : ''}><summary title="Привязка, шаг размеров, подписи, углы и расстояния"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.5"/><circle cx="5" cy="11.5" r="1.5"/></svg>Вид</summary><div class="viewset-pop">
         <label class="check"><input type="checkbox" id="lay-snap" data-snap ${ui.snap?'checked':''}> Привязка к краям и центрам</label>
         <label class="check">Шаг размеров <select id="lay-step" data-step>${[1,5,10].map(v=>`<option value="${v}" ${sizeStep()===v?'selected':''}>${v} см</option>`).join('')}</select></label>
@@ -6880,10 +6905,15 @@ function elecSvg(fs){
     const e = GEO.edges[p.side] || GEO.edges[0], o = elecPos(p), off = r*(1.3 + 2.1*(lvl.get(p.id) || 0));
     /* keep the mark upright: its text is drawn in the plan's frame, not the wall's */
     const cx = o[0] + e.n[0]*off, cy = o[1] + e.n[1]*off;
+    /* the height from the floor, in cm (version 282): further into the room past the mark, or – when another point
+       stands right behind it – beside it along the wall */
+    const lv = lvl.get(p.id) || 0, behind = pts.some(q=>q!==p && !freePt(q) && q.side===p.side && Math.abs(q.along-p.along) < r*2 && (lvl.get(q.id) || 0) > lv);
+    const hx = behind ? cx + e.u[0]*r*1.75 : cx + e.n[0]*r*1.75, hy = behind ? cy + e.u[1]*r*1.75 : cy + e.n[1]*r*1.75;
     return `<g class="ep ${c}${sel}${b}" data-el="${p.id}"><title>${esc(title)}</title>`
       + `<line class="et" x1="${o[0]}" y1="${o[1]}" x2="${cx}" y2="${cy}"/>`
       + `<circle class="eb" cx="${cx}" cy="${cy}" r="${r}"/>`
-      + `<text class="em" x="${cx}" y="${cy}" font-size="${r*(mark.length > 2 ? 0.68 : 0.95)}">${mark}</text></g>`;
+      + `<text class="em" x="${cx}" y="${cy}" font-size="${r*(mark.length > 2 ? 0.68 : 0.95)}">${mark}</text>`
+      + `<text class="eh" x="${hx}" y="${hy}" font-size="${r*0.86}">${p.h}</text></g>`;
   }).join('');
 }
 /* The sheet for the electrician: every room with electrics – its plan with sizes and numbered points, and a table
@@ -7103,7 +7133,7 @@ function dwPlan(room, mode, maxW, maxH){
         + `#${id} .b{fill:#fff;stroke:#000;stroke-width:${0.25*k}}#${id} .dt{fill:none;stroke:#000;stroke-width:${0.13*k}}#${id} .door{fill:none;stroke:#000;stroke-width:${0.13*k};stroke-dasharray:${1.2*k} ${0.8*k}}`
         + `#${id} .leaf{stroke:#000;stroke-width:${0.35*k}}#${id} .gapfill{fill:#fff}#${id} .winframe{fill:#fff;stroke:#000;stroke-width:${0.25*k}}#${id} .glass{stroke:#000;stroke-width:${0.13*k}}`
         + `#${id} .badge{fill:#fff;stroke:#000;stroke-width:${0.18*k}}#${id} .badge-t{fill:#000}#${id} .dw-faint .b,#${id} .dw-faint .dt{stroke:#9a9a9a}`
-        + `#${id} .eb{fill:#fff;stroke:#000;stroke-width:${0.2*k}}#${id} .et{stroke:#000;stroke-width:${0.13*k}}#${id} .em{fill:#000}#${id} .ex{stroke:#000;stroke-width:${0.2*k}}#${id} .ep.r .eb{fill:#000}#${id} .ep.r .em{fill:#fff}`;
+        + `#${id} .eb{fill:#fff;stroke:#000;stroke-width:${0.2*k}}#${id} .et{stroke:#000;stroke-width:${0.13*k}}#${id} .em{fill:#000}#${id} .ex{stroke:#000;stroke-width:${0.2*k}}#${id} .ep.r .eb{fill:#000}#${id} .ep.r .em{fill:#fff}#${id} .eh{fill:#000;text-anchor:middle;dominant-baseline:central;font-family:'Roboto Condensed','Arial Narrow',Arial,sans-serif}`;
       const body = `<style>${css}</style><defs><pattern id="${id}h" patternUnits="userSpaceOnUse" width="${1.6*k}" height="${1.6*k}" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="${1.6*k}" class="dw-h"/></pattern>${pat}</defs>`
         + `<polygon points="${GEO.poly.map(P).join(' ')}" fill="${pat ? `url(#${id}f)` : '#fff'}" stroke="none"/>${bands}${openSvg}${furnSvg}${dims}${tag}${pts}`;
       return {body, box, den, k};
@@ -9202,7 +9232,8 @@ function open3d(){
       <div class="v3d-ur-float"><span class="v3d-ur"></span></div>
       <button class="btn small v3d-fr v3d-pr" data-v3d="photo" aria-pressed="${photo3dOn()}" data-tip="${photo3dOn() ? 'Высокое качество включено – нажмите, чтобы выключить' : 'Высокое качество: мягкие тени в углах и от ламп, блеск, чёткие края (медленнее)'}" aria-label="Высокое качество"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5c0-1.1.9-2 2-2h1.6l1.2-1.8h3.4l1.2 1.8h1.6c1.1 0 2 .9 2 2v6.5c0 1.1-.9 2-2 2h-9c-1.1 0-2-.9-2-2z"/><circle cx="10" cy="10.6" r="2.9"/></svg></button>
       <button class="btn small v3d-fr" data-v3d="render" data-tip="Фотореалистичная картинка комнаты – скоро" aria-label="Фотореалистичная картинка комнаты – скоро"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3.5l1.4 3.6 3.6 1.4-3.6 1.4L9 13.5l-1.4-3.6L4 8.5l3.6-1.4z"/><path d="M15 12.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/></svg></button>
-      <div class="v3d-walkbar" hidden><span class="v3d-walk-t"></span><label class="v3d-lens" title="Фокусное расстояние, как у фотоаппарата: меньше мм – шире охват, больше – ближе и уже. Ещё колесо мыши или клавиши + и −">Объектив <input type="range" min="12" max="85" step="1" data-walklens aria-label="Фокусное расстояние, мм"><b class="v3d-lens-v"></b></label><button class="btn small" data-v3d="walkexit">Выйти из прогулки</button></div>
+      <div class="v3d-walkbar" hidden><span class="v3d-walk-t"></span><label class="v3d-lens" title="Фокусное расстояние, как у фотоаппарата: меньше мм – шире охват, больше – ближе и уже. Ещё колесо мыши или клавиши + и −">Объектив <input type="range" min="12" max="85" step="1" data-walklens aria-label="Фокусное расстояние, мм"><b class="v3d-lens-v"></b></label><button class="btn small" data-v3d="walkclean" title="Спрятать панели – больше места для вида">Спрятать панели</button><button class="btn small" data-v3d="walkexit">Выйти из прогулки</button></div>
+      <button class="v3d-uncl" type="button" data-v3d="walkclean" aria-label="Показать панели" title="Показать панели"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <div class="v3d-joy" hidden aria-hidden="true"><span></span></div>
       <button class="v3d-doorkey" type="button" data-v3d="walkdoor" hidden><kbd>E</kbd><span class="v3d-dk-t">открыть дверь</span></button>
       <div class="v3d-rail" role="toolbar" aria-label="Вид" aria-orientation="vertical">
@@ -9334,6 +9365,7 @@ function open3d(){
     if(a==='shotmood'){ shotToMood(); return; }
     if(a==='walk'){ v3d.walk ? v3d.walkStop?.() : v3d.walkStart?.(); return; }
     if(a==='walkexit'){ v3d.walkStop?.(); return; }
+    if(a==='walkclean'){ v3d.el?.classList.toggle('walk-clean'); return; }
     if(a==='walkdoor'){ v3d.walkDoor?.(); return; }
     if(a==='export'){ export3dBlender(); return; }
     if(v3d.walk && ['top','persp','zin','zout','fit','fitroom','focus'].includes(a)) v3d.walkStop?.();
@@ -12168,12 +12200,14 @@ function build3d(T){
       led.material.opacity = 1; led.visible = Math.sin(t*3) > -0.6;
     };
     /* the hiss */
-    let ac = null, gain = null, seen = 0, watch = null;
-    const stop = () => { clearInterval(watch); watch = null; if(ac){ try{ ac.close(); }catch(_){} } ac = null; };
+    /* one sound engine for the page, woken up by the tap or key that opened the door (audioWake) – a phone plays
+       nothing from an engine started on its own (version 284) */
+    let ac = null, gain = null, seen = 0, watch = null, nodes = [];
+    const stop = () => { clearInterval(watch); watch = null; for(const n of nodes){ try{ n.stop?.(); }catch(_){} try{ n.disconnect(); }catch(_){} } nodes = []; ac = null; };
     const start = () => {
-      const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+      const A = audioWake(); if(!A) return;
       try{
-        ac = new AC(); const len = ac.sampleRate*2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+        ac = A; const len = ac.sampleRate*2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
         /* noise with crackles now and then */
         for(let k = 0; k < len; k++){ d[k] = (Math.random()*2 - 1)*(Math.random() < 0.0008 ? 4 : 1); }
         const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
@@ -12182,6 +12216,7 @@ function build3d(T){
         const lfo = ac.createOscillator(); lfo.frequency.value = 0.35; const lg = ac.createGain(); lg.gain.value = 0.3; lfo.connect(lg).connect(wob.gain); lfo.start();
         gain = ac.createGain(); gain.gain.value = 0;
         src.connect(bp).connect(wob).connect(gain).connect(ac.destination); src.start();
+        nodes = [src, lfo, bp, wob, lg, gain];
         watch = setInterval(()=>{ if(performance.now() - seen > 400) stop(); }, 250);
       }catch(_){ stop(); }
     };
@@ -12190,7 +12225,7 @@ function build3d(T){
       seen = performance.now();
       if(!ac) start(); if(!ac) return;
       P.set(RX, 5, RZ); g.localToWorld(P);
-      const d = camPos.distanceTo(P), vol = 0.006 + 0.045*Math.max(0, Math.min(1, 1 - (d - 60)/320));
+      const d = camPos.distanceTo(P), vol = 0.008 + 0.06*Math.max(0, Math.min(1, 1 - (d - 60)/320));
       gain.gain.setTargetAtTime(vol, ac.currentTime, 0.15);
     };
     g.userData.stop = stop;
@@ -12198,7 +12233,10 @@ function build3d(T){
   };
   const doorSign = l => {
     if(l.sign){ l.sign.userData.stop?.(); l.g.remove(l.sign); l.sign.traverse(o=>{ o.geometry?.dispose(); for(const mt of [].concat(o.material || [])){ mt.map?.dispose(); mt.dispose(); } }); l.sign = null; }
-    const k = doorNext();
+    let k = doorNext();
+    try{ return doorDress(l, k); }catch(err){ console.warn('door surprise', err); return doorDress(l, 0); }
+  };
+  const doorDress = (l, k) => {
     const out = [l.back[0] - l.c[0], l.back[1] - l.c[1]], len = Math.hypot(out[0], out[1]) || 1, T0 = Math.max(0, len - 90);
     let m;
     if(['cat', 'dark', 'fog'].includes(DOOR_JOKES[k])){
@@ -12221,7 +12259,9 @@ function build3d(T){
     /* …and only while you look at it (within ~50° of where you look, version 273) */
     const fx = Math.sin(W.yaw), fz = Math.cos(W.yaw);
     for(const l of v.leaves){ const dx = l.c[0] - W.x, dz = l.c[1] - W.z, d = Math.hypot(dx, dz);
-      if(d < (l.isOpen ? l.lw + 140 : 120) && d < bd && (d < 1 || (dx*fx + dz*fz)/d > 0.64)){ bd = d; best = l; } }
+      /* of two doors in reach, the one nearest the middle of the view wins (version 283) */
+      const c = d < 1 ? 1 : (dx*fx + dz*fz)/d, score = d*(2 - c);
+      if(d < (l.isOpen ? l.lw + 140 : 120) && c > 0.64 && score < bd){ bd = score; best = l; } }
     W.near = best; doorKey.hidden = !best;
     if(best) doorKey.querySelector('.v3d-dk-t').textContent = best.isOpen ? 'закрыть дверь' : 'открыть дверь';
   };
@@ -12241,7 +12281,7 @@ function build3d(T){
       from:{x:W.x, z:W.z, yaw:W.yaw, pitch:W.pitch}, t:0, dur:m.userData.glide || 0.7};
     v.dirty = true;
   };
-  v.walkDoor = () => { const l = v.walk?.near; if(!l) return; doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
+  v.walkDoor = () => { const l = v.walk?.near; if(!l) return; audioWake(); doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
   v.walkStart = () => {
     if(v.walk) return;
     if(v.moving) moveMode3d(false); v.drop?.(); pick3d(null); insp3d(null);
@@ -12278,7 +12318,7 @@ function build3d(T){
   v.walkStop = () => {
     const W = v.walk; if(!W) return;
     v.walk = null; Object.assign(st, W.saved); cam.fov = 45; cam.updateProjectionMatrix();
-    walkUi(false); v.dirty = true;
+    walkUi(false); v.el.classList.remove('walk-clean'); v.dirty = true;
     for(const l of v.leaves){ l.isOpen = false; if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } }
     if(doorKey) doorKey.hidden = true;
     showDoors3d();
@@ -12375,8 +12415,12 @@ function build3d(T){
 document.addEventListener('keydown', e=>{
   if(!v3d || document.querySelector('.shop-dlg')) return;
   const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
-  /* walking: the keys move you; Escape ends the walk */
-  if(v3d.walk && !typing){
+  /* walking: the keys move you; Escape ends the walk. Only a field one types into keeps the keys (version 283): a
+     slider, tick, colour or button still holding the keyboard (from «Свет», «Шторы»…) swallowed E and W A S D before,
+     and the door would not open until the walk was started again */
+  const typesText = e.target.tagName==='TEXTAREA' || (e.target.tagName==='INPUT' && /^(text|number|search|email|url|tel|password)$/.test(e.target.type || 'text'));
+  if(v3d.walk && !typesText){
+    if(e.target!==document.body && e.target.blur && (typing || e.target.tagName==='BUTTON')) e.target.blur();
     if(e.key==='Escape'){ e.preventDefault(); v3d.walkStop(); }
     else if(e.code==='KeyE' && !e.ctrlKey && !e.metaKey && !e.repeat){ e.preventDefault(); v3d.walkDoor?.(); }
     else if(['Equal','NumpadAdd','Minus','NumpadSubtract'].includes(e.code) && !e.ctrlKey && !e.metaKey){ e.preventDefault(); v3d.walkLens?.(walkLensMm + (/Equal|Add/.test(e.code) ? 3 : -3)); }
@@ -12387,6 +12431,22 @@ document.addEventListener('keydown', e=>{
   else if((e.key==='Delete' || e.key==='Backspace') && !typing && v3d.picked){ e.preventDefault(); itemDel3d(); }
 });
 
+/* sound (the door's foggy radio, version 284): one AudioContext for the page, made and resumed inside a tap or key
+   press – iPhone and Android keep an engine started any other way silent; a one-sample silent sound unlocks Safari.
+   navigator.audioSession 'playback' (iOS 17+) lets it play with the ringer switch on silent */
+let audioCtx = null;
+function audioWake(){
+  const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return null;
+  try{
+    try{ if(navigator.audioSession) navigator.audioSession.type = 'playback'; }catch(_){}
+    if(!audioCtx || audioCtx.state==='closed') audioCtx = new AC();
+    if(audioCtx.state!=='running'){
+      audioCtx.resume?.().catch(()=>{});
+      const b = audioCtx.createBuffer(1, 1, 22050), s = audioCtx.createBufferSource(); s.buffer = b; s.connect(audioCtx.destination); s.start(0);
+    }
+    return audioCtx;
+  }catch(_){ return null; }
+}
 let walkLensMm = 17;   /* the walk's lens, mm – kept while the page is open */
 const WALK_KEYS = ['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight'];
 document.addEventListener('keyup', e=>{ if(v3d?.walk) v3d.walk.keys.delete(e.code); });
@@ -12425,6 +12485,8 @@ app.addEventListener('click', e=>{
     return;
   }
   if(e.target.closest('[data-3d]')){ open3d(); return; }
+  /* «Изменять» / «Готово» under the plan of a room (touch screens) */
+  if(e.target.closest('[data-planedit]')){ ui.planEdit = !ui.planEdit; if(!ui.planEdit){ ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; } render(); return; }
   const zb = e.target.closest('[data-zoom]');
   if(zb && planBox){
     const v = ui.view[ui.planRoom] || {k:1, cx:planBox.x+planBox.w/2, cy:planBox.y+planBox.h/2};
@@ -12886,8 +12948,17 @@ app.addEventListener('submit', e=>{
 /* dragging furniture: move the SVG group live, commit to state on release */
 let drag = null;
 function svgPoint(svg, e){ const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+/* a phone or tablet: the plan of a room only shows until «Изменять» is pressed (version 282) – a finger that just
+   scrolls the page no longer moves or picks things; a tap on the locked plan says how to unlock it */
+const planLocked = () => matchMedia('(pointer:coarse)').matches && !ui.planEdit;
+let lockTap = null;
+app.addEventListener('pointerup', e=>{
+  const t = lockTap; lockTap = null;
+  if(t && Math.abs(e.clientX - t.x) + Math.abs(e.clientY - t.y) < 10 && performance.now() - t.at < 600) toast('Чтобы двигать мебель и стены, нажмите «Изменять» под планом.');
+});
 app.addEventListener('pointerdown', e=>{
   const svg = e.target.closest('svg.plan'); if(!svg || !state) return;
+  if(planLocked() && !e.target.closest('.dimtxt')){ lockTap = {x:e.clientX, y:e.clientY, at:performance.now()}; return; }
   /* a wall's number: pressed – typed in (the click opens the field) */
   if(e.target.closest('.dimtxt')) return;
   if(pmode()){ elecDown(e, svg); return; }
@@ -13139,6 +13210,21 @@ app.addEventListener('pointermove', e=>{
     } else if(isAxis(drag.i)){ nx = snap(nx); ny = snap(ny); }
     else { nx = Math.round(nx*10)/10; ny = Math.round(ny*10)/10; }
     place = {...drag.i, x:nx, y:ny};
+    /* inside the walls (version 282): a piece that started inside stops at the wall – it slides along it, or
+       stays at the last place that fitted; one already outside moves freely, so it can be brought back in */
+    if(drag.ok===undefined) drag.ok = insideRoom(drag.i) ? {...drag.i} : null;
+    if(drag.ok && !insideRoom(place)){
+      const o = drag.ok, a = {...place, y:o.y}, b = {...place, x:o.x};
+      if(insideRoom(a)) place = a; else if(insideRoom(b)) place = b;
+      else {
+        let lo = 0, hi = 1;
+        for(let n = 0; n < 12; n++){ const m = (lo + hi)/2; insideRoom({...place, x:o.x + (place.x - o.x)*m, y:o.y + (place.y - o.y)*m}) ? lo = m : hi = m; }
+        const c = {...place, x:Math.round((o.x + (place.x - o.x)*lo)*10)/10, y:Math.round((o.y + (place.y - o.y)*lo)*10)/10};
+        place = insideRoom(c) ? c : {...o};
+      }
+      if(place.x!==nx) gx = null; if(place.y!==ny) gy = null;
+    }
+    if(drag.ok && insideRoom(place)) drag.ok = {...place};
   }
   drag.place = place; drag.nx = place.x; drag.ny = place.y;
   if(place.rot===drag.i.rot && isAxis(place)) drag.g.setAttribute('transform', `translate(${place.x} ${place.y})`);
