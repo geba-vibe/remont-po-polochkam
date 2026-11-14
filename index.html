@@ -612,6 +612,11 @@ body.v3d-on{overflow:hidden}
 .v3d-rdd-list button{text-align:left;padding:8px 12px;border:0;border-radius:8px;background:none;color:var(--ink);font:500 14px var(--f-body);cursor:pointer;white-space:nowrap}
 .v3d-rdd-list button:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
 .v3d-rdd-list button.on{background:color-mix(in srgb,var(--accent) 14%,transparent);font-weight:600}
+.v3d-flat-w{display:grid;gap:2px;margin-top:4px;padding-top:6px;border-top:1px solid var(--line)}
+.v3d-flat-w .rb-chk{padding:8px 12px;font-size:14px;font-weight:500;line-height:normal;color:var(--ink);border-radius:8px}
+.v3d-flat-w .rb-chk:has(input:disabled){opacity:.5;cursor:default}
+.v3d-flat-w .rb-chk:has(input:disabled):hover{background:none}
+.v3d-flat-w .note{margin:0;padding:0 12px 6px;font-size:12px;line-height:1.35;white-space:normal;max-width:230px}
 @media (max-width:720px){.v3d-rdd > summary{height:32px;font-size:14px;max-width:150px}}
 .v3d-room-3d{font:600 11px var(--f-mono);color:var(--muted);letter-spacing:.06em}
 .v3d-seg{gap:0}
@@ -1114,6 +1119,13 @@ label.tr-pick{cursor:pointer}
 .laysets select{font-size:13px;padding:2px 4px}
 .plan .rh{fill:var(--surface);stroke:var(--accent);stroke-width:1.5}
 .plan .rh:hover{fill:var(--accent)}
+/* turn buttons at the corners of the picked piece (version 317; a bare arc with an arrowhead since 319): a tap turns it 90° clockwise */
+.plan .rotc{cursor:pointer}
+.plan .rotc .rot-h{fill:none;stroke:var(--plan-floor);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.plan .rotc .rot-a{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.plan .rotc:hover .rot-a{stroke-width:2.6}
+.plan .rotc .hitc{cursor:pointer}
+@media (pointer:coarse){.plan .rotc .hitc{stroke-width:20px}}
 .plan .guide{stroke:var(--accent);stroke-width:1.2;stroke-dasharray:5 4;pointer-events:none}
 .plan .wallsel{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:6 4;pointer-events:none}
 .plan .dim{font-family:var(--f-mono);fill:var(--muted)}
@@ -1166,6 +1178,8 @@ label.tr-pick{cursor:pointer}
 .legend b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--surface);font:500 11px var(--f-mono);margin-right:6px}
 .legend span{font-family:var(--f-mono);color:var(--muted)}
 .plan .selbox{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:6 4;pointer-events:none}
+.plan .groupbox{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:2 5;stroke-linecap:round;pointer-events:none}
+.plan .band{fill:var(--accent);fill-opacity:.08;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:6 4;pointer-events:none}
 .cat{display:grid;gap:6px;margin-top:12px}
 .cat:first-of-type{margin-top:0}
 .cat-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -4400,12 +4414,17 @@ const HELP = [
   ['Планировка – мебель в комнате', `<p>Выберите комнату – нажмите её название.</p>
     <ul><li><b>«Подобрать мебель»</b> – поставит мебель само. Не понравилось – <b>«Другой вариант»</b>.</li><li><b>Добавить</b> – справа список, например «Диван».</li>
     <li><b>Передвинуть</b> – нажмите на предмет и тяните.</li><li><b>Повернуть, удалить, размер</b> – нажмите на предмет, под планом кнопки.</li>
-    <li><b>Длина стены</b> – нажмите на число размера и впишите своё.</li></ul>
+    <li><b>Длина стены</b> – нажмите на число размера и впишите своё.</li>
+    <li><b>Материал</b> – под цветом предмета: дерево, ткань, глянец, матовый, металл.</li>
+    <li><b>Угловая кухня, стеновая панель</b> – в списке «Добавить». <b>Стеклянная дверь</b> – нажмите на дверь. <b>Изголовье кровати</b> – поле «Изголовье, см».</li>
+    <li><b>«+ Сохранить»</b> под планом – вариант с местами, цветами, материалами и декором.</li></ul>
     <p>Зелёная надпись «Пересечений нет» – всё удобно. Красная – что-то мешает, она подскажет что.</p>
     <p>Переключатель <b>Мебель · Электрика · Сантехника</b>: «Расставить» поставит розетки и краны по мебели.</p>`],
   ['3D – комната вживую', `<p>Нажмите <b>«Смотреть в 3D»</b>.</p><ul><li>Покрутить – зажмите мышку или палец и ведите.</li><li>Приблизить – колёсико или два пальца.</li>
     <li>Двигать предмет – нажмите на него и тяните цветные стрелки.</li><li>Цвета – кнопки наверху: Свет, Стены и пол, Шторы, Цвета.</li>
-    <li>Погулять внутри – «Вид сверху» слева → «Прогулка» (клавиши W A S D, пробел – прыжок, C – присесть; на телефоне – кружок и стрелки). У дивана, стула, кровати и выключателя – E или кнопка внизу: сесть, лечь, свет; так же открываются шкаф, комод, тумба и холодильник.</li><li>Картинка – «Снимок» внизу.</li></ul><p>Всё, что двигаете в 3D, двигается и на плане.</p>`],
+    <li>Погулять внутри – «Вид сверху» слева → «Прогулка» (клавиши W A S D, пробел – прыжок, C – присесть; на телефоне – кружок и стрелки). У дивана, стула, кровати и выключателя – E или кнопка внизу: сесть, лечь, свет; так же открываются шкаф, комод, тумба и холодильник.</li><li><b>Вся квартира</b> – нажмите название комнаты вверху, галочка «Вся квартира»: все собранные комнаты, в прогулке можно ходить через двери.</li>
+    <li>Подушки, ковры, картины, лампы – нажмите: цвет любой, у подушек каждой свой; убрать – «Убрать» или Delete; лампу и торшер двигают стрелки.</li>
+    <li>Телевизор – нажмите: «Включить», своя картинка или GIF на экран; в прогулке – клавиша E.</li><li>Картинка – «Снимок» внизу.</li></ul><p>Всё, что двигаете в 3D, двигается и на плане.</p>`],
   ['Стоимость – сколько всё стоит', `<p>Сколько нужно краски, плитки, ламината, приложение посчитало само. Впишите <b>цены</b> – суммы посчитаются. Не нужна строка – снимите галочку. <b>Резерв</b> – деньги на всякий случай, обычно 10–15%. <b>«Смета в файл»</b> – таблица для мастера.</p>`],
   ['План работ – что за чем делать', `<p>Дела уже стоят по порядку: сначала то, что прячется в стенах, потом отделка, потом мебель. Сделали дело – поставьте галочку. То, что уже сделано в приложении, отмечается само.</p><p>Открыт этап, который идёт сейчас; другие – нажатием на название. «Мастер» – работа мастеров, «заказать» – заказ, который долго ждать.</p>`],
   ['Как не потерять проект', `<p>Всё сохраняется само в этом браузере, после каждого изменения. Остальное – в меню с названием проекта наверху:</p>
@@ -5005,12 +5024,16 @@ const CATALOG = [
     ['tv','ТВ-тумба',180,40],['bed160','Кровать 160',160,200],['bed140','Кровать 140',140,200],['bed90','Кровать 90',90,200],['night','Тумба',50,40,1],
     ['wardrobe','Шкаф',200,60],['dresser','Комод',100,50],['shelf','Стеллаж',120,35],['shoe','Обувница',80,35]]},
   {g:'Рабочее место', items:[['desk','Рабочий стол',140,70],['chair','Стул',50,50,1]]},
-  {g:'Кухня', items:[['kitchen','Кухня прямая',300,60],['fridge','Холодильник',60,65],['dining','Обеденный стол',120,80],['dw','Посудомойка',45,60]]},
+  {g:'Кухня', items:[['kitchen','Кухня прямая',300,60],['kitchenL','Кухня угловая',240,180],['fridge','Холодильник',60,65],['dining','Обеденный стол',120,80],['dw','Посудомойка',45,60]]},
   {g:'Санузел', items:[['bath','Ванна',170,75],['shower','Душ',90,90],['cabin','Душевая кабина',90,90],['wc','Унитаз',40,65,1],['sink','Раковина',60,45,1],['washer','Стиральная машина',60,55]]},
+  {g:'Стены', items:[['wpanel','Стеновая панель',120,4]]},
   {g:'Проёмы', items:[['door','Дверь',80,80],['window','Окно',120,10]]},
 ];
 /* on the plan a bed is just «Кровать»: its width is in the size; the catalog keeps «Кровать 160» to tell them apart */
 const ITEM = Object.fromEntries(CATALOG.flatMap(g=>g.items).map(([k,name,w,d,small])=>[k,{name:k.startsWith('bed') ? 'Кровать' : name, w, d, small:!!small}]));
+/* the side run of a corner kitchen (version 329): «Кухня угловая» in the list puts a straight kitchen and this one at its end,
+   at 90° – each is a piece of its own (moved, sized, coloured on its own); cabinets, a worktop and wall cabinets, no sink */
+ITEM.kitchenC = {name:'Кухня: боковая часть', w:120, d:60, small:false};
 const itemName = i => (ITEM[i.t]||{}).name || 'Предмет';
 /* Furniture may stand at any angle. `rot` is the turn in degrees (clockwise on screen); x, y is the top-left
    corner of the box around the piece. A piece at 0/90/180/270° is "square" to the plan. */
@@ -5218,9 +5241,10 @@ const rectsOverlap = (a, b) => Math.min(a.x2,b.x2)-Math.max(a.x1,b.x1) > 0.5 && 
 const ACCESS = {bed160:{sides:60, both:true}, bed140:{sides:60}, bed90:{sides:60},
   desk:{front:75}, wardrobe:{front:60}, dresser:{front:60}, shoe:{front:50}, shelf:{front:50},
   sofa:{front:55}, sofaL:{front:50}, armchair:{front:50},
-  kitchen:{front:90}, fridge:{front:80}, dw:{front:70}, washer:{front:70}, dining:{around:60},
+  kitchen:{front:90}, kitchenC:{front:90}, fridge:{front:80}, dw:{front:70}, washer:{front:70}, dining:{around:60},
   /* plumbing: 50 cm is the accepted minimum, more is rarely possible in a standard bathroom */
-  bath:{front:50}, shower:{front:50}, cabin:{front:50}, sink:{front:50}, wc:{front:50}};
+  /* a corner shower cabin has none (version 330, the owner): its doors slide, they need no room in front */
+  bath:{front:50}, shower:{front:50}, sink:{front:50}, wc:{front:50}};
 function accessText(t){
   const a = ACCESS[t];
   if(a.sides) return `подход ${a.sides} см ${a.both?'с обеих длинных сторон':'хотя бы с одной длинной стороны'}`;
@@ -5241,10 +5265,12 @@ function accessZones(i){
   return [];
 }
 /* who may stand in someone's access zone: chairs (they are pulled out), a coffee table in front of a seat */
-const zoneExempt = (owner, other) => other.id===owner.id || isOpening(other) || other.t==='chair' || seatPair(other, owner);
+const zoneExempt = (owner, other) => other.id===owner.id || isOpening(other) || other.t==='chair' || seatPair(other, owner)
+  /* the two runs of a corner kitchen stand in each other's working space at the corner, as they should */
+  || (/^kitchenC?$/.test(owner.t) && /^kitchenC?$/.test(other.t)) || other.t==='wpanel';
 function zoneState(z, owner, items, L, W){
   /* square pieces and their zones are boxes: the quick box test is exact for them */
-  const sq = isSquare(owner);
+  const sq = isSquare(owner) && owner.t!=='cabin';
   const blockers = items.filter(o=>!zoneExempt(owner, o) && rectsOverlap(bbox(o), z.r) && ((sq && isSquare(o)) || polyOverlap(shapeOf(o), z.pts)));
   const outside = !z.around && !(sq ? rectInPoly(z.r, 1) : shapeInPoly(z.pts, 1));
   return {blockers, outside, ok:!blockers.length && !outside};
@@ -5292,7 +5318,7 @@ function accessCost(c, placed, L, W){
   }
   const b = bbox(c), csq = isSquare(c);
   for(const o of placed){
-    const sq = csq && isSquare(o);
+    const sq = csq && isSquare(o) && o.t!=='cabin';
     for(const z of zonesOf(o)) if(!zoneExempt(o, c) && rectsOverlap(b, z.r) && (sq || polyOverlap(shapeOf(c), z.pts))) cost += z.side ? 0.4 : 0.8;
   }
   return cost;
@@ -5335,6 +5361,8 @@ function checkLayout(L, W, items){
     const hit = !square ? (ox>0.5 && oy>0.5 && polyOverlap(shapeOf(a), shapeOf(b))) : (ox>0.5 && oy>0.5);
     if(hit){
       if(tableFor(a,b) || tableFor(b,a)) continue;
+      /* a wall panel (version 329): furniture stands against it; only a door swinging into it counts */
+      if((a.t==='wpanel' || b.t==='wpanel') && a.t!=='door' && b.t!=='door') continue;
       const door = a.t==='door' ? a : b.t==='door' ? b : null;
       if(door) issues.push(`Дверь при открывании задевает «${itemName(door===a?b:a)}»`);
       else issues.push(`«${itemName(a)}» и «${itemName(b)}» пересекаются`);
@@ -5379,15 +5407,14 @@ function itemShape(i){
     + `<line class="glass" x1="0" y1="${-T*0.35}" x2="${w}" y2="${-T*0.35}"/><line class="glass" x1="0" y1="${-T*0.65}" x2="${w}" y2="${-T*0.65}"/>`
     + `<line class="glass" x1="0" y1="${-T}" x2="0" y2="0"/><line class="glass" x1="${w}" y1="${-T}" x2="${w}" y2="0"/>`
     + `<rect class="b" x="0" y="${-T}" width="${w}" height="${d+T}" style="fill:transparent;stroke:none"/>`;
-  /* a corner shower cabin: a pentagon with the cut front corner (away from the nearer wall) and the door's swing out of it */
+  /* a corner shower cabin: a pentagon with the cut front corner (away from the nearer wall) and its sliding doors on the
+     cut – two panels, one behind the other, overlapping in the middle (version 331: they slide, no swing) */
   if(t==='cabin'){
-    const c = cabinCut(i), k = c.len, X = x => c.right ? x : w - x;
-    const pts = [[0,0],[w,0],[w,d-k],[w-k,d],[0,d]].map(([x,y])=>`${X(x)},${y}`).join(' ');
-    /* the door hangs on its corner by the front panel and opens outward, at a right angle to the cut */
-    const ax = X(w-k), bx = X(w), L = Math.round(k*Math.SQRT2), sw = c.right ? 0 : 1;
-    return `<rect class="b" x="0" y="0" width="${w}" height="${d}" style="fill:transparent;stroke:none"/><polygon class="b" points="${pts}"/>`
-      + `<rect class="dt" x="8" y="8" width="${w-16}" height="${d-k-4}" rx="6"/>`
-      + `<path class="door" d="M${ax} ${d} L${bx} ${d+k} A${L} ${L} 0 0 ${sw} ${bx} ${d-k} Z" style="opacity:.7;fill:var(--accent-soft);fill-opacity:.35"/>`;
+    /* version 332 (the owner): the front corner is rounded and no door is drawn */
+    const c = cabinCut(i), R = c.r, X = x => c.right ? x : w - x, sw = c.right ? 1 : 0;
+    const shape = (o, r) => `M${X(o)} ${o} L${X(w-o)} ${o} L${X(w-o)} ${d-R} A${r} ${r} 0 0 ${sw} ${X(w-R)} ${d-o} L${X(o)} ${d-o} Z`;
+    return `<rect class="b" x="0" y="0" width="${w}" height="${d}" style="fill:transparent;stroke:none"/><path class="b" d="${shape(0, R)}"/>`
+      + `<path class="dt" d="${shape(8, R - 8)}"/>`;
   }
   /* a round or oval dining table, a round coffee table */
   if((t==='dining' && ['round', 'oval'].includes(modelOf(i))) || (t==='coffee' && modelOf(i)==='round')) return `<rect class="b" x="0" y="0" width="${w}" height="${d}" style="fill:transparent;stroke:none"/><ellipse class="b" cx="${w/2}" cy="${d/2}" rx="${w/2}" ry="${d/2}"/>`;
@@ -5486,6 +5513,31 @@ function sinkHandle(i){
   return `<rect class="sinkh" data-sinkh="sink" x="${sx-22}" y="8" width="44" height="${i.d-20}" rx="5" style="cursor:${cur}"><title>Потяните, чтобы передвинуть мойку; на варочную – поменяются местами</title></rect>`
     + `<rect class="sinkh" data-sinkh="hob" x="${hx-25}" y="10" width="50" height="${i.d-20}" rx="2" style="cursor:${cur}"><title>Потяните, чтобы передвинуть варочную панель; на мойку – поменяются местами</title></rect>`;
 }
+/* the turn buttons (version 319; direction by corner since 320): at each corner of the piece a thin arc with an
+   arrowhead, round the corner on its outside, no circle under it. The corners on the right of the screen turn the piece
+   clockwise, those on the left anticlockwise, and the arrow points that way. Drawn in the piece's own frame over all
+   the furniture, so a neighbour does not hide one; an invisible spot on the arc catches the pointer (a wide ring on a
+   touch screen) */
+function rotHandles(i, fs){
+  /* the arc's radius: at least 14 px on the screen (17 for a finger), whatever the size of the room */
+  const k = document.getElementById('plan')?.getScreenCTM()?.a || 0, min = k ? (matchMedia('(pointer:coarse)').matches ? 17 : 14)/k : 0;
+  const R = Math.max(fs*0.9, min), h = R*0.42, f = furnFrame(i), cx = centreOf(i)[0], n = v => Math.round(v*100)/100;
+  const P = (c, a) => [c[0] + R*Math.cos(a), c[1] + R*Math.sin(a)];
+  /* each corner and where its outside quarter starts: top-left 180°, top-right 270°, bottom-right 0°, bottom-left 90° */
+  return `<g transform="matrix(${f.u[0]} ${f.u[1]} ${f.v[0]} ${f.v[1]} ${f.p[0]} ${f.p[1]})">` + [[[0, 0], 180], [[i.w, 0], 270], [[i.w, i.d], 0], [[0, i.d], 90]].map(([c, s0])=>{
+    /* where the corner is on the screen decides the way: right of the centre – clockwise */
+    const wx = f.p[0] + f.u[0]*c[0] + f.v[0]*c[1], dir = wx >= cx - 0.5 ? 1 : -1;
+    const ra = (s0 + 14)*Math.PI/180, rb = (s0 + 76)*Math.PI/180, am = (s0 + 45)*Math.PI/180;
+    const [a1, a2] = dir > 0 ? [ra, rb] : [rb, ra];
+    /* the arrowhead lies along the chord of its last stretch of arc, so it sits straight on the curve */
+    const p1 = P(c, a1), p2 = P(c, a2), pb = P(c, a2 - dir*h/R), pm = P(c, am);
+    const L = Math.hypot(p2[0]-pb[0], p2[1]-pb[1]) || 1, t = [(p2[0]-pb[0])/L, (p2[1]-pb[1])/L], q = [-t[1], t[0]], wd = h*0.6;
+    const b = [p2[0] - t[0]*h, p2[1] - t[1]*h], w1 = [b[0] + q[0]*wd, b[1] + q[1]*wd], w2 = [b[0] - q[0]*wd, b[1] - q[1]*wd];
+    const d = `M${n(p1[0])} ${n(p1[1])}A${n(R)} ${n(R)} 0 0 ${dir > 0 ? 1 : 0} ${n(p2[0])} ${n(p2[1])}M${n(w1[0])} ${n(w1[1])}L${n(p2[0])} ${n(p2[1])}L${n(w2[0])} ${n(w2[1])}`;
+    return `<g class="rotc" data-rotc="${i.id}" data-rotdir="${dir}"><title>Повернуть на 90° ${dir > 0 ? 'по часовой стрелке' : 'против часовой стрелки'}</title><circle class="hitc" cx="${n(pm[0])}" cy="${n(pm[1])}" r="${n(R*0.55)}"/>`
+      + `<path class="rot-h" d="${d}"/><path class="rot-a" d="${d}"/></g>`;
+  }).join('') + '</g>';
+}
 function resizeHandles(i, fs){
   /* with «Названия и размеры» off the handles are hidden too, so a piece can be dragged without catching a side by accident */
   if(ui.numbers) return '';
@@ -5515,7 +5567,7 @@ function itemSvg(i, isBad, isSel, fs, badge){
       <title>${esc(name)}, ${i.w} × ${i.d} см, поворот ${Math.round(i.rot)}°</title>
       ${itemShape(i)}
       <g${flip}>${label}${!label && badge ? `<circle class="badge" cx="${i.w/2}" cy="${i.d/2}" r="${r}"/><text class="badge-t" x="${i.w/2}" y="${i.d/2}" font-size="${r*1.2}">${badge}</text>` : ''}</g>
-      ${isSel?`<rect class="selbox" x="-4" y="-4" width="${i.w+8}" height="${i.d+8}"/>${sinkHandle(i)}${resizeHandles(i, fs)}`:''}
+      ${isSel?`<rect class="selbox" x="-4" y="-4" width="${i.w+8}" height="${i.d+8}"/>${isSel===true ? sinkHandle(i) + resizeHandles(i, fs) : ''}`:''}
     </g>`;
   }
   const {W,H} = eff(i);
@@ -5526,7 +5578,7 @@ function itemSvg(i, isBad, isSel, fs, badge){
   const r = Math.max(4, Math.min(fs*0.75, Math.min(W,H)/2 - 1));
   return `<g class="it ${isBad?'bad':''}" data-it="${i.id}" transform="translate(${i.x} ${i.y})">
     <title>${esc(name)}, ${i.w} × ${i.d} см</title>
-    <g transform="${inner}">${itemShape(i)}${isSel ? sinkHandle(i) + resizeHandles(i, fs) : ''}</g>
+    <g transform="${inner}">${itemShape(i)}${isSel===true ? sinkHandle(i) + resizeHandles(i, fs) : ''}</g>
     ${label}
     ${!label && badge ? `<circle class="badge" cx="${W/2}" cy="${H/2}" r="${r}"/><text class="badge-t" x="${W/2}" y="${H/2}" font-size="${r*1.2}">${badge}</text>` : ''}
     ${isSel?`<rect class="selbox" x="-4" y="-4" width="${W+8}" height="${H+8}"/>`:''}
@@ -5779,12 +5831,16 @@ function planSvg(L, W, items, bad){
     ${bands}
     ${wallHits}
     ${dims}
-    ${order.map(i=>itemSvg(i, bad.has(i.id), i.id===ui.sel, fs, badges.get(i.id))).join('')}
+    ${(()=>{ const grp = multiItems(), gs = new Set((grp || []).map(i=>i.id));
+      return order.map(i=>itemSvg(i, bad.has(i.id), i.id===ui.sel || (gs.has(i.id) && 'g'), fs, badges.get(i.id))).join('')
+        + (grp ? (b=>`<rect class="groupbox" x="${b.x1-12}" y="${b.y1-12}" width="${b.x2-b.x1+24}" height="${b.y2-b.y1+24}"/>`)(groupBox(grp)) : ''); })()}
     ${zones.map(z=>`<polygon class="zone" points="${z.map(P).join(' ')}"/>`).join('')}
     <g class="wls">${contour}</g>${cornerHeights}
     ${corners}${angAll}${dists}
+    ${selItem && !pmode() ? rotHandles(selItem, fs) : ''}
     ${(ui.shapeGuides || []).map(g=>g.x!=null ? `<line class="shape-guide" x1="${g.x}" y1="${planBox.y}" x2="${g.x}" y2="${planBox.y+planBox.h}"/>` : `<line class="shape-guide" x1="${planBox.x}" y1="${g.y}" x2="${planBox.x+planBox.w}" y2="${g.y}"/>`).join('')}
     ${pmode() ? elecSvg(fs) : ''}
+    ${ui.band ? `<rect class="band" x="${ui.band.x1}" y="${ui.band.y1}" width="${ui.band.x2-ui.band.x1}" height="${ui.band.y2-ui.band.y1}"/>` : ''}
   </svg>`;
 }
 function wallPanel(room, s){
@@ -5825,7 +5881,7 @@ function selPanel(i){
         <label class="f">От угла, см<input type="number" min="0" step="5" id="lo-a" data-lop="along" value="${Math.round(i.along*10)/10}"></label>
       </div>
       ${i.t==='door'?`<div class="row"><span class="muted" style="font-size:13px">Открывается ${o.out?'наружу':'внутрь'}</span><button class="btn small" data-lact="out">${o.out?'Открывать внутрь':'Открывать наружу'}</button></div>`:''}
-      <div class="row">${i.t==='door'?'<button class="btn small" data-lact="flip">Петли с другой стороны</button>':''}<button class="btn small danger" data-lact="del">Удалить</button></div>
+      <div class="row">${i.t==='door'?`<button class="btn small" data-lact="flip">Петли с другой стороны</button><button class="btn small" data-lact="glass" aria-pressed="${!!i.glass}" title="Дверь со стеклом в белой раме, как на балкон">${i.glass ? 'Обычная дверь' : 'Стеклянная (балконная)'}</button>`:''}<button class="btn small danger" data-lact="del">Удалить</button></div>
       ${hint(`Перетащите вдоль стены или на другую стену. Стрелки двигают вдоль стены на 5 см, с Shift на 25 см. Размеры меняются и здесь, и на вкладке «Квартира».${i.t==='door'?` Пунктиром показана зона, где не должно быть мебели: проход перед дверью и по ${JAMB} см у проёма.`:''}`)}
     </div>`;
   }
@@ -5838,15 +5894,30 @@ function selPanel(i){
       <label class="f">От верхней стены, см<input type="number" step="5" id="ld-y" data-ldim="y" value="${Math.round(i.y*10)/10}"></label>
       <label class="f">Поворот, °<input type="number" step="15" id="ld-rot" data-ldim="rot" value="${Math.round((((i.rot||0)%360)+360)%360*10)/10}"></label>
       ${HEIGHTED.has(i.t) ? `<label class="f">Высота, см<input type="number" min="20" max="300" step="${sizeStep()}" id="ld-h" data-ldim="h" value="${furnTop(i)}"></label>` : ''}
+      ${i.t.startsWith('bed') && modelOf(i)!=='low' ? `<label class="f" title="Высота изголовья от пола">Изголовье, см<input type="number" min="60" max="200" step="${sizeStep()}" id="ld-hb" data-ldim="hb" value="${bedHead(i)}"></label>` : ''}
       ${i.t==='kitchen' ? `<label class="f" title="От начала кухни до середины мойки; мойку можно и перетащить на плане">Мойка от края, см<input type="number" min="25" max="${i.w - 25}" step="1" data-sinkx="sink" value="${Math.round(kitchenSinkX(i))}"></label>
         <label class="f" title="От начала кухни до середины варочной панели; её можно и перетащить на плане">Варочная от края, см<input type="number" min="27" max="${i.w - 27}" step="1" data-sinkx="hob" value="${Math.round(kitchenHobX(i))}"></label>` : ''}
     </div>
     ${PARAM_NOTE[i.t.startsWith('bed') ? 'bed' : i.t] ? `<p class="note" style="margin:0">${PARAM_NOTE[i.t.startsWith('bed') ? 'bed' : i.t](i)}</p>` : ''}
     ${i.t==='dining' ? `<div class="row"><span class="note" style="margin:0">Помещается стульев: <b>${chairsFor(i).length}</b></span><button class="btn small" data-lact="chairs">Расставить стулья</button></div>` : ''}
     ${modelPick(i, 'data-model')}
-    <div class="grid" style="gap:6px"><span class="f-l">Цвет в 3D</span>${colorPick('item', i.color || '', 'furn')}<p class="note" style="margin:0">${schemeNote()}</p></div>
-    <div class="row"><button class="btn small" data-lact="rot">Повернуть на 90°</button><button class="btn small" data-lact="walign" title="Спиной к ближайшей стене, вплотную">Повернуть по стене</button><button class="btn small" data-lact="swap" title="Нажмите, потом выберите второй предмет">Поменять местами…</button>${shopLact(i)}<button class="btn small" data-lact="dup">Копия</button><button class="btn small danger" data-lact="del">Удалить</button></div>
-    ${hint(`${ui.numbers ? "Ручки изменения размера скрыты: включите «Названия и размеры на плане», чтобы тянуть предмет за стороны." : "Тяните за ручки на сторонах, чтобы изменить ширину или глубину: противоположная сторона останется на месте, шаг задаётся над планом."} Стрелки двигают на 5 см, с Shift на 25 см. R поворачивает, Delete удаляет. «Повернуть по стене» ставит предмет спиной к ближайшей стене вплотную, в том числе к наклонной; с привязкой это происходит само, если подтащить предмет к наклонной стене.${ACCESS[i.t]?` Пунктиром показано свободное место, которое нужно, чтобы пользоваться предметом: ${accessText(i.t)}.`:''}`)}
+    <div class="grid" style="gap:6px"><span class="f-l">Цвет в 3D</span>${colorPick('item', i.color || '', 'furn')}${matPick(i, 'data-matpick')}<p class="note" style="margin:0">${schemeNote()}</p></div>
+    <div class="row"><button class="btn small" data-lact="rot">Повернуть на 90°</button><button class="btn small" data-lact="walign" title="Спиной к ближайшей стене, вплотную">Повернуть по стене</button><button class="btn small" data-lact="swap" title="Нажмите, потом выберите второй предмет">Поменять местами…</button>${mpickBtn()}${shopLact(i)}<button class="btn small" data-lact="dup">Копия</button><button class="btn small danger" data-lact="del">Удалить</button></div>
+    ${hint(`${ui.numbers ? "Ручки изменения размера скрыты: включите «Названия и размеры на плане», чтобы тянуть предмет за стороны." : "Тяните за ручки на сторонах, чтобы изменить ширину или глубину: противоположная сторона останется на месте, шаг задаётся над планом."} Дуги со стрелкой в углах поворачивают предмет на 90°: правые – по часовой стрелке, левые – против. Стрелки двигают на 5 см, с Shift на 25 см. R поворачивает, Delete удаляет. Несколько предметов сразу: Shift, Ctrl или ⌘ + клик, рамка мышью по пустому полу или «Выбрать несколько». «Повернуть по стене» ставит предмет спиной к ближайшей стене вплотную, в том числе к наклонной; с привязкой это происходит само, если подтащить предмет к наклонной стене.${ACCESS[i.t]?` Пунктиром показано свободное место, которое нужно, чтобы пользоваться предметом: ${accessText(i.t)}.`:''}`)}
+  </div>`;
+}
+/* several pieces picked (version 316): turn them together, copy, colour, delete */
+function groupPanel(g){
+  const n = g.length, cs = [...new Set(g.map(i=>i.color || ''))];
+  let pick = colorPick('group', cs.length===1 ? cs[0] : '', 'furn');
+  if(cs.length > 1) pick = pick.replace('sw sw-reset on', 'sw sw-reset').replace('aria-pressed="true"', 'aria-pressed="false"');
+  return `<div class="card grid" style="gap:10px">
+    <h3 style="margin:0">Выбрано: ${n} ${plural(n,'предмет','предмета','предметов')}</h3>
+    <p class="note" style="margin:0">${esc(g.map(itemName).join(', '))}</p>
+    <label class="f">Повернуть на, °<span style="display:flex;gap:8px"><input type="number" step="15" id="grp-rot" value="${ui.grpRot ?? 45}" style="flex:1;min-width:0"><button class="btn small" type="button" data-lact="grotby" title="Все вместе, вокруг общего центра">Повернуть</button></span></label>
+    <div class="grid" style="gap:6px"><span class="f-l">Цвет в 3D</span>${pick}<p class="note" style="margin:0">${cs.length > 1 ? 'Сейчас цвета разные, выбранный получат все. ' : ''}${schemeNote()}</p></div>
+    <div class="row"><button class="btn small" data-lact="grot90">Повернуть на 90°</button>${mpickBtn()}<button class="btn small" data-lact="gdup">Копия</button><button class="btn small danger" data-lact="gdel">Удалить</button><button class="btn small" data-lact="gclear">Снять выделение</button></div>
+    ${hint('Тяните любой из выбранных предметов – двигаются все вместе и останавливаются у стены. Shift, Ctrl или ⌘ + клик добавляет предмет или убирает его, рамка мышью по пустому полу выбирает всё, что в неё попало; на телефоне – «Выбрать несколько». Поворот – вокруг общего центра. Стрелки двигают на 5 см, с Shift на 25 см, R поворачивает на 90°, Delete удаляет, Esc снимает выделение.')}
   </div>`;
 }
 function autoTools(room, items){
@@ -5927,7 +5998,8 @@ function applyAuto(room, result, note){
   ui.sel = null;
 }
 /* on a narrow screen the side panel is far below the plan: the main actions for what is selected sit right under the plan */
-function selBar(sel){
+const mpickBtn = () => `<button class="btn small${ui.multiPick ? ' primary' : ''}" data-lact="mpick" aria-pressed="${!!ui.multiPick}" title="Нажимайте на предметы, чтобы выбрать сразу несколько">Выбрать несколько</button>`;
+function selBar(sel, grp){
   const more = '<button class="btn small" data-selmore="1">Размеры ↓</button>';
   let name = '', acts = '';
   if(ui.selCorner!=null && GEO.poly[ui.selCorner]){
@@ -5936,6 +6008,9 @@ function selBar(sel){
   } else if(ui.selWall!=null && GEO.edges[ui.selWall]){
     name = `${wallName(ui.selWall)} · ${Math.round(GEO.edges[ui.selWall].len)} см`;
     acts = `<button class="btn small" data-lact="split">Разделить стену</button>${more.replace('Размеры','Тип и длина')}`;
+  } else if(grp){
+    name = `Выбрано: ${grp.length} ${plural(grp.length,'предмет','предмета','предметов')}`;
+    acts = `<button class="btn small" data-lact="grot90">Повернуть 90°</button>${mpickBtn()}<button class="btn small" data-lact="gdup">Копия</button><button class="btn small danger" data-lact="gdel">Удалить</button><button class="btn small" data-lact="gclear">Снять выделение</button>${more.replace('Размеры', 'Поворот и цвет')}`;
   } else if(sel && isOpening(sel)){
     const o = openingOf(sel) || {};
     name = `${sel.t==='door'?'Дверь':'Окно'} · ${sel.w} см`;
@@ -5943,9 +6018,9 @@ function selBar(sel){
       + `<button class="btn small danger" data-lact="del">Удалить</button>${more}`;
   } else if(sel){
     name = `${esc(itemName(sel))} · ${sel.w}×${sel.d}`;
-    acts = `<button class="btn small" data-lact="rot">Повернуть 90°</button><button class="btn small" data-lact="walign">По стене</button><button class="btn small" data-lact="swap">Поменять…</button>${shopLact(sel)}<button class="btn small" data-lact="dup">Копия</button><button class="btn small danger" data-lact="del">Удалить</button>${more}`;
+    acts = `<button class="btn small" data-lact="rot">Повернуть 90°</button><button class="btn small" data-lact="walign">По стене</button><button class="btn small" data-lact="swap">Поменять…</button>${mpickBtn()}${shopLact(sel)}<button class="btn small" data-lact="dup">Копия</button><button class="btn small danger" data-lact="del">Удалить</button>${more}`;
   } else return '';
-  return `<div class="selbar"><b>${name}</b><div class="row">${acts}</div></div>`;
+  return `<div class="selbar"><b>${name}</b><div class="row">${acts}</div>${ui.multiPick ? '<span class="note" style="margin:0">Нажимайте на предметы, чтобы добавить их или убрать.</span>' : ''}</div>`;
 }
 function vLayout(){
   if(!state.rooms.length) return `<h2>Планировка</h2><div class="card"><p class="muted" style="margin:0">Сначала добавьте комнаты на вкладке «Квартира».</p></div>`;
@@ -5965,7 +6040,10 @@ function vLayout(){
   const ePts = em ? ptsOf(room.id) : [], elSel = em && ePts.find(p=>p.id===ui.elSel);
   if(!elSel) ui.elSel = null;
   const {issues, bad} = em ? {...LY.check(room, items, ePts), bad:checkLayout(L, W, items).bad} : checkLayout(L, W, items);
-  const sel = items.find(i=>i.id===ui.sel);
+  if(em || ui.sel) ui.multi = null;
+  if(ui.multi && !multiItems()){ const left = items.filter(i=>ui.multi.room===room.id && ui.multi.ids.includes(i.id) && !isOpening(i)); ui.multi = null; if(left.length===1) ui.sel = left[0].id; }
+  if(em || (!ui.sel && !ui.multi)) ui.multiPick = false;
+  const sel = items.find(i=>i.id===ui.sel), grp = multiItems();
   const used = items.filter(i=>i.t!=='door' && i.t!=='window').reduce((a,i)=>a+i.w*i.d,0)/10000;
   const noDesk = P().work>0 && !Object.values(state.layouts).some(a=>Array.isArray(a) && a.some(i=>i.t==='desk'));
   return `
@@ -6004,7 +6082,7 @@ function vLayout(){
         <label class="check" title="Стены и углы не сдвинутся, даже если случайно потянуть их вместе с мебелью"><input type="checkbox" id="lay-lock" data-shapelock ${ui.shapeLock?'checked':''}> Закрепить стены и углы</label>
         </div></details>`}
       </div>
-      ${em ? (elSel ? `<div class="selbar"><b>${esc(LY.K[elSel.k].name)}${freePt(elSel) ? '' : ` · ${elSel.h} см`}</b><div class="row"><button class="btn small danger" data-eact="del">Удалить</button><button class="btn small" data-selmore="1">Тип и высота ↓</button></div></div>` : '') : selBar(sel)}
+      ${em ? (elSel ? `<div class="selbar"><b>${esc(LY.K[elSel.k].name)}${freePt(elSel) ? '' : ` · ${elSel.h} см`}</b><div class="row"><button class="btn small danger" data-eact="del">Удалить</button><button class="btn small" data-selmore="1">Тип и высота ↓</button></div></div>` : '') : selBar(sel, grp)}
       ${em ? '' : autoHints(items)}
       ${em ? '' : savedStrip(room)}
       ${em ? `<p class="note elegend">${Object.entries(LY.K).filter(([k])=>k!==LY.free).map(([k,v])=>`<b>${v.mark}</b> ${v.name.toLowerCase()}`).join(' · ')} · ${pl ? '<b>Ст</b> стояк' : '<b>⊗</b> светильник'}</p>` : (()=>{ const nums = badgeNumbers(items); if(!nums.size) return '';
@@ -6017,7 +6095,7 @@ function vLayout(){
       ${elecPalette()}
       ${LY.summary(room)}
     </div>` : `<div class="grid" style="align-content:start;min-width:0">
-      ${(p=>p?`<div id="selpanel">${p}</div>`:'')(ui.selCorner!=null ? cornerPanel(room, ui.selCorner) : ui.selWall!=null ? wallPanel(room, ui.selWall) : sel ? selPanel(sel) : '')}
+      ${(p=>p?`<div id="selpanel">${p}</div>`:'')(ui.selCorner!=null ? cornerPanel(room, ui.selCorner) : ui.selWall!=null ? wallPanel(room, ui.selWall) : grp ? groupPanel(grp) : sel ? selPanel(sel) : '')}
       ${noDesk?'<div class="card"><span class="chip warn">Рабочего стола пока нет ни в одной комнате</span><p class="note" style="margin:8px 0 0">Вам нужно рабочее место: стол от 120 × 60 см у окна и 3–4 розетки рядом.</p></div>':''}
       <div class="card">
         <h3>Добавить</h3>
@@ -6216,6 +6294,7 @@ function placeCost(c, placed, L, W, limit=Infinity){
   let cost = insideRoom(c) ? 0 : 10;
   const small = ITEM[c.t]?.small, need = passNeed(L, W);
   for(const o of placed){
+    if(o.t==='wpanel' || c.t==='wpanel') continue;
     const ob = bbox(o);
     const ox = Math.min(b.x2,ob.x2)-Math.max(b.x1,ob.x1), oy = Math.min(b.y2,ob.y2)-Math.max(b.y1,ob.y1);
     if(o.t==='window'){
@@ -6721,23 +6800,38 @@ function undoBtns(id){
 /* ---------- saved layouts: up to 5 good variants per room, kept in the project ---------- */
 const SAVED_MAX = 5;
 function savedFor(id){ return (state.savedLayouts && state.savedLayouts[id]) || []; }
+/* a saved layout is the same as another when the places and also the colours, materials, models, heights and the
+   decor are (version 326: a recoloured layout could not be saved – «already saved») */
+function savedSig(items, decor){
+  /* the decor is keyed by the piece's id: here by the piece itself (kind and place), as ids change when a layout is shown */
+  const who = Object.fromEntries(items.map(i=>[i.id, `${i.t}@${Math.round(i.x)},${Math.round(i.y)}`]));
+  const dItems = decor && Object.entries(decor.items || {}).map(([k, o])=>{ const c = k.lastIndexOf(':'); return [(who[k.slice(0, c)] || k.slice(0, c)) + k.slice(c), o]; }).sort((a, b)=>a[0] < b[0] ? -1 : 1);
+  return layoutSig(items) + '#' + items.filter(i=>!isOpening(i)).map(i=>[i.t, i.color || '', i.mat || '', i.model || '', i.h || ''].join(':')).sort().join('|')
+    + '#' + JSON.stringify(decor ? {...decor, items:dItems} : null);
+}
 function saveLayout(room){
   const furniture = (state.layouts[room.id]||[]).filter(i=>!isOpening(i));
   const list = savedFor(room.id);
   if(!furniture.length) return;
   if(list.length >= SAVED_MAX){ ui.layMsg = {room:room.id, warn:true, text:`Сохранено уже ${SAVED_MAX} вариантов. Удалите один, чтобы сохранить новый.`}; return; }
-  const sig = layoutSig(furniture);
-  const same = list.find(v=>layoutSig(v.items)===sig);
+  const decor = state.decor?.[room.id] ? JSON.parse(JSON.stringify(state.decor[room.id])) : null;
+  const sig = savedSig(furniture, decor);
+  const same = list.find(v=>savedSig(v.items, v.decor)===sig);
   if(same){ ui.layMsg = {room:room.id, warn:true, text:`Такая расстановка уже сохранена: «${same.name}».`}; return; }
   const n = list.reduce((m,v)=>Math.max(m, Number((v.name.match(/\d+$/)||[0])[0])), 0) + 1;
   state.savedLayouts = state.savedLayouts || {};
-  state.savedLayouts[room.id] = [...list, {id:uid(), name:`Вариант ${n}`, at:Date.now(), items:JSON.parse(JSON.stringify(furniture))}];
+  state.savedLayouts[room.id] = [...list, {id:uid(), name:`Вариант ${n}`, at:Date.now(), items:JSON.parse(JSON.stringify(furniture)), ...(decor ? {decor} : {})}];
   ui.layMsg = {room:room.id, warn:false, text:`Сохранено как «Вариант ${n}».`};
 }
 function applySaved(room, v){
   pushUndo();
   const openings = (state.layouts[room.id]||[]).filter(isOpening);
-  state.layouts[room.id] = [...openings, ...JSON.parse(JSON.stringify(v.items)).map(i=>({...i, id:uid()}))];
+  /* new ids for the pieces; the decor saved with the layout (version 326) follows them */
+  const ids = {};
+  state.layouts[room.id] = [...openings, ...JSON.parse(JSON.stringify(v.items)).map(i=>{ const id = uid(); ids[i.id] = id; return {...i, id}; })];
+  if(v.decor){ const d = JSON.parse(JSON.stringify(v.decor));
+    if(d.items) d.items = Object.fromEntries(Object.entries(d.items).map(([k, o])=>{ const c = k.lastIndexOf(':'), id = k.slice(0, c); return [(ids[id] || id) + k.slice(c), o]; }));
+    (state.decor || (state.decor = {}))[room.id] = d; }
   ui.sel = null; ui.variant[room.id] = 0;
   ui.layMsg = {room:room.id, warn:false, text:`Показан «${v.name}». Вернуть предыдущую расстановку можно кнопкой «Отменить».`};
 }
@@ -6747,7 +6841,7 @@ function savedStrip(room){
   const current = state.layouts[room.id] || [];
   const openings = current.filter(isOpening);
   const furniture = current.filter(i=>!isOpening(i));
-  const curSig = layoutSig(furniture);
+  const curSig = savedSig(furniture, state.decor?.[room.id] || null);
   const fmtDate = t => new Date(t).toLocaleString('ru-RU', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
   const del = list.find(v=>v.id===ui.confirmDelSaved);
   if(del) return `<div class="vstrip"><span class="confirm">Удалить сохранённую расстановку «${esc(del.name)}»? <button class="btn small" data-savedel="${del.id}" style="color:var(--bad)">Да, удалить</button><button class="btn small" data-savedelno="1">Нет</button></span></div>`;
@@ -6757,7 +6851,7 @@ function savedStrip(room){
       const n = checkLayout(L, W, [...openings, ...v.items]).issues.length;
       const num = (v.name.match(/\d+$/)||[''])[0];
       const tip = `${v.name}: ${v.items.length} ${plural(v.items.length,'предмет','предмета','предметов')}, ${n?`${n} ${plural(n,'замечание','замечания','замечаний')}`:'без замечаний'}, ${fmtDate(v.at)}`;
-      return `<span class="vchip ${layoutSig(v.items)===curSig?'on':''} ${n?'warn':''}"><button data-saveshow="${v.id}" title="${esc(tip)}" aria-label="Показать: ${esc(tip)}">${num}</button><button class="x" data-saveask="${v.id}" aria-label="Удалить ${esc(v.name)}">×</button></span>`;
+      return `<span class="vchip ${savedSig(v.items, v.decor || null)===curSig?'on':''} ${n?'warn':''}"><button data-saveshow="${v.id}" title="${esc(tip)}" aria-label="Показать: ${esc(tip)}">${num}</button><button class="x" data-saveask="${v.id}" aria-label="Удалить ${esc(v.name)}">×</button></span>`;
     }).join('')}
     <button class="btn small" data-lact="save" ${furniture.length && list.length<SAVED_MAX ? '' : 'disabled'} title="${list.length>=SAVED_MAX?`Сохранено ${SAVED_MAX} из ${SAVED_MAX}: удалите один вариант`:'Сохранить текущую расстановку'}">+ Сохранить</button>
     <span class="vstrip-n mono">${list.length}/${SAVED_MAX}</span>
@@ -6776,8 +6870,72 @@ function rotateItem(i, to){
   atCentre(i, c);
   if(isAxis(i)){ i.x = snap(i.x); i.y = snap(i.y); }
 }
+/* several pieces picked together (version 316): ui.multi = {room, ids}; it counts only while no single piece is picked
+   (ui.sel) and holds at least two pieces of furniture – doors and windows never join. ui.multiPick: «Выбрать несколько»
+   is on, a tap adds a piece or takes it off */
+function multiItems(){
+  const m = ui.multi; if(!m || m.room!==ui.planRoom || ui.sel) return null;
+  const its = layoutItems().filter(i=>m.ids.includes(i.id) && !isOpening(i));
+  return its.length >= 2 ? its : null;
+}
+function multiIds(){
+  const g = multiItems(); if(g) return g.map(i=>i.id);
+  const s = ui.sel && layoutItems().find(i=>i.id===ui.sel && !isOpening(i)); return s ? [s.id] : [];
+}
+function multiSet(ids){
+  ids = [...new Set(ids)];
+  if(ids.length >= 2){ ui.multi = {room:ui.planRoom, ids}; ui.sel = null; }
+  else { ui.multi = null; ui.sel = ids[0] || null; }
+}
+function multiClear(){ ui.multi = null; ui.multiPick = false; }
+function groupBox(items){
+  const bs = items.map(bbox);
+  return {x1:Math.min(...bs.map(b=>b.x1)), y1:Math.min(...bs.map(b=>b.y1)), x2:Math.max(...bs.map(b=>b.x2)), y2:Math.max(...bs.map(b=>b.y2))};
+}
+/* turn a group about the centre of the box around it: each piece turns by the same angle and its centre goes round */
+function rotateGroup(items, deg){
+  const b = groupBox(items), cx = (b.x1+b.x2)/2, cy = (b.y1+b.y2)/2, t = deg*Math.PI/180, c = Math.cos(t), sn = Math.sin(t);
+  for(const i of items){
+    const p = centreOf(i), dx = p[0]-cx, dy = p[1]-cy;
+    i.rot = Math.round((((((i.rot||0) + deg) % 360) + 360) % 360)*10)/10;
+    if(i.rot===360) i.rot = 0;
+    delete i.wall; delete i.off; delete i.side;
+    atCentre(i, [cx + dx*c - dy*sn, cy + dx*sn + dy*c]);
+    i.x = Math.round(i.x*10)/10; i.y = Math.round(i.y*10)/10;
+  }
+}
+/* a turn of 90° that keeps the piece clear (version 318): it turns about its centre; if it then goes into a wall or onto
+   another piece or a door's swing, it moves to the nearest free place up to 1 m away (5 cm steps); with no free place
+   near it stays as it was. What it already touched before the turn does not count; a chair may stand at a table, and a
+   piece that was already outside the walls is not held inside. Returns {ok, moved (cm), why ('wall' or the piece)} */
+const ROT_OFFS = (()=>{ const o = []; for(let x=-100; x<=100; x+=5) for(let y=-100; y<=100; y+=5) if((x || y) && Math.hypot(x, y) <= 100) o.push([x, y]);
+  return o.sort((a, b)=>Math.hypot(a[0], a[1]) - Math.hypot(b[0], b[1])); })();
+function rotateFree(i, dir = 1){
+  const before = {...i}, others = layoutItems().filter(o=>o!==i && o.t!=='window');
+  const chairAt = (a, b) => a.t==='chair' && (b.t==='desk' || b.t==='dining');
+  const hits = (p, o) => {
+    const A = bbox(p), B = bbox(o), ox = Math.min(A.x2,B.x2) - Math.max(A.x1,B.x1), oy = Math.min(A.y2,B.y2) - Math.max(A.y1,B.y1);
+    if(!(ox > 0.5 && oy > 0.5) || chairAt(p, o) || chairAt(o, p)) return false;
+    return (isSquare(p) && isSquare(o)) || polyOverlap(shapeOf(p), shapeOf(o));
+  };
+  const already = new Set(others.filter(o=>hits(before, o)).map(o=>o.id)), wasIn = insideRoom(before);
+  const blocker = p => wasIn && !insideRoom(p) ? 'wall' : others.find(o=>!already.has(o.id) && hits(p, o)) || null;
+  rotateItem(i, (i.rot || 0) + 90*(dir < 0 ? -1 : 1));
+  /* version 325 (the owner): the piece turns where it stands, even onto another one – no more moving it aside or
+     refusing; the overlap shows among the plan's remarks, and the line says what it touches */
+  const why = blocker(i);
+  return why ? {ok:true, touch:why} : {ok:true};
+}
+/* the line over the plan after such a turn; a turn that did not happen takes back its step of undo */
+function rotateFreeNote(i, r){
+  const what = !r.why ? '' : r.why==='wall' ? 'стену' : `«${itemName(r.why)}»`;
+  if(!r.ok){ ui.undo[ui.planRoom]?.pop();
+    ui.layMsg = {room:ui.planRoom, warn:true, text:`«${itemName(i)}» не поворачивается: после поворота ${r.why==='wall' ? 'заходит в стену' : `задевает «${itemName(r.why)}»`}, а свободного места рядом (до 1 м) нет. Освободите место или отодвиньте предмет.`}; }
+  else ui.layMsg = r.touch ? {room:ui.planRoom, warn:true, text:`«${itemName(i)}» повёрнуто и ${r.touch==='wall' ? 'заходит в стену' : `задевает «${itemName(r.touch)}»`} – передвиньте его.`}
+    : r.moved ? {room:ui.planRoom, warn:false, text:`«${itemName(i)}»: повёрнуто и сдвинуто на ${r.moved} см, чтобы не задеть ${what}.`} : null;
+}
 /* pieces with a height of their own to set, and a line on what follows their size in 3D */
-const HEIGHTED = new Set(['shelf','wardrobe','dresser','shoe','night','fridge']);
+const HEIGHTED = new Set(['shelf','wardrobe','dresser','shoe','night','fridge','wpanel']);
 const PARAM_NOTE = {
   shelf:i=>{ const H = i.h || 180, n = Math.max(1, Math.round((H-6)/36) - 1), c = i.w > 200 ? 3 : i.w > 100 ? 2 : 1; return `Полок: ${n}${c > 1 ? `, секций: ${c}` : ''}. Выше – больше полок, шире 1 м – стойка посередине.`; },
   wardrobe:i=>modelOf(i)==='slide' ? `Дверей-купе: ${i.w > 200 ? 3 : 2}. Шире 2 м – третья дверь.` : `Дверей: ${Math.max(1, Math.round(i.w/48))}${(i.h || 220) > 235 ? ', сверху антресоль' : ''}. Шире – больше дверей, выше 235 см – антресоль.`,
@@ -7401,6 +7559,8 @@ function backOnWall(i){
   return null;
 }
 const furnTop = i => i.h || H3[i.t.startsWith('bed') ? 'bed' : i.t] || 75;
+/* the height of a bed's headboard (version 327): its own (piece.hb, cm from the floor) or the model's */
+const bedHead = i => i.hb || ({soft:118, tall:140, metal:112}[modelOf(i)] ?? 100);
 /* lamps on an even grid over the room: one per 7 m² or so, 1–4 */
 function lampSpots(){
   const nL = Math.max(1, Math.min(4, Math.round(GEO.area/70000))), wide = GEO.L >= GEO.W;
@@ -7560,8 +7720,8 @@ function elecSvg(fs){
    Drawn with the plan's own code (planSvg) for each room in turn; the screen state is put back afterwards. */
 /* the rooms part is shared with the sheet for the plumber (mode 'plumb'); only the head and the totals differ */
 function elecSheet(mode){
-  const keep = {room:ui.planRoom, mode:ui.layMode, sel:ui.sel, selWall:ui.selWall, selCorner:ui.selCorner, elSel:ui.elSel, views:ui.view, nums:ui.numbers}, geo = GEO, box = planBox;
-  ui.layMode = mode || 'elec'; ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; ui.view = {}; ui.printNums = true; ui.numbers = false;
+  const keep = {room:ui.planRoom, mode:ui.layMode, sel:ui.sel, selWall:ui.selWall, selCorner:ui.selCorner, elSel:ui.elSel, views:ui.view, nums:ui.numbers, multi:ui.multi}, geo = GEO, box = planBox;
+  ui.multi = null; ui.layMode = mode || 'elec'; ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; ui.view = {}; ui.printNums = true; ui.numbers = false;
   const LY = lay();
   const rooms = state.rooms.filter(r=>ptsOf(r.id).length).map(room=>{
     ui.planRoom = room.id; setGeom(room); setCurrentWalls(room);
@@ -7574,7 +7734,7 @@ function elecSheet(mode){
       <table><thead><tr><th>№</th><th>Что</th><th>Для чего</th><th class="r">Высота, см</th><th>Стена</th><th>Где на стене</th></tr></thead><tbody>${rows}</tbody></table>
       ${LY.sheetRoom ? LY.sheetRoom(room, pts) : ''}</section>`;
   });
-  Object.assign(ui, {planRoom:keep.room, layMode:keep.mode, sel:keep.sel, selWall:keep.selWall, selCorner:keep.selCorner, elSel:keep.elSel, view:keep.views, numbers:keep.nums, printNums:false});
+  Object.assign(ui, {planRoom:keep.room, layMode:keep.mode, sel:keep.sel, selWall:keep.selWall, selCorner:keep.selCorner, elSel:keep.elSel, view:keep.views, numbers:keep.nums, printNums:false, multi:keep.multi});
   GEO = geo; planBox = box;
   return LY.sheetTotals(rooms);
 }
@@ -7696,11 +7856,11 @@ const dwTW = (s, size) => String(s).length*size*0.5;
 let dwSeq = 0;
 /* the state the plan's drawing code reads (the room, its walls, the mode), kept and put back around a sheet */
 function dwKeep(fn){
-  const keep = {room:ui.planRoom, mode:ui.layMode, sel:ui.sel, selWall:ui.selWall, selCorner:ui.selCorner, elSel:ui.elSel, numbers:ui.numbers, printNums:ui.printNums, showDist:ui.showDist},
+  const keep = {room:ui.planRoom, mode:ui.layMode, sel:ui.sel, selWall:ui.selWall, selCorner:ui.selCorner, elSel:ui.elSel, numbers:ui.numbers, printNums:ui.printNums, showDist:ui.showDist, multi:ui.multi},
     g = GEO, box = planBox, ck = curKinds, cw = curWalls;
-  ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; ui.showDist = false;
+  ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; ui.showDist = false; ui.multi = null;
   try{ return fn(); }
-  finally{ Object.assign(ui, {planRoom:keep.room, layMode:keep.mode, sel:keep.sel, selWall:keep.selWall, selCorner:keep.selCorner, elSel:keep.elSel, numbers:keep.numbers, printNums:keep.printNums, showDist:keep.showDist});
+  finally{ Object.assign(ui, {planRoom:keep.room, layMode:keep.mode, sel:keep.sel, selWall:keep.selWall, selCorner:keep.selCorner, elSel:keep.elSel, numbers:keep.numbers, printNums:keep.printNums, showDist:keep.showDist, multi:keep.multi});
     GEO = g; planBox = box; curKinds = ck; curWalls = cw; }
 }
 /* the numbers of the pieces of a room, the same on the plan, the elevations and in the schedule */
@@ -9208,7 +9368,7 @@ async function export3dBlender(){
   if(!v3d || ui.exporting) return;
   const keep = ui.planRoom, rooms = state.rooms.slice(), say = t => { const mm = v3d?.el.querySelector('.v3d-shotmsg'); if(mm) mm.textContent = t; };
   const wait = async () => { for(let t = 0; t < 100 && !(v3d && v3d.renderer && v3d.started); t++) await new Promise(ok=>setTimeout(ok, 100)); return v3d && v3d.started ? v3d : null; };
-  ui.exporting = true; say('Готовлю файл для Blender…');
+  ui.exporting = true; ui.flatOff = true; say('Готовлю файл для Blender…');
   try{
     await loadGltfExporter();
     const T = THREE, places = aptPlaces(), root = new T.Group(), name = (state.meta?.name || 'Квартира').trim() || 'Квартира';
@@ -9219,15 +9379,15 @@ async function export3dBlender(){
       say(`Собираю квартиру для Blender: ${r.name} (${k + 1} из ${rooms.length})…`);
       root.add(export3dRoom(v, r, places[r.id] || {x:0, y:0, r:0}));
     }
-    ui.planRoom = keep; open3d(); await wait();
+    ui.flatOff = false; ui.planRoom = keep; open3d(); await wait();
     say('Сохраняю файл…');
     const glb = await new Promise(ok=>new T.GLTFExporter().parse(root, ok, {binary:true, embedImages:true, maxTextureSize:1024}));
     const res = await saveFile(`${name.replace(/[\/:*?"<>|]+/g, ' ')} – для Blender.glb`, new Blob([glb], {type:'model/gltf-binary'}), 'откройте приложение как обычную страницу в браузере и скачайте там.');
     say(res === 'Файл скачан.' || res === 'Файл сохранён.' ? `${res} В Blender: File → Import → glTF 2.0.` : res || '');
   }catch(err){
-    if(ui.planRoom!==keep){ ui.planRoom = keep; open3d(); await wait(); }
+    if(ui.planRoom!==keep || ui.flatOff){ ui.flatOff = false; ui.planRoom = keep; open3d(); await wait(); }
     say('Не получилось сделать файл: ' + (err && err.message==='load' ? 'проверьте интернет.' : (err && err.message) || 'ошибка.'));
-  }finally{ ui.exporting = false; }
+  }finally{ ui.exporting = false; ui.flatOff = false; }
 }
 /* «Высокое качество» (version 290): shadows of the sun and the lamps sharp where a thing touches the floor or a wall and
    softer further from it, as real ones (PCSS – percentage-closer soft shadows). three.js r128 has no such shadows: its
@@ -9288,14 +9448,14 @@ const DECOR_KINDS = {
     ['gallery','Несколько рамок'],['shelf','Полка с книгами'],['shelves2','Две полки'],['clock','Часы'],['plates','Декоративные тарелки'],['planter','Подвесное кашпо'],['tapestry','Гобелен']],
     col:'frame', colName:'Цвет рамы, полки или основы'},
   tex:{name:'Подушки и плед', vars:null, col:'acc', colName:'Цвет'},
-  tlamp:{name:'Настольная лампа', vars:[['cone','Абажур-конус'],['ball','Шар'],['drum','Цилиндр']], col:'shade', colName:'Цвет абажура'},
+  tlamp:{name:'Лампа', vars:[['cone','Абажур-конус'],['ball','Шар'],['drum','Цилиндр'],['floor','Торшер']], col:'shade', colName:'Цвет абажура'},
   shelf:{name:'Наполнение стеллажа', vars:[['mixed','Книги и вазы'],['books','Только книги'],['vases','Вазы и коробки']], col:null},
   misc:{name:'Мелочи на столе', vars:null, col:null}};
 const decorKind = key => key.startsWith('plant:') ? 'plant' : key.slice(key.lastIndexOf(':') + 1);
 /* a rug with its own place on the floor (x), a picture with its own place on a wall (wall): no longer with its piece */
 /* the wall things that are not a flat picture (version 183): built in depth by wallDeco in build3d */
 const WALL_DECO = ['gallery', 'shelf', 'shelves2', 'clock', 'plates', 'planter', 'tapestry'];
-const decorFree = (kind, ov) => kind==='rug' ? ov.x!=null : kind==='pic' ? ov.wall!=null : false;
+const decorFree = (kind, ov) => kind==='rug' || kind==='tlamp' ? ov.x!=null : kind==='pic' ? ov.wall!=null : false;
 function loadThree(){
   if(window.THREE) return Promise.resolve(window.THREE);
   return threeLoad || (threeLoad = new Promise((ok, fail)=>{
@@ -9442,7 +9602,15 @@ function mainColor(parts){
   const main = [...vol.entries()].sort((a,b)=>b[1]-a[1])[0];
   return main ? main[0] : null;
 }
-function recolor(parts, color){
+/* the material of a piece (version 326): its main colour takes the texture and finish of another kind of part – wood
+   (grain), fabric (weave, soft sheen), gloss (lacquer), matte, metal. The colour stays the piece's own or, without one,
+   the material's usual colour. Kept as piece.mat */
+const MATS3 = [['wood', 'Дерево', C3.wood], ['fabric', 'Ткань', C3.fabric], ['gloss', 'Глянец', C3.white], ['matte', 'Матовый', C3.light], ['metal', 'Металл', C3.metal]];
+const matPick = (i, attr) => `<label class="f">Материал<select ${attr}><option value="">Как у модели</option>${MATS3.map(([k, n])=>`<option value="${k}" ${i.mat===k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`;
+function recolor(parts, color, mat){
+  const M = mat && MATS3.find(m=>m[0]===mat);
+  if(M){ const main = mainColor(parts); if(main!=null){ const col = color || '#' + M[2].toString(16).padStart(6, '0');
+    return shadeParts(parts.map(p=>pCol(p)!==main ? p : Array.isArray(p) ? [...p.slice(0,6), `${col}/${M[2]}`, ...p.slice(7)] : {...p, c:`${col}/${M[2]}`}), col); } }
   const main = color ? mainColor(parts) : null; if(main==null) return shadeParts(parts, null);
   return shadeParts(parts.map(p=>pCol(p)!==main ? p : Array.isArray(p) ? [...p.slice(0,6), `${color}/${main}`, ...p.slice(7)] : {...p, c:`${color}/${main}`}), color);
 }
@@ -9550,10 +9718,12 @@ const MODELS = {
   coffee:[['rect','Прямоугольный'],['round','Круглый'],['nest','Пара вложенных столиков'],['trunk','Плетёный сундук']],
   shelf:[['open','Открытый'],['ladder','Лесенка'],['metal','С металлическим каркасом']],
   desk:[['table','На ножках'],['drawer','С тумбой'],['metal','На металлической раме']],
-  tv:[['base','На цоколе'],['legs','На ножках'],['wall','Подвесная']],
+  tv:[['base','На цоколе'],['legs','На ножках'],['wall','Подвесная'],['screen','Только телевизор на стене']],
   dresser:[['base','На цоколе'],['legs','На ножках']],
   night:[['base','На цоколе'],['legs','На ножках']],
-  kitchen:[['upper','С верхними шкафами'],['noupper','Без верхних шкафов']]};
+  kitchen:[['upper','С верхними шкафами'],['noupper','Без верхних шкафов']],
+  kitchenC:[['upper','С верхними шкафами'],['noupper','Без верхних шкафов']],
+  wpanel:[['slats','Рейки'],['flat','Ровная'],['soft','Мягкие плиты']]};
 const MODEL_BY_STYLE = {
   skandi:{sofa:'legs', armchair:'mid', coffee:'round', tv:'legs', dresser:'legs', night:'legs'},
   japandi:{sofa:'low', bed:'low', armchair:'mid', coffee:'round', tv:'legs'},
@@ -9587,7 +9757,8 @@ function seatDims(t, md){
 function cabinCut(i){
   const f = furnFrame(i), loc = (x, y)=>[f.p[0]+f.u[0]*x+f.v[0]*y, f.p[1]+f.u[1]*x+f.v[1]*y];
   const near = q => Math.min(...GEO.edges.map(e=>segPointDist(e.a, e.b, q)));
-  return {right: near(loc(0, i.d/2)) <= near(loc(i.w, i.d/2)), len: Math.round(Math.min(i.w, i.d)*0.42)};
+  /* r: the radius of its rounded front corner (version 332; it was cut off straight, `len`, before) */
+  return {right: near(loc(0, i.d/2)) <= near(loc(i.w, i.d/2)), len: Math.round(Math.min(i.w, i.d)*0.42), r: Math.round(Math.min(i.w, i.d)*0.55)};
 }
 /* Two parts of a model whose faces lie in one plane and face the same way flicker in stripes in 3D (z-fighting): a
    plinth flush with a front, a strap ending level with a lid, a headboard as wide as the bed. After a model is built
@@ -9618,6 +9789,8 @@ function separateFaces(parts){
     const B = out.map(box);
     for(let a=0; a<out.length; a++) for(let b=a+1; b<out.length; b++) for(let ax=0; ax<3; ax++){
       if(ax<2 && !(Array.isArray(out[a]) && Array.isArray(out[b]))) continue;
+      /* the strips of one curve (a rounded cabin, version 332) meet edge to edge: they are not moved apart */
+      if(out[a].smooth && out[b].smooth) continue;
       const o = [0, 1, 2].filter(k=>k!==ax);
       if(ov(B[a][o[0]], B[b][o[0]]) * ov(B[a][o[1]], B[b][o[1]]) < 0.3) continue;
       for(const s of [0, 1]){
@@ -9728,13 +9901,14 @@ function parts3dRaw(i, items){
       const my = low ? 2 : 8, p = metal ? [[2,8,w-2,d-2,22,base,C3.light], [0,6,w,d,18,22,C3.dark], ...[[2,8],[w-2,8],[2,d-2],[w-2,d-2]].map(([x,y])=>post(x, y, 0, 22, C3.dark, 1.8))]
         : [[0,0,w,d,0,base,low ? C3.wood : md==='soft' || md==='tall' ? C3.fabric : C3.wood]];
       p.push([2,my,w-2,d-2,base,top-2,C3.white]);
-      if(md==='soft') p.push([-2,0,w+2,12,0,118,C3.fabric]);
-      else if(md==='tall'){ p.push([-3,0,w+3,14,0,140,C3.fabric]); const n = Math.max(3, Math.round(w/28));
-        for(let k=1; k<n; k++) p.push([w*k/n-0.4, 14, w*k/n+0.4, 14.5, 60, 136, {shade:C3.fabric, k:0.8}]); }
-      else if(metal){ p.push(post(1.5, 4, 0, 112, C3.dark, 2), post(w-1.5, 4, 0, 112, C3.dark, 2), [0,2.5,w,5.5,106,110,C3.dark], [0,2.5,w,5.5,60,63,C3.dark],
+      const HB = Math.max(top + 10, bedHead(i));
+      if(md==='soft') p.push([-2,0,w+2,12,0,HB,C3.fabric]);
+      else if(md==='tall'){ p.push([-3,0,w+3,14,0,HB,C3.fabric]); const n = Math.max(3, Math.round(w/28));
+        for(let k=1; k<n; k++) p.push([w*k/n-0.4, 14, w*k/n+0.4, 14.5, Math.min(60, HB - 20), HB - 4, {shade:C3.fabric, k:0.8}]); }
+      else if(metal){ p.push(post(1.5, 4, 0, HB, C3.dark, 2), post(w-1.5, 4, 0, HB, C3.dark, 2), [0,2.5,w,5.5,HB-6,HB-2,C3.dark], [0,2.5,w,5.5,60,63,C3.dark],
         post(1.5, d-1.5, 0, 70, C3.dark, 2), post(w-1.5, d-1.5, 0, 70, C3.dark, 2), [0,d-3,w,d,64,67,C3.dark]);
-        const n = Math.max(3, Math.round(w/18)); for(let k=1; k<n; k++) p.push(post(w*k/n, 4, 63, 106, C3.dark, 0.7)); }
-      else if(!low) p.push([0,0,w,8,0,100,C3.wood]);
+        const n = Math.max(3, Math.round(w/18)); if(HB - 6 > 66) for(let k=1; k<n; k++) p.push(post(w*k/n, 4, 63, HB - 6, C3.dark, 0.7)); }
+      else if(!low) p.push([0,0,w,8,0,HB,C3.wood]);
       const pw = w>=120 ? w/2-12 : w-16, py = low ? 6 : 12, dy = py + 40;
       p.push([0,dy,w,d+1,top-12,top+2,C3.linen],[0,dy,w,dy+16,top+2,top+5,C3.linen]);
       p.push([8,py,8+pw,py+30,top-2,top+12,C3.white]); if(w>=120) p.push([w/2+4,py,w/2+4+pw,py+30,top-2,top+12,C3.white]);
@@ -9795,7 +9969,12 @@ function parts3dRaw(i, items){
         {cyl:[w/2-14,d/2-14,w/2+14,d/2+14], z1:4, z2:12, c:C3.white}, {cyl:[w/2-26,d/2-22,w/2+26,d/2+22], z1:0, z2:4, c:C3.white}];
       if(md==='metal') return [[0,0,w,d,72,75,C3.wood], ...[[4,4],[w-7,4],[4,d-7],[w-7,d-7]].map(([x,y])=>[x,y,x+3,y+3,0,72,C3.dark]), [4,4,w-4,7,66,69,C3.dark], [4,d-7,w-4,d-4,66,69,C3.dark]];
       return table(75, C3.wood); }
-    case 'tv': { const sw = Math.min(w*0.75, 165), sh = sw*0.57, z0 = md==='wall' ? 35 : md==='legs' ? 16 : 0, top = md==='wall' ? 65 : 50;
+    case 'tv': {
+      /* only the TV, hung on the wall at its back (version 327): the screen as wide as the piece allows (up to 190 cm),
+         its middle at 120 cm, on a dark bracket */
+      if(md==='screen'){ const sw = Math.min(w - 4, 190), sh = sw*0.57, zc = 120;
+        return [[(w-sw)/2, 3, (w+sw)/2, 7, zc - sh/2, zc + sh/2, C3.dark], [w/2-15, 0, w/2+15, 3, zc - 15, zc + 15, C3.dark]]; }
+      const sw = Math.min(w*0.75, 165), sh = sw*0.57, z0 = md==='wall' ? 35 : md==='legs' ? 16 : 0, top = md==='wall' ? 65 : 50;
       const p = [[0,0,w,d,z0,top,C3.light],[(w-sw)/2,d/2-3,(w+sw)/2,d/2+2,top+8,top+8+sh,C3.dark],[w/2-10,d/2-8,w/2+10,d/2+8,top,top+8,C3.dark]];
       if(md==='legs') for(const [x, y] of [[5,5],[w-5,5],[5,d-5],[w-5,d-5]]) p.push(post(x, y, 0, 16, C3.wood, 1.6));
       /* doors on the front: one seam per ~60 cm */
@@ -9845,6 +10024,27 @@ function parts3dRaw(i, items){
         side = Math.abs(pv) >= Math.abs(pu) ? (pv>0 ? 0 : 2) : (pu>0 ? 3 : 1); }
       const b = 6, back = [[0,0,w,b],[w-b,0,w,d],[0,d-b,w,d],[0,0,b,d]][side];
       return [...table(46, C3.wood), [...back, 46, 90, C3.wood]]; }
+    case 'wpanel': {
+      /* a wall panel (version 329): slats on a darker backing, a flat sheet, or soft upholstered squares; as high as set */
+      const H = i.h || 250;
+      if(md==='flat') return [[0,0,w,d,0,H,C3.light]];
+      if(md==='soft'){ const p = [[0,0,w,1.5,0,H,{shade:C3.fabric, k:0.7}]], nx = Math.max(1, Math.round(w/50)), nz = Math.max(1, Math.round(H/50));
+        for(let a=0; a<nx; a++) for(let b=0; b<nz; b++) p.push([w*a/nx+0.6, 1.5, w*(a+1)/nx-0.6, d, H*b/nz+0.6, H*(b+1)/nz-0.6, C3.fabric]); return p; }
+      const p = [[0,0,w,1.2,0,H,{shade:C3.wood, k:0.55}]], n = Math.max(2, Math.round(w/5));
+      for(let k=0; k<n; k++) p.push([w*k/n+0.6, 1.2, w*(k+1)/n-0.6, d, 0, H, C3.wood]);
+      return p; }
+    case 'kitchenC': {
+      /* the side run of a corner kitchen (version 329): modules, a worktop, wall cabinets when at a wall */
+      const m = Math.max(1, Math.round(w/60)), p = [[0,4,w,d,0,10,C3.dark],[0,0,w,d,10,86,C3.white],[0,0,w,d+1,86,90,C3.wood]];
+      for(let k=1; k<m; k++) p.push([w*k/m-0.5,d,w*k/m+0.5,d+0.4,12,84,C3.dark]);
+      for(let k=0; k<m; k++){ const x = w*(k+0.5)/m; p.push([x-8,d,x+8,d+2.5,79,81,C3.metal]); }
+      const f = furnFrame(i), bm = [f.p[0]+f.u[0]*w/2, f.p[1]+f.u[1]*w/2], atWall = GEO.edges.some(e=>segPointDist(e.a, e.b, bm) < 15);
+      if(atWall){ const rm = state.rooms.find(r=>r.id===ui.planRoom), ak = rm && APRONS[rm.apron] ? rm.apron : 'tile';
+        p.push([0,0,w,0.8,90,i.model!=='noupper' ? 145 : 150,'apron:' + ak]); }
+      if(i.model!=='noupper' && atWall){ p.push([0,0,w,35,145,215,C3.white]);
+        for(let k=1; k<m; k++) p.push([w*k/m-0.5,35,w*k/m+0.5,35.4,147,213,C3.dark]);
+        for(let k=0; k<m; k++){ const x = w*(k+0.5)/m; p.push([x-6,35,x+6,37.5,149,151,C3.metal]); } }
+      return p; }
     case 'kitchen': {
       /* modules of about 60 cm, each with its door and handle, below and in the wall cabinets above */
       /* the sink: a hole in the worktop (the worktop and the cabinet under it are cut round it), a steel bowl 18 cm deep
@@ -9886,19 +10086,25 @@ function parts3dRaw(i, items){
       /* a corner shower cabin: its back and one side stand against the walls, the front corner is cut off and holds
          the door; a tray, two fixed glass panels, the glass door on the cut, a metal rail on top and a handle */
       const c = cabinCut(i), mx = c.right ? (p=>p) : (([x, y])=>[w-x, y]), Q = (pts, z1, z2, col) => ({q:pts.map(mx), z1, z2, c:col});
-      const k = c.len, gt = 1.2, n = gt/Math.SQRT2;
-      return [Q([[0,0],[w,0],[w,d-k],[0,d-k]], 0, 14, C3.white), Q([[0,d-k],[w,d-k],[w-k,d],[0,d]], 0, 14, C3.white),
-        Q([[2,d-gt],[w-k,d-gt],[w-k,d],[2,d]], 14, 198, 'glass'), Q([[w-gt,2],[w,2],[w,d-k],[w-gt,d-k]], 14, 198, 'glass'),
-        Q([[w-k,d],[w,d-k],[w-n,d-k-n],[w-k-n,d-n]], 14, 198, 'glass'),
-        Q([[2,d-gt],[w-k,d-gt],[w-k,d],[2,d]], 198, 201, C3.metal), Q([[w-gt,2],[w,2],[w,d-k],[w-gt,d-k]], 198, 201, C3.metal),
-        Q([[w-k,d],[w,d-k],[w-n,d-k-n],[w-k-n,d-n]], 198, 201, C3.metal),
-        Q([[w-k*0.62-1,d-k*0.38+1],[w-k*0.62+1,d-k*0.38-1],[w-k*0.62+3,d-k*0.38+1],[w-k*0.62+1,d-k*0.38+3]], 95, 125, C3.metal)]; }
+      /* version 332: the front corner rounded (radius c.r), the glass bent along it in 10 strips, a rail on top */
+      const R = c.r, gt = 1.2, C = [w - R, d - R], N = 10, arc = (a, r) => [C[0] + r*Math.cos(a), C[1] + r*Math.sin(a)], A = k => k/N*Math.PI/2;
+      const p = [Q([[0,0],[w,0],[w,d-R],[0,d-R]], 0, 14, C3.white), Q([[0,d-R],[w-R,d-R],[w-R,d],[0,d]], 0, 14, C3.white),
+        Q([[2,d-gt],[w-R,d-gt],[w-R,d],[2,d]], 14, 198, 'glass'), Q([[w-gt,2],[w,2],[w,d-R],[w-gt,d-R]], 14, 198, 'glass'),
+        Q([[2,d-gt],[w-R,d-gt],[w-R,d],[2,d]], 198, 201, C3.metal), Q([[w-gt,2],[w,2],[w,d-R],[w-gt,d-R]], 198, 201, C3.metal)];
+      for(let k = 0; k < N; k++){
+        const a1 = A(k), a2 = A(k + 1), o1 = arc(a1, R), o2 = arc(a2, R), i1 = arc(a1, R - gt), i2 = arc(a2, R - gt), m = [(C[0] + o2[0])/2, (C[1] + o2[1])/2];
+        /* the strips of a curve draw no edge lines (`smooth`): they showed as rays on the tray and stripes on the rail */
+        p.push({...Q([C, o1, o2, m], 0, 14, C3.white), smooth:true}, {...Q([i1, o1, o2, i2], 14, 198, 'glass'), smooth:true}, {...Q([i1, o1, o2, i2], 198, 201, C3.metal), smooth:true});
+      }
+      const hp = arc(Math.PI/4, R + 1.5);
+      p.push(Q([[hp[0]-1.2, hp[1]-1.2], [hp[0]+1.2, hp[1]-1.2], [hp[0]+1.2, hp[1]+1.2], [hp[0]-1.2, hp[1]+1.2]], 95, 125, C3.metal));
+      return p; }
     case 'wc': return [[w*0.1,0,w*0.9,18,0,80,C3.white],[w*0.15,18,w*0.85,d,0,40,C3.white]];
     case 'sink': return [[0,0,w,d,0,82,C3.light],[0,0,w,d,82,88,C3.white]];
     default: return box(75, C3.light);
   }
 }
-const H3 = {bed:50, sofa:85, sofaL:85, armchair:85, coffee:45, desk:75, dining:75, tv:50, night:55, wardrobe:220, dresser:85,
+const H3 = {wpanel:250, kitchenC:90, bed:50, sofa:85, sofaL:85, armchair:85, coffee:45, desk:75, dining:75, tv:50, night:55, wardrobe:220, dresser:85,
   shelf:180, shoe:100, chair:90, kitchen:90, fridge:185, dw:85, washer:85, bath:58, shower:200, cabin:201, wc:80, sink:88};
 /* The 3D inspector: one panel on the right (a sheet at the bottom on a phone) with tabs instead of separate windows
    over the scene; one tab at a time, the scene gives it room. insp3d(null) folds it away. */
@@ -9943,7 +10149,7 @@ function open3d(){
   el.innerHTML = `<div class="v3d-box">
     <div class="v3d-head">
       <div class="v3d-title v3d-room"><details class="v3d-rdd"><summary title="Другая комната" aria-label="Комната в 3D: ${esc(room.name)}"><span>${esc(room.name)}</span><svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></summary>
-        <div class="v3d-rdd-list" role="listbox" aria-label="Комнаты">${state.rooms.map(r=>`<button type="button" role="option" aria-selected="${r.id===room.id}" class="${r.id===room.id ? 'on' : ''}" data-v3droom-pick="${r.id}">${esc(r.name)}</button>`).join('')}</div></details><span class="v3d-room-3d">3D</span></div>
+        <div class="v3d-rdd-list" role="listbox" aria-label="Комнаты">${state.rooms.map(r=>`<button type="button" role="option" aria-selected="${r.id===room.id}" class="${r.id===room.id ? 'on' : ''}" data-v3droom-pick="${r.id}">${esc(r.name)}</button>`).join('')}${flat3dTick(room)}</div></details><span class="v3d-room-3d">3D</span></div>
       <div class="v3d-tools">
         <div class="v3d-grp" role="group" aria-label="Изменить"><button class="btn small" data-v3d="move" aria-pressed="false">Двигать мебель</button></div>
         <div class="v3d-grp v3d-seg" role="group" aria-label="Настройки комнаты"><button class="btn small" data-v3d="light" aria-expanded="false">Свет</button><button class="btn small" data-v3d="wf" aria-expanded="false" aria-label="Стены и пол"><span>Стены<span class="v3d-long"> и пол</span></span></button><button class="btn small" data-v3d="curt" aria-expanded="false">Шторы</button><button class="btn small" data-v3d="colors" aria-expanded="false">Цвета</button><button class="btn small" data-v3d="item" aria-expanded="false">Предмет</button></div>
@@ -10006,7 +10212,18 @@ function open3d(){
   </div>`;
   document.body.appendChild(el);
   document.body.classList.add('v3d-on');
-  v3d = {el, room, labels:false, doorsOpen:true, leaves:[], light:light3dLoad(), photo:photo3dOn(), decor:decor3dOn()};
+  v3d = {el, room, labels:false, doorsOpen:true, leaves:[], light:light3dLoad(), photo:photo3dOn(), decor:decor3dOn(), flat:flat3dOn() && !ui.flatOff};
+  /* «Вся квартира» (version 321): the flat is built again with or without the other rooms */
+  el.addEventListener('change', e=>{
+    const f = e.target.closest?.('[data-flat3d]'); if(!f || !v3d || v3d.el!==el) return;
+    flat3dSave(f.checked); v3d.flat = f.checked;
+    const d = f.closest('details'); if(d) d.open = false;
+    const view = el.querySelector('.v3d-view'), msg = document.createElement('p'); msg.className = 'v3d-msg';
+    msg.textContent = f.checked ? 'Собираю квартиру…' : 'Показываю одну комнату…'; view.appendChild(msg);
+    /* a moment for the message to show: building the flat takes a while */
+    setTimeout(()=>{ if(v3d && v3d.el===el){ rebuild3d(); refresh3dUi(); }
+      if(v3d && v3d.renderer) el.querySelectorAll('.v3d-msg').forEach(m=>m.remove()); }, 60);
+  });
   el.addEventListener('click', e=>{
     const b = e.target.closest('[data-v3d]');
     if(e.target===el || (b && b.dataset.v3d==='close')){ close3d(); return; }
@@ -10017,7 +10234,7 @@ function open3d(){
       placeDays(); return;
     }
     const dc = e.target.closest('[data-deccol]');
-    if(dc){ if(v3d.cam && v3d.pickedDec) decorSet3d(v3d.pickedDec, {c:dc.dataset.deccol || null}); return; }
+    if(dc){ if(v3d.cam && v3d.pickedDec) decColor3d(dc.dataset.deccol || null); return; }
     const cb = e.target.closest('[data-color]');
     if(cb){ if(v3d.cam) setColor3d(cb.dataset.color, cb.dataset.c); return; }
     const cs = e.target.closest('[data-curtspan]'); if(cs){ if(v3d.cam) curtSet('span', cs.dataset.curtspan); return; }
@@ -10083,6 +10300,8 @@ function open3d(){
     if(a==='itemdup'){ itemDup3d(); return; }
     if(a==='itemshop'){ if(v3d.picked) openShop({item:v3d.picked, room:v3d.room.id}); return; }
     if(a==='itemdel'){ itemDel3d(); return; }
+    if(a==='tvpow'){ const i = v3d.picked; if(i){ v3d.tvToggle?.(i); refresh3dUi(); } return; }
+    if(a==='tvimgoff'){ const i = (state.layouts[v3d.room.id] || []).find(x=>x.id===v3d.picked); if(i){ pushUndo(); delete i.tvImg; delete i.tvImgL; delete i.tvGif; changed(); render(); rebuild3d(); } return; }
     if(a==='picimgoff'){ if(v3d.pickedDec) decorSet3d(v3d.pickedDec, {img:null, imgL:null}); return; }
     if(a==='decreset'){ pushUndo(); if(state.decor) delete state.decor[v3d.room.id]; v3d.pickedDec = null; changed(); render(); rebuild3d(); return; }
     if(a==='lampdel'){ if(v3d.pickedLamp) lampDel3d(v3d.pickedLamp); return; }
@@ -10125,7 +10344,14 @@ function open3d(){
     else if(e.target.hasAttribute('data-photo3d')) photoSet3d(e.target.checked);
     else if(e.target.hasAttribute('data-lamp3d')){ if(v3d.pickedLamp) lampKind3d(v3d.pickedLamp, e.target.value); }
     else if(e.target.hasAttribute('data-decvar')){ if(v3d.pickedDec) decorSet3d(v3d.pickedDec, {v:e.target.value}); }
+    else if(e.target.hasAttribute('data-mat3d')){
+      const i = (state.layouts[v3d.room.id] || []).find(x=>x.id===v3d.picked); if(!i) return;
+      pushUndo(); if(e.target.value) i.mat = e.target.value; else delete i.mat; changed(); render(); rebuild3d();
+    }
+    else if(e.target.hasAttribute('data-deccolpick')){ if(v3d.pickedDec) decColor3d(e.target.value); }
+    else if(e.target.hasAttribute('data-decpart')){ ui.decPart = e.target.value; if(v3d.pickedDec) decorPanel3d(v3d.pickedDec); }
     else if(e.target.hasAttribute('data-dim3d')){ itemDim3d(e.target.dataset.dim3d, Number(e.target.value)); }
+    else if(e.target.hasAttribute('data-tvimg')){ const f = e.target.files && e.target.files[0]; e.target.value = ''; if(f) tvImg3d(f); }
     else if(e.target.hasAttribute('data-picimg')){ const f = e.target.files && e.target.files[0]; e.target.value = ''; if(f) picImg3d(f); }
     else if(e.target.hasAttribute('data-lampdrop')){ if(v3d.pickedLamp) lampDrop3d(v3d.pickedLamp, Number(e.target.value)); }
     else if(e.target.hasAttribute('data-model3d')){
@@ -10228,25 +10454,27 @@ function placeDays(){
   }
   /* the lamps are on in the evening and in a room without windows (bath, toilet, hall), unless the box «Лампы включены»
      says otherwise (l.lampsOn; a new time of day goes back to the usual) */
-  const noWin = !v.wins.length, lit = l.lampsOn ?? (l.mode==='evening' || noWin), lampK = lit ? l.lamps/100 : 0;
+  /* lamps switched on in daylight (the switch in the walk, «Лампы включены») shine at 40 % (version 325): at full
+     strength on top of the sun the room burnt out white */
+  const noWin = !v.wins.length, lit = l.lampsOn ?? (l.mode==='evening' || noWin), lampK = lit ? l.lamps/100*(l.mode==='evening' || noWin ? 1 : 0.4) : 0;
   const panel = v.el.querySelector('.v3d-light');
   panel?.toggleAttribute('data-nowin', noWin); panel?.toggleAttribute('data-lit', lit);
   const box = panel?.querySelector('[data-lampson]'); if(box) box.checked = lit;
   /* with a shadow spot (photo mode) the lamp's light is shared: the all-round light weaker, the spot adds below */
   /* the colour of the lamps from their colour temperature in kelvin (2700 warm … 6500 cold) */
   const kc = kelvin(l.warm || 4000), lc = new T.Color(kc[0], kc[1], kc[2]), ec = lc.clone().lerp(new T.Color(1, 1, 1), 0.3).convertSRGBToLinear();
-  for(const p of v.lamps){
+  for(const p of [...v.lamps, ...(v.nbLamps || [])]){
     p.light.intensity = 0.95*lampK*(p.spot ? 0.55 : 1); if(p.spot) p.spot.intensity = 0.95*lampK*0.6;
     p.light.color.copy(lc); if(p.spot) p.spot.color.copy(lc); p.mesh.material.emissive.copy(ec);
     p.mesh.material.emissiveIntensity = lampK ? 1 + lampK : 0;
   }
   /* the light bounced around the room follows its source: the windows by day, the lamps in the evening */
   const envK = noWin ? MODES3.evening.env*1.6*Math.max(0.1, lampK) : M.env*(l.mode==='evening' ? Math.max(0.15, lampK) : l.sky/100);
-  for(const m of v.stdMats) m.envMapIntensity = envK;
+  for(const m of [...v.stdMats, ...(v.nbStd || [])]) m.envMapIntensity = envK;
   v.hemi.intensity = M.hemi;
   /* in the evening the glass of the windows is dark: night outside */
   const night = l.mode==='evening';
-  for(const g of v.glass){ g.color.setHex(night ? 0x1d2633 : C3.glass).convertSRGBToLinear(); g.opacity = night ? 0.85 : 0.3; }
+  for(const g of [...v.glass, ...(v.nbGlass || [])]){ g.color.setHex(night ? 0x1d2633 : C3.glass).convertSRGBToLinear(); g.opacity = night ? 0.85 : 0.3; }
   v.renderer.toneMappingExposure = M.exp;
   v.dirty = true;
 }
@@ -10514,10 +10742,11 @@ function refresh3dUi(){
   const dims = i => `<div class="fields" style="grid-template-columns:repeat(${HEIGHTED.has(i.t) ? 3 : 2}, 1fr);gap:8px">`
     + `<label class="f">Ширина, см<input type="number" min="5" step="${sizeStep()}" data-dim3d="w" value="${i.w}"></label>`
     + `<label class="f">Глубина, см<input type="number" min="5" step="${sizeStep()}" data-dim3d="d" value="${i.d}"></label>`
-    + (HEIGHTED.has(i.t) ? `<label class="f">Высота, см<input type="number" min="20" max="300" step="${sizeStep()}" data-dim3d="h" value="${furnTop(i)}"></label>` : '') + '</div>';
+    + (HEIGHTED.has(i.t) ? `<label class="f">Высота, см<input type="number" min="20" max="300" step="${sizeStep()}" data-dim3d="h" value="${furnTop(i)}"></label>` : '') + '</div>'
+    + (i.t.startsWith('bed') && modelOf(i)!=='low' ? `<label class="f" title="Высота изголовья от пола">Изголовье, см<input type="number" min="60" max="200" step="${sizeStep()}" data-dim3d="hb" value="${bedHead(i)}"></label>` : '');
   const acts = i => (i.shop ? `<p class="note" style="margin:0">Товар: <a href="${esc(i.shop.url)}" target="_blank" rel="noopener">${esc(i.shop.name)}</a>, ${esc(i.shop.shop || '')}, ${shopMoney(i.shop.price, i.shop.cur)}</p>` : '')
     + `<div class="row">${shopHas(shopKind(i.t)) || i.shop ? `<button class="btn small" data-v3d="itemshop">${i.shop ? 'Сменить товар' : 'Подобрать в магазинах'}</button>` : ''}<button class="btn small" data-v3d="itemdup">Копия</button><button class="btn small danger" data-v3d="itemdel">Удалить</button></div>`;
-  v.el.querySelector('.v3d-mvcolor').innerHTML = i && !isOpening(i) ? dims(i) + modelPick(i, 'data-model3d') + colorPick('item', i.color || '', 'furn') + acts(i)
+  v.el.querySelector('.v3d-mvcolor').innerHTML = i && !isOpening(i) ? dims(i) + modelPick(i, 'data-model3d') + colorPick('item', i.color || '', 'furn') + matPick(i, 'data-mat3d') + (i.t==='tv' ? tvTools3d(i) : '') + acts(i)
     : lp ? lampTools(lp) : !i && v.moving ? `<div class="row">${addLamp}</div>` : '';
   v.el.querySelector('.v3d-mvmsg').textContent = v.moveMsg || '';
 }
@@ -10540,9 +10769,14 @@ function decorPanel3d(key){
   const own = kind==='pic' && (cur.img || cur.imgL);
   v.el.querySelector('.v3d-mvcolor').innerHTML =
     (dk.vars && !own ? `<label class="f">Вид<select data-decvar>${dk.vars.map(([k, n])=>`<option value="${k}" ${(curV || dk.vars[0][0])===k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>` : '')
-    + (uniq.length ? `<div class="grid" style="gap:6px"><span class="f-l">${dk.colName}</span><div class="cswatch">${kind==='plant' ? '' : `<button class="sw sw-reset${cur.c ? '' : ' on'}" data-deccol="" title="По стилю" aria-label="По стилю"></button>`}${uniq.map(c=>`<button class="sw${(cur.c || '').toLowerCase()===c ? ' on' : ''}" data-deccol="${c}" style="background:${c}" title="${c}" aria-label="Цвет ${c}"></button>`).join('')}</div></div>` : '')
+    + (kind==='tex' ? (()=>{ const owner = (state.layouts[v.room.id] || []).find(x=>key.startsWith(x.id + ':')), t = owner && owner.t;
+        const parts = t==='armchair' ? [] : /^bed/.test(t || '') ? [['c1', 'Подушка'], ['c3', 'Плед']] : [['c1', 'Левая подушка'], ['c2', 'Правая подушка'], ['c3', 'Плед']];
+        if(!parts.some(([k])=>k===ui.decPart)) ui.decPart = '';
+        return parts.length ? `<label class="f">Что красить<select data-decpart><option value="">Всё сразу</option>${parts.map(([k, n])=>`<option value="${k}" ${ui.decPart===k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>` : ''; })() : '')
+    + (uniq.length ? `<div class="grid" style="gap:6px"><span class="f-l">${dk.colName}</span><div class="cswatch">${(c=>`<label class="sw-wheel${c && !uniq.includes(c.toLowerCase()) ? ' on' : ''}" title="Любой цвет"><span class="wheel"${c ? ` style="--c:${c}"` : ''}></span><input type="color" data-deccolpick value="${c || '#b88b5e'}" aria-label="Выбрать любой цвет"></label>`)(kind==='tex' && ui.decPart ? cur[ui.decPart] : cur.c)}${kind==='plant' ? '' : `<button class="sw sw-reset${(kind==='tex' && ui.decPart ? cur[ui.decPart] : cur.c) ? '' : ' on'}" data-deccol="" title="По стилю" aria-label="По стилю"></button>`}${uniq.map(c=>`<button class="sw${((kind==='tex' && ui.decPart ? cur[ui.decPart] : cur.c) || '').toLowerCase()===c ? ' on' : ''}" data-deccol="${c}" style="background:${c}" title="${c}" aria-label="Цвет ${c}"></button>`).join('')}</div></div>` : '')
     + `<p class="note" style="margin:0">${{plant:'Стрелки двигают растение, кубик сверху меняет размер. Можно и просто перетащить его по полу.',
         rug:'Стрелки двигают ковёр, кольцо поворачивает, кубики меняют длину и ширину. После этого ковёр не переезжает вместе с мебелью.',
+        tlamp:'В режиме «Двигать мебель» стрелки двигают лампу: она встаёт на мебель под ней или на пол. «Торшер» стоит на полу.',
         pic:'Стрелки двигают картину вдоль стены и вверх-вниз, за углом она переходит на соседнюю стену. Кубик в углу меняет размер. После этого картина не переезжает вместе с мебелью.'}[kind] || 'Двигается вместе со своей мебелью.'}</p>`
     + (kind==='pic' && !WALL_DECO.includes(curV) ? `<div class="row"><label class="btn small">${own ? 'Другая картинка' : 'Своя картинка'}<input type="file" accept="image/*" data-picimg hidden></label>${own ? '<button class="btn small" data-v3d="picimgoff">Убрать свою картинку</button>' : ''}</div>` : '')
     + `<div class="row"><button class="btn small danger" data-v3d="decoff">Убрать</button>${kind==='plant' ? '<button class="btn small" data-v3d="plantadd">+ Растение</button>' : kind==='pic' ? '<button class="btn small" data-v3d="picadd">+ Картина рядом</button>' : ''}</div>`
@@ -10610,6 +10844,13 @@ function pickDec3d(key){
 }
 /* a change to the decor, one step of undo: {v, c, off} for a thing on a piece; for a plant also {x, y}, and off
    takes it away. The room's automatic plants are written down at the first change of any plant */
+/* the colour of the picked decor (version 325): any colour (the wheel) or one of the style's; for cushions and a throw
+   the part chosen in «Что красить» (ui.decPart: c1, c2 – the cushions, c3 – the throw), or all of them */
+function decColor3d(c){
+  const key = v3d.pickedDec; if(!key) return;
+  const p = decorKind(key)==='tex' && ui.decPart;
+  decorSet3d(key, p ? {[p]:c} : {c, c1:null, c2:null, c3:null});
+}
 function decorSet3d(key, patch){
   const v = v3d; if(!v) return;
   pushUndo();
@@ -10658,6 +10899,32 @@ function picAdd3d(){
 }
 /* «Своя картинка»: the file made smaller and stored (the artifact's file storage, or this browser), the picture's
    height set to the image's proportions, so it is not stretched */
+/* the TV of the picked piece (version 328): on/off and the owner's picture or GIF on its screen */
+function tvTools3d(i){
+  const on = !!v3d?.tvOn?.has(i.id), own = i.tvImg || i.tvImgL;
+  return `<div class="row"><button class="btn small" data-v3d="tvpow" aria-pressed="${on}">${on ? 'Выключить телевизор' : 'Включить телевизор'}</button>`
+    + `<label class="btn small">${own ? 'Другая картинка' : 'Картинка или GIF на экран'}<input type="file" accept="image/*" data-tvimg hidden></label>${own ? '<button class="btn small" data-v3d="tvimgoff">Убрать картинку</button>' : ''}</div>`
+    + `<p class="note" style="margin:0">В прогулке телевизор включается клавишей E${matchMedia('(pointer:coarse)').matches ? ' или кнопкой' : ''}, когда смотришь на него.</p>`;
+}
+async function tvImg3d(file){
+  const v = v3d, i = v && (state.layouts[v.room.id] || []).find(x=>x.id===v.picked); if(!i) return;
+  const msg = t => { const m = v.el.querySelector('.v3d-mvmsg'); if(m) m.textContent = t; };
+  if(!/^image\//.test(file.type || 'image/')){ msg('Это не картинка.'); return; }
+  const gif = /gif/i.test(file.type);
+  msg('Загружаю картинку…');
+  try{
+    const assets = await moodAssets(), patch = {tvGif:gif || undefined};
+    /* a GIF goes as it is (shrinking it would stop it); a photo is made smaller */
+    const blob = gif ? file : (await shrinkImage(file, 1280, 0.85)).blob;
+    if(gif && blob.size > (assets ? 12e6 : 3e6)){ msg(`GIF слишком большой: до ${assets ? 12 : 3} МБ.`); return; }
+    if(assets){ const res = await assets.upload(blob, {type:gif ? 'image/gif' : 'image/jpeg'}); patch.tvImg = res.id; patch.tvImgL = undefined; }
+    else { const url = await new Promise((ok, bad)=>{ const r = new FileReader(); r.onload = ()=>ok(r.result); r.onerror = bad; r.readAsDataURL(blob); });
+      const id = uid(); localStorage.setItem(LS_KEY + '-tv-' + id, url); patch.tvImgL = id; patch.tvImg = undefined; }
+    if(v3d!==v) return;
+    pushUndo(); for(const [k, val] of Object.entries(patch)) if(val===undefined) delete i[k]; else i[k] = val;
+    v.tvOn.add(i.id); msg(''); changed(); render(); rebuild3d();
+  }catch(e){ msg(e && e.code==='quota_exceeded' ? 'Место для файлов закончилось.' : e && e.name==='QuotaExceededError' ? 'В браузере не хватает места для этой картинки – возьмите файл поменьше.' : 'Картинка не загрузилась. Попробуйте другой файл.'); }
+}
 async function picImg3d(file){
   const v = v3d, key = v && v.pickedDec; if(!key) return;
   const msg = t => { const m = v.el.querySelector('.v3d-mvmsg'); if(m) m.textContent = t; };
@@ -10708,7 +10975,7 @@ function itemDel3d(){
 function itemDim3d(k, val){
   const v = v3d, i = (state.layouts[v.room.id] || []).find(x=>x.id===v.picked); if(!i || !(val >= 5)) return;
   const t = {...i};
-  if(k==='h') t.h = Math.round(Math.max(20, Math.min(300, val))); else t[k] = Math.round(Math.min(1000, val));
+  if(k==='h') t.h = Math.round(Math.max(20, Math.min(300, val))); else if(k==='hb') t.hb = Math.round(Math.max(60, Math.min(200, val))); else t[k] = Math.round(Math.min(1000, val));
   edit3d(i.id, t);
 }
 /* «Двигать мебель» on or off: the handles of the picked thing; off drops the pick */
@@ -10781,6 +11048,7 @@ function rebuild3d(){
   v.walkStop?.();
   const keep = {...v.st};
   cancelAnimationFrame(v.raf); v.ro && v.ro.disconnect();
+  if(v.nb) v.scene.remove(v.nb.group);
   v.scene.traverse(o=>{ o.geometry && o.geometry.dispose(); o.material && [].concat(o.material).forEach(m=>{ m.map && m.map.dispose(); m.dispose(); }); });
   composerFree(v); v.renderer.domElement.remove(); v.renderer.dispose(); v.renderer.forceContextLoss();
   v.el.querySelector('.v3d-labels').innerHTML = '';
@@ -10806,9 +11074,200 @@ function close3d(){
   v.el.remove(); document.body.classList.remove('v3d-on');
   document.querySelector('[data-3d]')?.focus({preventScroll:true});
 }
+/* «Вся квартира» in 3D (version 321): with the tick under the list of rooms, the other rooms put in their places on the
+   plan of the flat («Собрать квартиру», room.at) stand around the open room – with their furniture, finishes, doors and
+   windows – and one walks from room to room through the doors. Each other room is built by build3d itself, as a
+   «ghost» (a 3D window of its own that is never shown), and its scene moved into this one, turned and shifted as the
+   flat has it; its lights are left out except the lamps (without shadows). The panels act on the open room only.
+   A shared door is drawn once (by the room built first); a door with no room behind it keeps its surprise.
+   The other rooms are kept while the open room is rebuilt (a colour, a piece moved) and built again only when they,
+   the style or the decor change. The choice is kept on this device (and for the session without storage). */
+const flat3dOn = () => { if(ui.flat3d!=null) return ui.flat3d; try{ return localStorage.getItem(LS_KEY + '-flat3d')==='1'; }catch(e){ return false; } };
+const flat3dSave = on => { ui.flat3d = on; try{ localStorage.setItem(LS_KEY + '-flat3d', on ? '1' : '0'); }catch(e){} };
+/* the other rooms placed on the plan of the flat, when this one is placed too; otherwise null */
+function flat3dRooms(room){
+  if(!room || !validAt(room.at)) return null;
+  const rs = state.rooms.filter(r=>r.id!==room.id && validAt(r.at));
+  return rs.length ? rs : null;
+}
+function flat3dTick(room){
+  const ok = !!flat3dRooms(room), on = ok && flat3dOn();
+  const why = ok ? '' : validAt(room.at) || !state.rooms.some(r=>validAt(r.at)) ? 'Сначала соберите комнаты в план на вкладке «Квартира».' : 'Эта комната ещё не стоит на плане квартиры – поставьте её на место на вкладке «Квартира».';
+  return `<div class="v3d-flat-w"><label class="rb-chk" title="${ok ? 'Все комнаты, собранные в план, – можно ходить из комнаты в комнату' : esc(why)}"><input type="checkbox" data-flat3d ${on ? 'checked' : ''} ${ok ? '' : 'disabled'}>Вся квартира</label>${ok ? '' : `<p class="note">${esc(why)}</p>`}</div>`;
+}
+/* a point / direction of room B's own plan in room A's own plan (both placed on the plan of the flat) */
+function flat3dXf(A, B){
+  const m = rotM(A.r);
+  const back = q => [m[0]*q[0] + m[2]*q[1], m[1]*q[0] + m[3]*q[1]];
+  return {pt:p => { const q = aptPt(B, p); return back([q[0] - A.x, q[1] - A.y]); }, vec:w => back(aptVec(B, w))};
+}
+function flat3dDrop(v){
+  if(!v.nb) return;
+  const g = v.nb.group; g.parent && g.parent.remove(g);
+  g.traverse(o=>{ o.geometry && o.geometry.dispose(); o.material && [].concat(o.material).forEach(m=>{ m.map && m.map.dispose(); m.dispose(); }); });
+  v.nb = null;
+}
+let flat3dR = null, flat3dMemo = null;
+/* the doors and windows of the other rooms that stand in a wall this room shares with them (version 322). A wall between
+   two rooms is built by both (each its own thickness); an opening that only one of them has looked into the other
+   room's solid wall – the glass and the sill stuck into it and the window showed black. Now:
+   - the other room's opening is cut through this room's wall too (`extra`: a plain opening, its sides plastered);
+   - the same opening kept by both rooms (a door or a window between them, at the same place) is drawn once – by the
+     room built first (`skip`: the ids of this room's own copies to leave bare, when `done` has the other room) */
+function flat3dOpenings(R, done){
+  const out = {skip:new Set(), extra:[], gap:{}};
+  if(!validAt(R.at)) return out;
+  const g0 = GEO, HR = Math.round((R.h || 2.7)*100), src = [], nbE = [];
+  for(const Q of state.rooms){
+    if(Q.id===R.id || !validAt(Q.at)) continue;
+    setGeom(Q); setCurrentWalls(Q); const X = flat3dXf(R.at, Q.at), HQ = Math.round((Q.h || 2.7)*100);
+    GEO.edges.forEach((e, k)=>nbE.push({a:X.pt(e.a), b:X.pt(e.b), n:X.vec(e.n), t:curWalls[k]}));
+    for(const i of state.layouts[Q.id] || []) if((i.t==='door' || i.t==='window') && i.along!=null){
+      const f = openFrame(i), o = (Q.openings || []).find(x=>x.id===i.op) || OPENING_DEFAULT[i.t];
+      const h = Math.min(o.h || OPENING_DEFAULT[i.t].h, HQ - 5), z1 = i.t==='window' ? Math.max(0, Math.min(SILL, HQ - 10 - h)) : 0;
+      src.push({Q, i, A:X.pt(f.p), B:X.pt([f.p[0] + f.u[0]*i.w, f.p[1] + f.u[1]*i.w]), n:X.vec(f.n), z1, z2:z1 + h});
+    }
+  }
+  setGeom(R); setCurrentWalls(R);
+  /* the walls this room shares with a neighbour (version 323): the space between their faces (`gap`, cm) is split in
+     half – each room builds its wall up to the middle. Before, each built its own thickness outward: rooms closer than
+     that (the plan of the flat draws such walls as one) had their walls sticking into each other, and a slit between
+     rooms further apart showed the void. A wall that only partly faces the neighbour is split only where they clash */
+  GEO.edges.forEach((e, k)=>{
+    let best = null;
+    for(const q of nbE){
+      if(q.n[0]*e.n[0] + q.n[1]*e.n[1] > -0.99) continue;
+      const g = -((q.a[0] - e.a[0])*e.n[0] + (q.a[1] - e.a[1])*e.n[1]); if(g < -2 || g > 60) continue;
+      const t1 = (q.a[0] - e.a[0])*e.u[0] + (q.a[1] - e.a[1])*e.u[1], t2 = (q.b[0] - e.a[0])*e.u[0] + (q.b[1] - e.a[1])*e.u[1];
+      const ov = Math.min(e.len, Math.max(t1, t2)) - Math.max(0, Math.min(t1, t2)); if(ov < Math.min(30, 0.3*e.len)) continue;
+      if(g < curWalls[k] + q.t - 0.5 || ov >= 0.5*e.len) if(!best || g < best) best = Math.max(0, g);
+    }
+    if(best!=null) out.gap[k] = best;
+  });
+  const own = (state.layouts[R.id] || []).filter(i=>(i.t==='door' || i.t==='window') && i.along!=null);
+  for(const o of src) GEO.edges.forEach((e, k)=>{
+    /* facing this wall from the other side, 0…90 cm behind its face (the walls between) */
+    if(o.n[0]*e.n[0] + o.n[1]*e.n[1] > -0.9) return;
+    const d = -((o.A[0] - e.a[0])*e.n[0] + (o.A[1] - e.a[1])*e.n[1]); if(d < -2 || d > 90) return;
+    const t1 = (o.A[0] - e.a[0])*e.u[0] + (o.A[1] - e.a[1])*e.u[1], t2 = (o.B[0] - e.a[0])*e.u[0] + (o.B[1] - e.a[1])*e.u[1];
+    const s1 = Math.max(0, Math.min(t1, t2)), s2 = Math.min(e.len, Math.max(t1, t2)); if(s2 - s1 < 10) return;
+    const ov = own.filter(i=>i.side===k).map(i=>[i, Math.min(s2, i.along + i.w) - Math.max(s1, i.along)]).filter(x=>x[1] > 1);
+    const twin = ov.find(([i, w])=>i.t===o.i.t && w > 0.5*Math.min(s2 - s1, i.w));
+    if(twin){ if(done && done.has(o.Q.id)) out.skip.add(twin[0].id); return; }
+    /* where this room has an opening of its own across part of it – only the rest is cut */
+    let parts = [[s1, s2]];
+    for(const [i] of ov){ const a = i.along, b = i.along + i.w; parts = parts.flatMap(([p, q])=>[[p, Math.min(q, a)], [Math.max(p, b), q]]).filter(([p, q])=>q - p >= 10); }
+    for(const [p, q] of parts) out.extra.push({k, s1:p, s2:q, z1:o.z1, z2:Math.min(o.z2, HR - 5), from:o.Q.id + ':' + o.i.id, t:o.i.t});
+  });
+  GEO = g0;
+  return out;
+}
+/* one other room built as a ghost: a copy of the 3D window that is never shown, the global v3d pointed at it meanwhile */
+function flat3dGhost(main, T, r, done){
+  const el = main.el.cloneNode(true);
+  el.querySelectorAll('canvas, .v3d-msg').forEach(x=>x.remove());
+  el.querySelector('.v3d-labels').innerHTML = '';
+  const msg = document.createElement('p'); msg.className = 'v3d-msg'; el.querySelector('.v3d-view').appendChild(msg);
+  /* one hidden renderer serves every ghost (a new one each time made the next ones slower and slower) */
+  if(!flat3dR || flat3dR.getContext().isContextLost()) flat3dR = new T.WebGLRenderer();
+  const g = {el, room:r, labels:false, doorsOpen:main.doorsOpen, leaves:[], light:main.light, photo:false, decor:main.decor, ghost:true, flatDone:done, ghostR:flat3dR};
+  const keep = v3d; v3d = g;
+  try{ build3d(T); }catch(err){ console.warn('flat 3d', r.name, err); }
+  finally{
+    v3d = keep; cancelAnimationFrame(g.raf); g.ro && g.ro.disconnect();
+    g.renderer?.domElement.remove();
+    /* a picture or a texture of that room loaded later: this view is drawn again */
+    Object.defineProperty(g, 'dirty', {configurable:true, get:()=>false, set:x=>{ if(x && v3d) v3d.dirty = true; }});
+  }
+  return g.scene && g.walls ? g : null;
+}
+function flat3dAttach(v, T, scene){
+  const room = v.room, others = flat3dRooms(room);
+  Object.assign(v, {nbWalls:[], nbLamps:[], nbStd:[], nbGlass:[], nbFurn:[], nbPics:[], flatWalk:null});
+  if(!others){ flat3dDrop(v); return; }
+  const key = JSON.stringify([room.id, room.at, room.poly, room.l, room.w, room.h, room.openings, room.wallOverride, room.wallT, scheme3d(), v.decor, decorCats(), (state.layouts[room.id] || []).filter(isOpening),
+    others.map(r=>[r, state.layouts[r.id], state.decor?.[r.id]])]);
+  if(!v.nb || v.nb.key!==key){
+    flat3dDrop(v);
+    const nb = {key, group:new T.Group(), rooms:[]}, done = new Set([room.id]);
+    flat3dMemo = new Map();
+    nb.group.name = 'flat';
+    for(const r of others){
+      /* the doors and windows shared with a room already built: that room draws them (flat3dOpenings) */
+      const g = flat3dGhost(v, T, r, new Set(done)); done.add(r.id); if(!g) continue;
+      const X = flat3dXf(room.at, r.at), gr = new T.Group(), c0 = X.vec([1, 0]), c1 = X.vec([0, 1]), t = X.pt([0, 0]);
+      gr.name = r.name;
+      new T.Matrix4().set(c0[0], 0, c1[0], t[0], 0, 1, 0, 0, c0[1], 0, c1[1], t[1], 0, 0, 0, 1).decompose(gr.position, gr.quaternion, gr.scale);
+      for(const o of g.scene.children.slice()) gr.add(o);
+      /* its daylight and the light all round are this room's; its lamps stay, without shadows; it casts no shadows */
+      const drop = [];
+      gr.traverse(o=>{ if(o.isLight && !o.isPointLight) drop.push(o); o.castShadow = false; });
+      drop.forEach(o=>o.parent && o.parent.remove(o));
+      nb.group.add(gr);
+      for(const l of g.leaves){ l.c = X.pt(l.c); l.back = X.pt(l.back); l.into = X.pt(l.into); }
+      const walls = g.walls.map(w=>({...w, mid:X.pt(w.mid), out:X.vec(w.out)})), wk = k => walls.find(w=>w.k===k), pics = [];
+      for(const f of g.furn || []) for(const [k, m] of f.dg?.userData.walls || []) if(wk(k)) pics.push([wk(k), m]);
+      for(const [k, m] of g.freeWalls || []) if(wk(k)) pics.push([wk(k), m]);
+      nb.rooms.push({r, X, walls, pics, holes:g.extraOps || [], leaves:g.leaves, lamps:g.lamps || [], std:g.stdMats || [], glass:g.glass || [], furn:(g.furn || []).filter(f=>f.grp)});
+    }
+    v.nb = nb; flat3dMemo = null;
+  }
+  scene.add(v.nb.group);
+  /* which doors lead into another room of the flat (no surprise behind them, one walks through) */
+  const placed = new Set([room.id, ...v.nb.rooms.map(x=>x.r.id)]);
+  /* …or into a room whose wall got an opening for it (version 322: that room has no door of its own there) */
+  const holeTo = {};
+  for(const h of v.extraOps || []) holeTo[h.from] = room.id;
+  for(const x of v.nb.rooms) for(const h of x.holes) holeTo[h.from] = x.r.id;
+  const leafTo = (r, l) => { const i = l.id && (state.layouts[r.id] || []).find(x=>x.id===l.id), p = i && aptDoorPair(r, i);
+    return p && placed.has(p.room) ? p.room : i && placed.has(holeTo[r.id + ':' + i.id]) ? holeTo[r.id + ':' + i.id] : null; };
+  for(const l of v.leaves) l.to = leafTo(room, l);
+  for(const x of v.nb.rooms){
+    v.nbWalls.push(...x.walls); v.nbPics.push(...x.pics); v.nbLamps.push(...x.lamps); v.nbStd.push(...x.std); v.nbGlass.push(...x.glass); v.nbFurn.push(...x.furn);
+    for(const l of x.leaves){ l.to = leafTo(x.r, l); l.g = scene; l.sign = null; l.signFresh = false; l.isOpen = false;
+      l.open.visible = v.doorsOpen; l.shut.visible = !v.doorsOpen; v.leaves.push(l); }
+  }
+  /* the walk: the floors of all rooms (in this room's own cm), the walls with the openings of the doors between rooms
+     cut out (a cut stops you only while its door is shut) and the sides of those doorways */
+  const polys = [polyOf(room), ...v.nb.rooms.map(({r, X})=>polyOf(r).map(X.pt))], ids = [room.id, ...v.nb.rooms.map(x=>x.r.id)];
+  /* a doorway reaches from this room's wall to the floor of the room behind it (both rooms' walls may stand between) */
+  const doors = v.leaves.filter(l=>l.to).map(l=>{ const o = [l.back[0] - l.c[0], l.back[1] - l.c[1]], L = Math.hypot(o[0], o[1]) || 1, n = [o[0]/L, o[1]/L], h = l.lw/2;
+    let T0 = Math.max(0, L - 90), far = Infinity;
+    const p = polys[ids.indexOf(l.to)] || [];
+    p.forEach((a, k)=>{ const b = p[(k + 1)%p.length], ex = b[0] - a[0], ez = b[1] - a[1], el = Math.hypot(ex, ez); if(el < 1 || Math.abs(ex*n[0] + ez*n[1])/el > 0.05) return;
+      const da = (a[0] - l.c[0])*n[0] + (a[1] - l.c[1])*n[1], u = [-n[1], n[0]], t1 = (a[0] - l.c[0])*u[0] + (a[1] - l.c[1])*u[1], t2 = (b[0] - l.c[0])*u[0] + (b[1] - l.c[1])*u[1];
+      if(da > T0 - 3 && da < T0 + 80 && Math.min(t1, t2) < -h + 1 && Math.max(t1, t2) > h - 1) far = Math.min(far, da); });
+    if(far < Infinity) T0 = far;
+    return {l, c:l.c, n, u:[-n[1], n[0]], T0, h}; });
+  const segs = [];
+  for(const p of polys) for(let k = 0; k < p.length; k++){
+    const a = p[k], b = p[(k + 1)%p.length], len = Math.hypot(b[0] - a[0], b[1] - a[1]); if(len < 0.5) continue;
+    const u = [(b[0] - a[0])/len, (b[1] - a[1])/len], P = t => [a[0] + u[0]*t, a[1] + u[1]*t], cuts = [];
+    for(const d of doors){
+      if(Math.abs(u[0]*d.n[0] + u[1]*d.n[1]) > 0.05) continue;
+      const da = (a[0] - d.c[0])*d.n[0] + (a[1] - d.c[1])*d.n[1]; if(!(Math.abs(da) < 3 || Math.abs(da - d.T0) < 3)) continue;
+      const tc = (d.c[0] - a[0])*u[0] + (d.c[1] - a[1])*u[1], t1 = Math.max(0, tc - d.h), t2 = Math.min(len, tc + d.h);
+      if(t2 - t1 > 1) cuts.push([t1, t2, d.l]);
+    }
+    cuts.sort((x, y)=>x[0] - y[0]);
+    let s0 = 0;
+    for(const [t1, t2, l] of cuts){ if(t1 > s0) segs.push({a:P(s0), b:P(t1)}); segs.push({a:P(Math.max(s0, t1)), b:P(t2), l}); s0 = Math.max(s0, t2); }
+    if(len > s0) segs.push({a:P(s0), b:P(len)});
+  }
+  for(const d of doors) for(const sg of [-1, 1]){ const p0 = [d.c[0] + d.u[0]*d.h*sg, d.c[1] + d.u[1]*d.h*sg]; segs.push({a:p0, b:[p0[0] + d.n[0]*d.T0, p0[1] + d.n[1]*d.T0]}); }
+  v.flatWalk = {polys, doors, segs};
+  setGeom(room); setCurrentWalls(room);
+}
 function build3d(T){
   const v = v3d, room = v.room, view = v.el.querySelector('.v3d-view');
   setGeom(room); setCurrentWalls(room);
+  /* «Вся квартира» (version 321): a wall between two rooms is built by both of them – each 1 cm thinner, so the face
+     of one room's wall stays hidden behind the face of the other's and they do not flicker */
+  v.flatOn = !!(v.ghost || (v.flat && flat3dRooms(room)));
+  v.extraOps = null;
+  v.flatGap = null;
+  if(v.flatOn){ const F = flat3dOpenings(room, v.ghost ? v.flatDone : null); v.extraOps = F.extra; v.skipOps = F.skip; v.flatGap = F.gap; setGeom(room); setCurrentWalls(room);
+    curWalls = curWalls.map((t, k)=>F.gap[k]!=null ? Math.max(0.5, F.gap[k]/2) : t); }
   const E = GEO.edges, n = E.length, H = Math.round((room.h || 2.7)*100);
   /* a ceiling under a slope (version 202): its own height at each corner (room.hc); the walls rise to it, the ceiling is
      drawn through the corners (triangles of the floor's shape), lamps hang from it. ceilAt – its height over a point
@@ -10830,7 +11289,7 @@ function build3d(T){
   const wallTop = (k, s) => { const t = Math.min(1, Math.max(0, s/(E[k].len || 1))); return HC[k] + (HC[(k+1)%n] - HC[k])*t; };
   const items = state.layouts[room.id] || [];
   let renderer;
-  try{ renderer = new T.WebGLRenderer({antialias:true}); }
+  try{ renderer = v.ghostR || new T.WebGLRenderer({antialias:true}); }
   catch(e){ view.querySelector('.v3d-msg').textContent = 'Этот браузер не умеет показывать 3D.'; return; }
   /* «Фотореализм» (box in «Свет»): the extra parts are loaded first, the scene is then built again with them */
   const photo = !!(v.photo && T.SAOPass && T.UnrealBloomPass);
@@ -10852,7 +11311,8 @@ function build3d(T){
      - a faint hemisphere so nothing goes black; daylight through the windows and ceiling lamps are added below. */
   v.hemi = new T.HemisphereLight(0xffffff, 0xb9ae9f, 0.15); v.amb = new T.AmbientLight(0xffffff, 0);
   scene.add(v.hemi, v.amb);
-  {
+  /* (a room of the flat built as a ghost takes this view's environment: version 321) */
+  if(!v.ghost){
     const env = new T.Scene(), box = new T.BoxGeometry(100, 60, 100);
     env.add(new T.Mesh(box, new T.MeshBasicMaterial({color:0x8d8780, side:T.BackSide})));
     const panel = (w, h, c, x, y, z, rx, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({color:c, side:T.DoubleSide})); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); env.add(m); };
@@ -10887,13 +11347,16 @@ function build3d(T){
   v.leaves = []; v.switches = []; v.swSpare = [];
   v.stdMats = []; v.curtMats = []; v.tulleMats = []; v.curtCount = 0; const CC = curtCfg(room);
   /* a texture from texCanvas; `uvCm` – how many cm one unit of the surface's texture coordinates is */
-  const texture = (kind, uvCm) => { const {canvas, cm} = texCanvas(kind), t = new T.CanvasTexture(canvas);
+  /* the rooms of the flat built one after another share the drawn pictures and their relief (flat3dMemo, version 321) */
+  const texture = (kind, uvCm) => { const {canvas, cm} = flat3dMemo ? flat3dMemo.get(kind) || flat3dMemo.set(kind, texCanvas(kind)).get(kind) : texCanvas(kind), t = new T.CanvasTexture(canvas);
     t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(uvCm/cm, uvCm/cm); t.anisotropy = 4; t.encoding = T.sRGBEncoding;
     t.nrm = relief(canvas, kind, t); return t; };
   /* the relief of a drawn texture: its lightness taken as height (joints, grout and grain are darker, so lower),
      turned into a normal map; how strong it is depends on the kind */
   const RELIEF = {apronTile:1, laminate:0.6, parquet:0.6, vinyl:0.4, tile:1, wallTile:1, wallpaper:0.3, plaster:0.25, panels:0.9, wood:0.35, fabric:0.8, paint:0.35};
   function relief(canvas, kind, base){
+    const mem = flat3dMemo?.get(canvas);
+    if(mem) return {tex:mem.mk(mem.out, base), k:RELIEF[kind] ?? 0.4, rough:mem.rc ? mem.mk(mem.rc, base) : null};
     const N = canvas.width, src = canvas.getContext('2d').getImageData(0, 0, N, N).data, h = new Float32Array(N*N);
     for(let k=0; k<N*N; k++) h[k] = (src[k*4]*0.3 + src[k*4+1]*0.59 + src[k*4+2]*0.11)/255;
     const out = document.createElement('canvas'); out.width = out.height = N;
@@ -10913,6 +11376,7 @@ function build3d(T){
       for(let k=0; k<N*N; k++){ const v = Math.min(255, 205 + (1 - h[k])*150); rd[k*4] = rd[k*4+1] = rd[k*4+2] = v; rd[k*4+3] = 255; }
       rx.putImageData(ri, 0, 0); rough = mk(rc);
     }
+    flat3dMemo?.set(canvas, {out, rc:rough ? rough.image : null, mk:(c, b)=>{ const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.copy(b.repeat); t.anisotropy = 4; return t; }});
     return {tex:mk(out), k:RELIEF[kind] ?? 0.4, rough};
   }
   const mats = v.mats = {};
@@ -10926,7 +11390,7 @@ function build3d(T){
     : c==='apron:panel' ? (mats[c] || (mats[c] = MAT({color:0xC4BBAE, roughness:0.45})))
     : c==='mirror' ? (mats.mirror || (mats.mirror = MAT({color:0xE4EAEE, metalness:1, roughness:0.04})))
     /* a piece's own colour (recolor): the texture and finish of the part it replaces */
-    : typeof c==='string' ? mats[c] || (mats[c] = (([hx, role])=>MAT({color:liftNum(parseInt(hx.slice(1), 16)), map:MAP[role] ? texture(MAP[role], 100) : null, roughness:ROUGH[role] ?? 0.8, metalness:0, ...FINISH[role]}))(c.split('/').map((s,k)=>k ? Number(s) : s)))
+    : typeof c==='string' ? mats[c] || (mats[c] = (([hx, role])=>MAT({color:liftNum(parseInt(hx.slice(1), 16)), map:MAP[role] ? texture(MAP[role], 100) : null, roughness:ROUGH[role] ?? 0.8, metalness:role===C3.metal ? 0.5 : 0, ...FINISH[role]}))(c.split('/').map((s,k)=>k ? Number(s) : s)))
     : mats[c] || (mats[c] = MAT({color:liftNum(c), map:MAP[c] ? texture(MAP[c], 100) : null, roughness:ROUGH[c] ?? 0.8, metalness:c===C3.metal ? 0.5 : 0, ...FINISH[c]}));
   const edgeMat = new T.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.18});
   /* a vertical block over a convex quad of plan points (cm), from height z0 to z1. `side(p, q)` (optional) is asked for
@@ -11041,7 +11505,10 @@ function build3d(T){
     const h = Math.min(o.h || OPENING_DEFAULT[i.t].h, Hw - 5);
     const sill = i.t==='window' ? Math.max(0, Math.min(SILL, Hw - 10 - h)) : 0;
     return {i, s1:Math.max(0, i.along), s2:Math.min(E[k].len, i.along + i.w), z1:sill, z2:sill + h};
-  }).filter(o=>o.s2 > o.s1 + 1).sort((a,b)=>a.s1-b.s1);
+  }).filter(o=>o.s2 > o.s1 + 1)
+    /* «Вся квартира»: the openings of the other rooms cut through this wall (version 322) */
+    .concat((v.extraOps || []).filter(x=>x.k===k).map(x=>({i:{t:'hole', id:null}, s1:x.s1, s2:x.s2, z1:x.z1, z2:Math.max(x.z1 + 1, x.z2), hole:true, door:x.t==='door'})))
+    .sort((a,b)=>a.s1-b.s1);
   /* the wall finish: paint is plain, wallpaper and tiles get their pattern (one texture shared by all walls) */
   /* tiled walls (version 309): the chosen tile, seam, pattern and colour or photo, one repeat of the pattern */
   v.wallTiling = null;
@@ -11114,24 +11581,43 @@ function build3d(T){
       const e1 = o.s1 - s < 0.5 ? undefined : null, e2 = (ops[oi+1] ? ops[oi+1].s1 : len) - o.s2 < 0.5 ? undefined : null;
       piece(o.s1, o.s2, 0, o.z1, 0.1, e1, e2); piece(o.s1, o.s2, o.z2, H, 0.1, e1, e2);
       prev = o;
+      /* «Вся квартира» (version 323): the floor goes on under a door between rooms, through this room's half of the wall */
+      if(v.flatGap && v.flatGap[k]!=null && (o.i.t==='door' || o.door) && T0 > 0.4){
+        const fp = [at(o.s1, 0), at(o.s2, 0), at(o.s2, T0 + 0.2), at(o.s1, T0 + 0.2)], dg = new T.ShapeGeometry(new T.Shape(fp.map(p=>new T.Vector2(p[0], p[1]))));
+        dg.rotateX(Math.PI/2); const dm2 = new T.Mesh(dg, floor.material); dm2.receiveShadow = true; scene.add(dm2);
+      }
       /* a light frame around the opening; a window also gets glass and a sill board */
       const q = (a, b, t1, t2, z0, z1, mm) => { const ms = prism([at(a,t1), at(b,t1), at(b,t2), at(a,t2)], z0, z1, mm); g.add(ms); return ms; };
       /* a door frame is the colour of its leaf, a window frame is white */
       const fm = o.i.t==='door' ? dm : fr;
       /* a door frame covers the whole depth of the wall; a window frame sits deep in the opening, as thick as the bar
          between its sashes and in line with the glass – the sides of the opening around it are plain wall */
-      const [fa, fb] = o.i.t==='door' ? [-1, T0+1] : [T0*0.45-3, T0*0.45+4];
-      q(o.s1, o.s1+4, fa, fb, o.z1, o.z2, fm); q(o.s2-4, o.s2, fa, fb, o.z1, o.z2, fm); q(o.s1, o.s2, fa, fb, o.z2-4, o.z2, fm);
-      if(o.i.t==='door'){
+      /* a door into the next room: its frame lines the whole wall between them (both halves, version 323) */
+      const [fa, fb] = o.i.t==='door' ? [-1, (v.flatGap && v.flatGap[k]!=null ? Math.max(T0, v.flatGap[k]) : T0) + 1] : [T0*0.45-3, T0*0.45+4];
+      /* «Вся квартира»: an opening of the room next door, or one drawn by the room next door – only the opening here
+         (version 322; version 321 left only shared doors bare) */
+      if(o.hole || v.skipOps?.has(o.i.id)){ s = o.s2; return; }
+      const skipD = false;
+      if(!skipD){ q(o.s1, o.s1+4, fa, fb, o.z1, o.z2, fm); q(o.s2-4, o.s2, fa, fb, o.z1, o.z2, fm); q(o.s1, o.s2, fa, fb, o.z2-4, o.z2, fm); }
+      if(o.i.t==='door' && !skipD){
         /* the door leaf, closed in the opening or open at 90° the way its swing is drawn on the plan (hinges, inward or outward) */
         const a0 = o.s1+4, a1 = o.s2-4, lw = a1-a0, zt = o.z2-4, t0 = o.i.out ? T0 : 0, t1 = o.i.out ? T0+lw : -lw;
         const shut = new T.Group(), open = new T.Group();
+        /* a glass door (version 329, balcony doors): a white frame 7 cm wide with glass in it, closed or open */
+        if(o.i.glass){ const P = 7, c0 = T0/2-2, c1 = T0/2+2;
+          shut.add(q(a0, a0+P, c0, c1, 0, zt, fr), q(a1-P, a1, c0, c1, 0, zt, fr), q(a0+P, a1-P, c0, c1, 0, 12, fr), q(a0+P, a1-P, c0, c1, zt-P, zt, fr),
+            q(a0+P, a1-P, T0/2-0.4, T0/2+0.4, 12, zt-P, gl), q(o.i.flip ? a0+8 : a1-16, o.i.flip ? a0+16 : a1-8, T0/2-5, T0/2+5, 95, 99, hm));
+          const [l0, l1] = o.i.flip ? [a1-4, a1] : [a0, a0+4], sg = t1 > t0 ? 1 : -1;
+          open.add(q(l0, l1, t0, t0 + sg*P, 0, zt, fr), q(l0, l1, t1 - sg*P, t1, 0, zt, fr), q(l0, l1, t0 + sg*P, t1 - sg*P, 0, 12, fr), q(l0, l1, t0 + sg*P, t1 - sg*P, zt-P, zt, fr),
+            q(l0 + 1.6, l1 - 1.6, t0 + sg*P, t1 - sg*P, 12, zt-P, gl));
+        } else {
         shut.add(q(a0, a1, T0/2-2, T0/2+2, 0, zt, dm), q(o.i.flip ? a0+6 : a1-14, o.i.flip ? a0+14 : a1-6, T0/2-5, T0/2+5, 95, 99, hm));
         open.add(o.i.flip ? q(a1-4, a1, t0, t1, 0, zt, dm) : q(a0, a0+4, t0, t1, 0, zt, dm));
+        }
         g.add(shut, open);
         /* for the walk: where the door is (on the room side) and a spot behind it, outside the wall */
         const mid = (o.s1 + o.s2)/2;
-        v.leaves.push({shut, open, c:at(mid, 0), back:at(mid, T0 + 90), into:at(mid, -100), g, sign:null, lw, out:!!o.i.out});
+        v.leaves.push({shut, open, c:at(mid, 0), back:at(mid, T0 + 90), into:at(mid, -100), g, sign:null, lw, out:!!o.i.out, T0, id:o.i.id});
         /* the walk's light switch (version 304) when the electrics plan has none in this room: beside the door on the
            handle side, 12 cm from the opening, at 90 cm; hidden outside the walk */
         /* the first place 6…40 cm from the opening, handle side first, where no furniture stands in front of the plate */
@@ -11370,10 +11856,15 @@ function build3d(T){
   }
   /* the floor darkens a little along every wall */
   const aoFloor = aoMat(0.26);
-  for(const e of E){
-    const F = (p, d) => [p[0] + e.n[0]*d, 0.3, p[1] + e.n[1]*d];
-    scene.add(quad([F(e.a,0), F(e.b,0), F(e.b,38), F(e.a,38)], aoFloor));
-  }
+  /* at an outer corner of the room (more than 180° inside, as in an L-shaped room) the band ends on a slant from the
+     corner, so its light edge stops before its dark one: square ends left two hard lines on the open floor there
+     (version 333) */
+  E.forEach((e, k)=>{
+    const F = (p, d) => [p[0] + e.n[0]*d, 0.3, p[1] + e.n[1]*d], D = 38;
+    const sa = cornerAng[k] > 181 ? Math.min(D, e.len/2) : 0, sb = cornerAng[(k+1)%n] > 181 ? Math.min(D, e.len/2) : 0;
+    const a2 = [e.a[0] + e.u[0]*sa, e.a[1] + e.u[1]*sa], b2 = [e.b[0] - e.u[0]*sb, e.b[1] - e.u[1]*sb];
+    scene.add(quad([F(e.a,0), F(e.b,0), F(b2,D), F(a2,D)], aoFloor));
+  });
   /* furniture */
   /* each piece is one group (its blocks, its soft shadow, its frame shown while it is picked), so the «Двигать мебель»
      mode can carry it over the floor as a whole */
@@ -11552,6 +12043,16 @@ function build3d(T){
     }
     const tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding; return tex;
   };
+  /* a lamp of the decor (version 327: also a floor lamp), drawn by the given cylinder and ball makers at x, y, z */
+  const lampBuild = (cyl, ball, x, y, z, s, kind, sc) => {
+    const mm = DM('#d9d4ca', null, 0.4), stem = DM('#7d7a73', null, 0.3);
+    if(kind==='floor'){ cyl(x, y, 14, 16, z, z + 3, stem); cyl(x, y, 1.2, 1.2, z + 3, z + 140, stem, 8); cyl(x, y, 17, 23, z + 128, z + 162, DM(sc, 'fabric', 0.95), 32); return; }
+    cyl(x, y, 6*s, 7*s, z, z + 2, mm);
+    if(kind==='ball'){ cyl(x, y, 0.9*s, 0.9*s, z + 2, z + 18*s, stem, 8); ball(x, y, z + 28*s, 11*s, DM(sc, null, 0.35)); return; }
+    cyl(x, y, 0.9*s, 0.9*s, z + 2, z + 30*s, stem, 8);
+    if(kind==='drum') cyl(x, y, 11*s, 11*s, z + 24*s, z + 40*s, DM(sc, 'fabric', 0.95), 28);
+    else cyl(x, y, 8*s, 12*s, z + 24*s, z + 40*s, DM(sc, 'fabric', 0.95), 28);
+  };
   const decorFor = (i, items, loc, f) => {
     const t = i.t.startsWith('bed') ? 'bed' : i.t, rnd = seeded(i.id), pick = a => a[Math.floor(rnd()*a.length)], P = v.dpal;
     const dg = new T.Group(); dg.visible = v.decor !== false;
@@ -11617,12 +12118,10 @@ function build3d(T){
     };
     /* a table lamp: a foot, a stem and a light shade */
     /* variants of the shade: cone (the usual), ball (a glass globe), drum (a straight cylinder); ov.c – its colour */
-    const tableLamp = (x, y, z, s = 1) => part('tlamp', ov=>{ const mm = DM('#d9d4ca', null, 0.4), kind = ov.v || 'cone', sc = ov.c || '#f3eee4';
-      cyl(x, y, 6*s, 7*s, z, z + 2, mm);
-      if(kind==='ball'){ cyl(x, y, 0.9*s, 0.9*s, z + 2, z + 18*s, DM('#7d7a73', null, 0.3), 8); ball(x, y, z + 28*s, 11*s, DM(sc, null, 0.35)); return; }
-      cyl(x, y, 0.9*s, 0.9*s, z + 2, z + 30*s, DM('#7d7a73', null, 0.3), 8);
-      if(kind==='drum') cyl(x, y, 11*s, 11*s, z + 24*s, z + 40*s, DM(sc, 'fabric', 0.95), 28);
-      else cyl(x, y, 8*s, 12*s, z + 24*s, z + 40*s, DM(sc, 'fabric', 0.95), 28); });
+    /* a «Торшер» picked for the lamp of a piece stands on the floor beside it */
+    const tableLamp = (x, y, z, s = 1) => part('tlamp', ov=>{ const kind = ov.v || 'cone', sc = ov.c || '#f3eee4';
+      if(kind==='floor') lampBuild(cyl, ball, x < i.w/2 ? -24 : i.w + 24, Math.max(20, y), 0, 1, kind, sc);
+      else lampBuild(cyl, ball, x, y, z, s, kind, sc); });
     const books = (x1, x2, y1, d, z, hmax) => {
       /* books standing from the left, with gaps; now and then a lying stack or a box – each only where it fits
          before the upright (a stack once went through it) */
@@ -11639,7 +12138,7 @@ function build3d(T){
       const c1 = pick(P.acc), c2 = pick(P.acc), c3 = pick(P.acc), left = rnd() < 0.5;
       dcat = 'textile';
       part('tex', ov=>{
-        const pc = DM(ov.c || c1, 'fabric', 0.95), pc2 = DM(ov.c || c2, 'fabric', 0.95);
+        const pc = DM(ov.c1 || ov.c || c1, 'fabric', 0.95), pc2 = DM(ov.c2 || ov.c || c2, 'fabric', 0.95);
         /* an armchair (version 256): the cushion sits on the seat and leans on the back – the sofa's numbers left it hanging
            in the air in front of the back (most of all on the mid-century model); front of the back and top of the seat by model */
         if(t==='armchair'){
@@ -11650,7 +12149,7 @@ function build3d(T){
         box(arm + 5, back + 13, arm + 41, back + 25, seat + 10, seat + 44, pc, 5);
         box(i.w - arm - 41, back + 13, i.w - arm - 5, back + 25, seat + 10, seat + 44, pc2, 5);
         /* a throw over one arm */
-        const tc = DM(ov.c || c3, 'fabric', 0.97), x1 = left ? -1.5 : i.w - arm - 1.5, x2 = x1 + arm + 3;
+        const tc = DM(ov.c3 || ov.c || c3, 'fabric', 0.97), x1 = left ? -1.5 : i.w - arm - 1.5, x2 = x1 + arm + 3;
         box(x1, i.d*0.3, x2, i.d*0.72, aTop - 0.5, aTop + 2, tc, 0.8);
         if(x1 < 0) box(-2, i.d*0.3, 0, i.d*0.72, aTop - 30, aTop + 2, tc, 0.8); else box(i.w, i.d*0.3, i.w + 2, i.d*0.72, aTop - 30, aTop + 2, tc, 0.8);
       });
@@ -11661,16 +12160,16 @@ function build3d(T){
       }
     }
     else if(t==='bed'){
-      const bm = modelOf(i), top = (bm==='low' ? 18 : 30) + 20, head = {soft:118, tall:140, metal:112, low:0}[bm] ?? 100;
+      const bm = modelOf(i), top = (bm==='low' ? 18 : 30) + 20, head = bm==='low' ? 0 : bedHead(i);
       /* a throw across the foot of the duvet, hanging down at the end */
       const c1 = pick(P.acc), c2 = pick(P.acc);
       dcat = 'textile';
-      part('tex', ov=>{ const tc = DM(ov.c || c1, 'fabric', 0.97);
+      part('tex', ov=>{ const tc = DM(ov.c3 || ov.c || c1, 'fabric', 0.97);
         box(0, i.d - 38, i.w, i.d + 1, top + 5, top + 7.5, tc, 1); box(0, i.d + 1, i.w, i.d + 3, top - 22, top + 7.5, tc, 1);
         /* the cushion lies flat on top of the white pillows, in the middle – over the gap between two (version 308, the
            owner's choice; it went through them to 305, stood upright in front in 306, leaned on them in 307). Pillows:
            y py…py+30, tops at top+12 */
-        const py = bm==='low' ? 6 : 12; box(i.w*0.34, py + 4, i.w*0.66, py + 26, top + 12, top + 21, DM(ov.c || c2, 'fabric', 0.95), 4); });
+        const py = bm==='low' ? 6 : 12; box(i.w*0.34, py + 4, i.w*0.66, py + 26, top + 12, top + 21, DM(ov.c1 || ov.c || c2, 'fabric', 0.95), 4); });
       dcat = 'books';
       rug(-55, i.d*0.4, i.w + 55, i.d + 45, pick(P.rug));
       picture(Math.min(i.w*0.7, 140), Math.min(i.w*0.7, 140)*0.5, Math.max(head, top + 40) + 18, (r2=>['abstract', 'landscape', 'gallery', 'tapestry', 'abstract'][Math.floor(r2()*5)])(seeded(i.id + ':wall')));
@@ -11781,6 +12280,14 @@ function build3d(T){
         else { add(new T.BoxGeometry(w, 1.2, d), m, 0, 0, 0.8);
           if(ov.v==='stripes'){ const sm = DM(pick(P.acc), 'fabric', 0.97); for(const s of [-0.28, 0, 0.28]) add(new T.BoxGeometry(w - 6, 0.3, 6), sm, 0, s*d, 1.55); } }
         g.position.set(ov.x, 0, ov.y); g.rotation.y = -(ov.rot || 0)*Math.PI/180;
+      } else if(kind==='tlamp'){
+        /* a lamp moved with its arrows (version 327): it stands on whatever piece is under it, or on the floor (a floor lamp
+           always on the floor) */
+        const lk = ov.v || 'cone', under = lk==='floor' ? null : (state.layouts[room.id] || []).filter(it=>!isOpening(it) && it.t!=='rug').find(it=>pointInPoly(ov.x, ov.y, shapeOf(it)));
+        const cylF = (x, y, r1, r2, z1, z2, m, seg = 24) => add(new T.CylinderGeometry(r1, r2, z2 - z1, seg), m, x, y, (z1 + z2)/2);
+        const ballF = (x, y, z, r, m) => add(new T.IcosahedronGeometry(r, 1), m, x, y, z);
+        lampBuild(cylF, ballF, 0, 0, under ? furnTop(under) : 0, under ? 0.85 : 1, lk, ov.c || '#f3eee4');
+        g.position.set(ov.x, 0, ov.y);
       } else if(kind==='pic'){
         setGeom(room); const e = GEO.edges[ov.wall]; if(!e) continue;
         dcat = 'pics';
@@ -11896,7 +12403,7 @@ function build3d(T){
   const buildFurn = (i, items) => {
     const f = furnFrame(i), loc = (x, y) => [f.p[0]+f.u[0]*x+f.v[0]*y, f.p[1]+f.u[1]*x+f.v[1]*y];
     /* the blocks of the main colour are kept (main), so the colour wheel can tint them while it is being turned */
-    const raw = parts3d(i, items), mainC = mainColor(raw), parts = recolor(raw, i.color), grp = new T.Group(), main = [];
+    const raw = parts3d(i, items), mainC = mainColor(raw), parts = recolor(raw, i.color, i.mat), grp = new T.Group(), main = [];
     scene.add(grp);
     parts.forEach((p, k)=>{
       const c = pCol(p);
@@ -11905,7 +12412,7 @@ function build3d(T){
         const [x1,y1,x2,y2,z1,z2] = p, r = roundR(i, c, p);
         m = r ? rbox(loc, f.u, f.v, x1, y1, x2, y2, z1, z2, r, mat(c)) : prism([loc(x1,y1), loc(x2,y1), loc(x2,y2), loc(x1,y2)], z1, z2, mat(c), c!=='glass' && p[7]!=='sharp');
       }
-      else if(p.q) m = prism(p.q.map(([x, y])=>loc(x, y)), p.z1, p.z2, mat(c), c!=='glass');
+      else if(p.q) m = prism(p.q.map(([x, y])=>loc(x, y)), p.z1, p.z2, mat(c), c!=='glass' && !p.smooth);
       else {
         const [x1,y1,x2,y2] = p.cyl, ctr = loc((x1+x2)/2, (y1+y2)/2);
         m = new T.Mesh(cylGeo, mat(c)); m.scale.set(x2-x1, p.z2-p.z1, y2-y1); m.position.set(ctr[0], (p.z1+p.z2)/2, ctr[1]);
@@ -11937,6 +12444,47 @@ function build3d(T){
     return {id:i.id, grp, pick, tag:t, at:t.p.clone(), main, dg};
   };
   for(const i of items) if(!isOpening(i)) v.furn.push(buildFurn(i, items));
+  /* TV screens (version 328): a lit picture over the screen of each TV, shown while the TV is on (v.tvOn – the ids,
+     kept while the 3D window is open). The picture: the owner's own (piece.tvImg – the file store, piece.tvImgL – this
+     browser) or a calm glow; an animated GIF plays (decoded by the browser's ImageDecoder, where there is one; else
+     its first frame) */
+  if(!v.tvOn) v.tvOn = new Set();
+  v.tvs = []; v.tvAnims = [];
+  for(const f of v.furn){ const i = items.find(x=>x.id===f.id); if(!i || i.t!=='tv' || !f.grp) continue;
+    const fr = furnFrame(i), loc = (x, y)=>[fr.p[0]+fr.u[0]*x+fr.v[0]*y, fr.p[1]+fr.u[1]*x+fr.v[1]*y], md = modelOf(i);
+    let sw, sh, yF, zc;
+    if(md==='screen'){ sw = Math.min(i.w - 4, 190); sh = sw*0.57; yF = 7; zc = 120; }
+    else { sw = Math.min(i.w*0.75, 165); sh = sw*0.57; yF = i.d/2 + 2; zc = (md==='wall' ? 65 : 50) + 8 + sh/2; }
+    const cv = document.createElement('canvas'); cv.width = 640; cv.height = Math.round(640*sh/sw); const cx = cv.getContext('2d');
+    const glow = () => { const gr = cx.createLinearGradient(0, 0, cv.width, cv.height); gr.addColorStop(0, '#1d2b4a'); gr.addColorStop(0.55, '#3a5d8f'); gr.addColorStop(1, '#8fb6d9');
+      cx.fillStyle = gr; cx.fillRect(0, 0, cv.width, cv.height); };
+    const fit = img => { cx.fillStyle = '#000'; cx.fillRect(0, 0, cv.width, cv.height);
+      const iw = img.displayWidth || img.width, ih = img.displayHeight || img.height, k = Math.min(cv.width/iw, cv.height/ih);
+      cx.drawImage(img, (cv.width - iw*k)/2, (cv.height - ih*k)/2, iw*k, ih*k); };
+    glow();
+    const tex = new T.CanvasTexture(cv); tex.encoding = T.sRGBEncoding;
+    const pl = new T.Mesh(new T.PlaneGeometry(sw - 3, sh - 3), new T.MeshBasicMaterial({map:tex, toneMapped:false}));
+    const p = loc(i.w/2, yF + 0.3); pl.position.set(p[0], zc, p[1]); pl.rotation.y = Math.atan2(fr.v[0], fr.v[1]);
+    pl.visible = v.tvOn.has(i.id); f.grp.add(pl);
+    v.tvs.push({id:i.id, c:[p[0], p[1]], z:zc, mesh:pl});
+    const src = i.tvImg ? '/_blob/' + i.tvImg : i.tvImgL ? (()=>{ try{ return localStorage.getItem(LS_KEY + '-tv-' + i.tvImgL) || ''; }catch(e){ return ''; } })() : '';
+    if(src){ (async ()=>{
+      try{
+        const blob = await (await fetch(src)).blob();
+        if(i.tvGif && window.ImageDecoder){
+          const dec = new ImageDecoder({data:await blob.arrayBuffer(), type:'image/gif'}); await dec.tracks.ready;
+          const n = Math.min(300, dec.tracks.selectedTrack.frameCount || 1), frames = [];
+          for(let k = 0; k < n; k++){ const r = await dec.decode({frameIndex:k}); frames.push({bm:await createImageBitmap(r.image), d:Math.max(20, (r.image.duration || 100000)/1000)}); r.image.close(); }
+          if(!frames.length) return;
+          const total = frames.reduce((a, q)=>a + q.d, 0); let last = -1;
+          fit(frames[0].bm); tex.needsUpdate = true; v.dirty = true;
+          v.tvAnims.push(()=>{ if(!pl.visible || frames.length < 2) return; let t = performance.now() % total, k = 0; while(t > frames[k].d && k < frames.length - 1){ t -= frames[k].d; k++; }
+            if(k!==last){ last = k; fit(frames[k].bm); tex.needsUpdate = true; v.dirty = true; } });
+        } else { const bm = await createImageBitmap(blob); fit(bm); tex.needsUpdate = true; v.dirty = true; }
+      }catch(err){ console.warn('tv picture', err); }
+    })(); }
+  }
+  v.tvToggle = id => { const t = v.tvs.find(x=>x.id===id); if(!t) return; if(v.tvOn.has(id)) v.tvOn.delete(id); else v.tvOn.add(id); t.mesh.visible = v.tvOn.has(id); v.dirty = true; };
   v.placePlants(); v.placeFree();
   /* «Декор» on or off: the decor of every piece and the plants */
   v.showDecor = () => {
@@ -12062,6 +12610,7 @@ function build3d(T){
     const kind = decorKind(key);
     if(kind==='plant'){ const pl = g.userData.plant; return {kind, x:pl.x, y:pl.y, s:pl.s || 1}; }
     const fr = g.userData.free;
+    if(kind==='tlamp'){ if(fr) return {kind, x:fr.x, y:fr.y}; const b = new T.Box3().setFromObject(g), c = b.getCenter(new T.Vector3()); return {kind, x:Math.round(c.x), y:Math.round(c.z)}; }
     if(kind==='rug'){
       if(fr) return {kind, x:fr.x, y:fr.y, w:fr.w || 160, d:fr.d || 120, rot:fr.rot || 0};
       const b = new T.Box3().setFromObject(g), c = b.getCenter(new T.Vector3()), s = b.getSize(new T.Vector3());
@@ -12083,7 +12632,7 @@ function build3d(T){
     v.dgz.children.slice().forEach(o=>{ v.dgz.remove(o); o.traverse(q=>q.geometry && q.geometry.dispose()); });
     for(const k of ['xmx', 'xmz', 'xr', 'xw', 'xd', 'xs', 'pa', 'pz', 'ps']) delete (v.gizVis || {})[k];
     const g = key && v.moving && v.decGroup(key), kind = key && decorKind(key);
-    v.dgz.visible = !!(g && ['plant', 'rug', 'pic'].includes(kind));
+    v.dgz.visible = !!(g && ['plant', 'rug', 'pic', 'tlamp'].includes(kind));
     if(!v.dgz.visible){ v.dirty = true; return; }
     if(!v.gizVis) v.gizVis = {};
     hs = Math.max(3, Math.min(35, st.r*0.017)) * (coarse ? 1.6 : 1);
@@ -12101,10 +12650,11 @@ function build3d(T){
       const e = new T.LineSegments(new T.EdgesGeometry(k.geometry), GZ.edge); e.renderOrder = 11; k.add(e); k.renderOrder = 10; v.dgz.add(k); gizVis(h, k, true);
       const hit = new T.Mesh(new T.BoxGeometry(hs*1.3, hs*1.3, hs*1.3), GZ.hit); hit.position.copy(at); hit.rotation.y = rotY; hit.userData.h = h; v.dgz.add(hit);
     };
-    if(kind==='plant' || kind==='rug'){
-      const at = new T.Vector3(c.x, 3, c.z);
+    if(kind==='plant' || kind==='rug' || kind==='tlamp'){
+      const at = new T.Vector3(c.x, kind==='tlamp' ? box.min.y + 3 : 3, c.z);
       arrow('xmx', GZ.x, at, new T.Vector3(1, 0, 0)); arrow('xmz', GZ.z, at, new T.Vector3(0, 0, 1));
       if(kind==='plant') cube('xs', GZ.cubeH, new T.Vector3(c.x, box.max.y + hs, c.z));
+      else if(kind==='tlamp'){}
       else {
         const R = hs*3, ring = new T.Mesh(new T.TorusGeometry(R, hs*0.16, 8, 72), GZ.ring); ring.rotation.x = Math.PI/2; ring.position.set(c.x, 3, c.z);
         const ringHit = new T.Mesh(new T.TorusGeometry(R, hs*0.5, 6, 48), GZ.hit); ringHit.rotation.copy(ring.rotation); ringHit.position.copy(ring.position); ringHit.userData.h = 'xr';
@@ -12772,7 +13322,7 @@ function build3d(T){
      lamp menu says «Авто», «Всегда видны» or «Скрыть» (LS_KEY-lamps3d). The picked lamp is always seen whole */
   const fadeLamps = () => {
     const mode = lampsView3d(), from = st.phi;
-    for(const l of v.lamps){
+    for(const l of [...v.lamps, ...(v.nbLamps || [])]){
       if(!l.body) continue;
       const picked = l.id===v.pickedLamp && v.moving;
       const op = picked || mode==='show' ? (from > 0.3 || picked ? 1 : 0) : mode==='hide' ? 0 : Math.max(0, Math.min(1, (from - 1)/0.2));
@@ -12798,7 +13348,13 @@ function build3d(T){
   let wParts = [];
   const partsNear = (x, z, r) => wParts.filter(f=>x > f.x1 - r && x < f.x2 + r && z > f.z1 - r && z < f.z2 + r);
   const boxHit = (b, x, z, r) => Math.hypot(Math.max(b.x1 - x, 0, x - b.x2), Math.max(b.z1 - z, 0, z - b.z2)) < r;
-  const fits = (x, z, y, h = v.walk?.eye ?? EYE) => pointInPoly(x, z, wPoly) && wPoly.every((p, k)=>segD(x, z, p, wPoly[(k + 1)%wPoly.length]) >= WR)
+  /* the whole flat (version 321): inside any room or in the doorway of an open door between rooms; walls stop you,
+     a door's opening only while it is shut */
+  const fitsFlat = (x, z) => { const F = v.flatWalk;
+    if(!F.polys.some(p=>pointInPoly(x, z, p)) && !F.doors.some(d=>{ if(!d.l.isOpen) return false;
+      const dx = x - d.c[0], dz = z - d.c[1], dp = dx*d.n[0] + dz*d.n[1], lt = dx*d.u[0] + dz*d.u[1]; return dp > -4 && dp < d.T0 + 4 && Math.abs(lt) < d.h; })) return false;
+    return F.segs.every(s=>(s.l && s.l.isOpen) || segD(x, z, s.a, s.b) >= WR); };
+  const fits = (x, z, y, h = v.walk?.eye ?? EYE) => (v.flatWalk ? fitsFlat(x, z) : pointInPoly(x, z, wPoly) && wPoly.every((p, k)=>segD(x, z, p, wPoly[(k + 1)%wPoly.length]) >= WR))
     && (wParts.length ? !partsNear(x, z, WR).some(f=>f.boxes.some(b=>b.y2 > y + STEP && b.y1 < y + h + 12 && boxHit(b, x, z, WR)))
       : !wBoxes.some(b=>x > b.x1 - WR && x < b.x2 + WR && z > b.y1 - WR && z < b.y2 + WR))
     && !(y < 60 && wPlants.some(p=>Math.hypot(x - p.x, z - p.y) < WR + 22));
@@ -12810,7 +13366,7 @@ function build3d(T){
   const takeParts = () => {
     const box = new T.Box3();
     wParts = [];
-    for(const f of v.furn){ if(!f.grp) continue; f.grp.updateMatrixWorld(true);
+    for(const f of [...v.furn, ...(v.nbFurn || [])]){ if(!f.grp) continue; f.grp.updateMatrixWorld(true);
       const boxes = [];
       const walk = o => { if(o===f.pick || o.visible===false) return;
         if(o.isMesh && o.geometry){ const m = o.material, mm = Array.isArray(m) ? m[0] : m;
@@ -12837,12 +13393,13 @@ function build3d(T){
      opened door – a surprise, a different one each time (version 267): a sign with a renovation joke, or now and then
      a snowy winter evening with a lamp post (Narnia) */
   const DOOR_JOKES = [
-    /* version 285: of the signs only the foreman's note stays, plus an advert space; 0 must stay a sign (the fallback) */
-    ['Мастер:', ['Буду завтра'], () => 'записка от ' + new Date().toLocaleDateString('ru-RU')],
+    /* version 285: of the signs only the foreman's note stays, plus an advert space; 0 must stay a sign (the fallback).
+       Version 334 (the owner): the foreman's note is gone; a world made of blocks came */
+    ['Здесь могла быть', ['ваша реклама']],
     'cat',
     'dark',
     'fog',
-    ['Здесь могла быть', ['ваша реклама']],
+    'blocks',
   ];
   /* a shuffled bag (version 281): every surprise shows once, in a random order, before any shows again – so people
      don't see a repeat and think there are no more. The bag is kept in the browser, across rooms and visits; the
@@ -12989,6 +13546,64 @@ function build3d(T){
     return g;
   };
   /* pitch darkness (version 270): a black space behind the door; now and then a ghost flits across it */
+  /* a world of blocks (version 334): hills of cubes with grass on top, earth under it, a pond, square trees, flat
+     clouds and a square sun in a bright sky; every cube one of a few kinds, drawn in pixels by the page (no files).
+     Cubes of 40 cm, the ground level with the floor at the door and rising further away */
+  /* version 336: `free(x, z)` (the scene's own cm: x across the door, z away from it) – false where the flat is, so no
+     cube stands inside a room or in its walls; the land goes round the flat */
+  const blockScene = (T0, free = () => true) => {
+    const g = new T.Group(), B = 40, rnd = seeded('blocks' + Math.floor(Math.random()*1e6));
+    const pix = (fn) => { const c = document.createElement('canvas'); c.width = c.height = 16; const x = c.getContext('2d');
+      for(let py = 0; py < 16; py++) for(let px = 0; px < 16; px++){ x.fillStyle = fn(px, py); x.fillRect(px, py, 1, 1); }
+      const t = new T.CanvasTexture(c); t.magFilter = T.NearestFilter; t.minFilter = T.NearestFilter; t.encoding = T.sRGBEncoding; return t; };
+    const jit = (hex, k) => { const n = parseInt(hex.slice(1), 16), f = 1 + (rnd() - 0.5)*k; const ch = s => Math.max(0, Math.min(255, Math.round(((n >> s) & 255)*f)));
+      return `rgb(${ch(16)},${ch(8)},${ch(0)})`; };
+    const M = t => new T.MeshBasicMaterial({map:t, toneMapped:false});
+    const grassTop = M(pix(()=>jit('#5fa83c', 0.25))), dirt = M(pix(()=>jit('#86603e', 0.3))), stone = M(pix(()=>jit('#8b8b8b', 0.3)));
+    const grassSide = M(pix((px, py)=>py < 3 + (px*7 % 3 === 0 ? 1 : 0) ? jit('#5fa83c', 0.25) : jit('#86603e', 0.3)));
+    const log = M(pix((px)=>jit(px % 4 === 0 ? '#4e3820' : '#6b4f2c', 0.2))), logTop = M(pix((px, py)=>jit(Math.max(Math.abs(px - 7.5), Math.abs(py - 7.5)) % 3 < 1 ? '#5a4024' : '#a4835a', 0.15)));
+    const leaves = M(pix(()=>rnd() < 0.15 ? '#2e5a1e' : jit('#3e7a28', 0.3)));
+    const sand = M(pix(()=>jit('#dccb8f', 0.12)));
+    const water = new T.MeshBasicMaterial({map:pix(()=>jit('#3a6fd8', 0.15)), transparent:true, opacity:0.78, toneMapped:false, depthWrite:false});
+    const cube = new T.BoxGeometry(B, B, B);
+    const kinds = {grass:[grassSide, grassSide, grassTop, dirt, grassSide, grassSide], dirt, stone, log:[log, log, logTop, logTop, log, log], leaves, sand, water};
+    const at = {}; for(const k of Object.keys(kinds)) at[k] = [];
+    /* layer iy: from iy·B to (iy+1)·B cm up; the ground's top layer is −1 (its top level with the floor) */
+    const put = (k, ix, iy, iz) => { const p = [ix*B, iy*B + B/2, T0 + 20 + iz*B + B/2]; if(free(p[0], p[2])) at[k].push(p); };
+    /* the land: 25 cubes across, 22 away; flat by the door, then soft hills (sums of waves); a pond to one side */
+    const NX = 12, NZ = 22, hOf = (ix, iz) => iz < 3 ? 0 : Math.max(0, Math.round(1.6 + Math.sin(ix*0.45 + iz*0.21)*1.4 + Math.cos(iz*0.37 - ix*0.18)*1.2 + (iz - 3)*0.05));
+    const pondX = (rnd() < 0.5 ? -1 : 1)*(4 + Math.floor(rnd()*3)), pondZ = 6 + Math.floor(rnd()*4);
+    for(let ix = -NX; ix <= NX; ix++) for(let iz = 0; iz < NZ; iz++){
+      const pond = Math.hypot(ix - pondX, (iz - pondZ)*1.2) < 2.6;
+      if(pond){ put('sand', ix, -2, iz); put('water', ix, -1, iz); continue; }
+      const h = hOf(ix, iz);
+      put(h ? 'dirt' : 'grass', ix, -1, iz);
+      for(let y = 0; y < h; y++) put(y === h - 1 ? 'grass' : y < h - 2 ? 'stone' : 'dirt', ix, y, iz);
+    }
+    /* square trees: a trunk of 4–5 logs and a crown of leaves, on the hills away from the door */
+    for(let t = 0; t < 7; t++){
+      const ix = Math.round((rnd() - 0.5)*2*(NX - 2)), iz = 5 + Math.floor(rnd()*(NZ - 7));
+      if(Math.hypot(ix - pondX, iz - pondZ) < 4) continue;
+      const h0 = hOf(ix, iz), th = 4 + Math.floor(rnd()*2);
+      for(let y = 0; y < th; y++) put('log', ix, h0 + y, iz);
+      for(let dx = -2; dx <= 2; dx++) for(let dz = -2; dz <= 2; dz++) for(let dy = th - 2; dy <= th; dy++){
+        if(Math.abs(dx) + Math.abs(dz) > (dy === th ? 1 : 3) || (dx === 0 && dz === 0 && dy < th)) continue;
+        put('leaves', ix + dx, h0 + dy, iz + dz); }
+    }
+    for(const [k, list] of Object.entries(at)){ if(!list.length) continue;
+      const im = new T.InstancedMesh(cube, kinds[k], list.length), mt = new T.Matrix4();
+      list.forEach((p, n)=>{ mt.makeTranslation(p[0], p[1], p[2]); im.setMatrixAt(n, mt); });
+      im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; g.add(im); }
+    /* the sky, a square sun and flat clouds */
+    const sky = new T.Mesh(new T.BoxGeometry(1400, 900, 1100), new T.MeshBasicMaterial({color:new T.Color('#8ec5ff').convertSRGBToLinear(), side:T.BackSide, toneMapped:false}));
+    sky.position.set(0, 400, T0 + 560); g.add(sky);
+    const sun = new T.Mesh(new T.PlaneGeometry(90, 90), new T.MeshBasicMaterial({color:0xfff6c8, toneMapped:false}));
+    sun.position.set(-220, 560, T0 + 1080); g.add(sun);
+    const cm = new T.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.92, toneMapped:false});
+    for(let c = 0; c < 6; c++){ const cl = new T.Mesh(new T.BoxGeometry(120 + rnd()*160, 20, 70 + rnd()*80), cm); cl.position.set((rnd() - 0.5)*1100, 520 + rnd()*120, T0 + 300 + rnd()*700); g.add(cl); }
+    g.userData.focus = [0, 140, T0 + 420];
+    return g;
+  };
   const darkScene = T0 => {
     const g = new T.Group();
     const room = new T.Mesh(new T.BoxGeometry(1200, 500, 700), new T.MeshBasicMaterial({color:0x000000, side:T.BackSide, toneMapped:false}));
@@ -13023,7 +13638,7 @@ function build3d(T){
   };
   /* a nod to a foggy horror town (version 275): grey mist, ash falling instead of snow, a chain-link fence, a dim street lamp and, by the door, a pocket radio hissing quietly – louder as you come closer.
      The hiss is made by the page (noise through a filter), stops by itself when the door shuts or the walk ends */
-  const fogScene = T0 => {
+  const fogScene = (T0, free = () => true) => {
     const g = new T.Group(), B = (c, o) => new T.MeshBasicMaterial(Object.assign({color:c, toneMapped:false}, o || {}));
     /* solid things in their true colours (the page draws in sRGB: a plain number would come out paler) */
     const D = c => B(new T.Color(c).convertSRGBToLinear());
@@ -13074,7 +13689,11 @@ function build3d(T){
     /* the view after opening: a little down, so the radio and the crowbar are seen at once (version 278) */
     g.userData.focus = [18, 40, T0 + 120]; g.userData.glide = 1.3;
     /* the ash: grey flakes, slow, drifting */
-    const rnd = seeded('ash'), pts = []; for(let k = 0; k < 350; k++) pts.push((rnd() - 0.5)*800, rnd()*320, T0 + 20 + rnd()*520);
+    /* only outside the flat (version 338: flakes fell inside the rooms beside the door); `free` – as for the world of
+       cubes, with room for their sway (14 cm) */
+    const rnd = seeded('ash'), pts = [];
+    for(let k = 0; k < 4000 && pts.length < 350*3; k++){ const x = (rnd() - 0.5)*800, y = rnd()*320, z = T0 + 20 + rnd()*520;
+      if(free(x - 15, z) && free(x + 15, z)) pts.push(x, y, z); }
     const fg = new T.BufferGeometry(); fg.setAttribute('position', new T.Float32BufferAttribute(pts, 3));
     const dc = document.createElement('canvas'); dc.width = dc.height = 32; const dx = dc.getContext('2d'); dx.fillStyle = '#fff'; dx.beginPath(); dx.ellipse(16, 16, 14, 9, 0.5, 0, Math.PI*2); dx.fill();
     g.add(new T.Points(fg, new T.PointsMaterial({color:0x55534f, size:4, map:new T.CanvasTexture(dc), alphaTest:0.5, toneMapped:false})));
@@ -13129,10 +13748,18 @@ function build3d(T){
   const doorDress = (l, k) => {
     const out = [l.back[0] - l.c[0], l.back[1] - l.c[1]], len = Math.hypot(out[0], out[1]) || 1, T0 = Math.max(0, len - 90);
     let m;
-    if(['cat', 'dark', 'fog'].includes(DOOR_JOKES[k])){
-      m = ({cat:catScene, dark:darkScene, fog:fogScene})[DOOR_JOKES[k]](T0); m.position.set(l.c[0], 0, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
+    if(['cat', 'dark', 'fog', 'blocks'].includes(DOOR_JOKES[k])){
+      /* where the flat is, for the world of cubes (version 336): a point of the scene (x across, z away from the door)
+         taken to the plan; not free inside any room or closer than a wall's thickness (30 cm) to one of its walls – the
+         wall of the door itself does not count */
+      const o = [out[0]/len, out[1]/len], polys = v.flatWalk?.polys || [wPoly];
+      const edges = []; for(const p of polys) p.forEach((a, i)=>{ const b = p[(i + 1)%p.length], da = (a[0] - l.c[0])*o[0] + (a[1] - l.c[1])*o[1], db = (b[0] - l.c[0])*o[0] + (b[1] - l.c[1])*o[1];
+        if(!(Math.abs(da) < 3 && Math.abs(db) < 3)) edges.push([a, b]); });
+      const free = (x, z) => { const px = l.c[0] + x*o[1] + z*o[0], pz = l.c[1] - x*o[0] + z*o[1];
+        return !polys.some(p=>pointInPoly(px, pz, p)) && !edges.some(([a, b])=>segD(px, pz, a, b) < 30); };
+      m = ({cat:catScene, dark:darkScene, fog:fogScene, blocks:blockScene})[DOOR_JOKES[k]](T0, free); m.position.set(l.c[0], -3, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
     } else if(k >= DOOR_JOKES.length){
-      m = narnia(T0); m.position.set(l.c[0], 0, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
+      m = narnia(T0); m.position.set(l.c[0], -3, l.c[1]); m.rotation.y = Math.atan2(out[0]/len, out[1]/len);
     } else {
       const [top, lines, foot] = DOOR_JOKES[k];
       m = signMesh(top, lines, foot && foot());
@@ -13140,13 +13767,16 @@ function build3d(T){
     }
     l.g.add(m); l.sign = m; return m;
   };
-  const doorSet = (l, on) => { l.isOpen = on; l.open.visible = on; l.shut.visible = !on; if(on) doorSign(l).visible = true; else if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } v.dirty = true; };
+  /* version 335 (the owner): the scenes are no longer cut to the free space behind the door (version 324 – the cut
+     edges looked ugly); instead the whole scene stands 3 cm lower, so where it reaches under the room the room's own
+     floor covers its ground */
+  const doorSet = (l, on) => { l.isOpen = on; l.open.visible = on; l.shut.visible = !on; if(on && !l.to) doorSign(l).visible = true; else if(l.sign){ l.sign.visible = false; l.sign.userData.stop?.(); } v.dirty = true; };
   const doorKey = v.el.querySelector('.v3d-doorkey');
   /* make the next surprise behind a door ready before it is opened (version 285): on a phone the first opening took
      a while (the graphics card prepares every new kind of material once) and looked as if the door did not open.
      Built hidden, its materials prepared in advance (renderer.compile), shown at once when the door opens */
   const doorPrep = l => {
-    if(!l || l.isOpen || l.signFresh) return;
+    if(!l || l.to || l.isOpen || l.signFresh) return;
     try{
       const m = doorSign(l); l.signFresh = true; m.visible = true;
       v.renderer.compile(v.scene, v.cam);
@@ -13372,11 +14002,15 @@ function build3d(T){
         for(const cp of cb.comps){ const p = cabPt(cb, (cp.x1 + cp.x2)/2, (cp.z1 + cp.z2)/2, cb.d), dx = p[0] - W.x, dy = p[1] - ey, dz = p[2] - W.z, d3 = Math.hypot(dx, dy, dz) || 1;
           const c = (dx*L3[0] + dy*L3[1] + dz*L3[2])/d3, score = Math.max(dh, 20)*(1 + 6*(1 - c));
           if(c > 0.55 && score < bd){ bd = score; best = null; act = {kind:'cab', cb, cp}; } } } }
+    /* a TV in view, up to 3 m away (version 328): E turns it on or off */
+    for(const tv of v.tvs || []){ const dx = tv.c[0] - W.x, dz = tv.c[1] - W.z, d = Math.hypot(dx, dz), c = d < 1 ? 1 : (dx*fx + dz*fz)/d, score = d*(2 - c)*0.6;
+      if(d < 300 && c > 0.8 && score < bd){ bd = score; best = null; act = {kind:'tv', id:tv.id}; } }
     W.near = best; W.act = act; doorKey.hidden = !best && !act;
     if(best && !best.isOpen && !best.signFresh) setTimeout(()=>{ if(v.walk) doorPrep(best); }, 0);
     if(best) kt.textContent = best.isOpen ? 'закрыть дверь' : 'открыть дверь';
     else if(act?.kind==='sw') kt.textContent = lampsLit() ? 'выключить свет' : 'включить свет';
     else if(act?.kind==='cab') kt.textContent = (act.cp.target ? 'закрыть ' : 'открыть ') + cabWord(act.cb, act.cp);
+    else if(act?.kind==='tv') kt.textContent = v.tvOn.has(act.id) ? 'выключить телевизор' : 'включить телевизор';
     else if(act) kt.textContent = act.seat.lay ? 'лечь' : 'сесть';
   };
   /* opening a door (version 271): you step back out of the leaf's way and turn to what is behind it – the sign, the cat… */
@@ -13401,6 +14035,7 @@ function build3d(T){
     if(W.act?.kind==='seat'){ sitDown(W.act.seat); doorNear(); return; }
     if(W.act?.kind==='cab'){ cabToggle(W.act.cb, W.act.cp); doorNear(); return; }
     if(W.act?.kind==='sw'){ v.light.lampsOn = !lampsLit(); light3dSave(v.light); placeDays(); v.dirty = true; doorNear(); return; }
+    if(W.act?.kind==='tv'){ v.tvToggle(W.act.id); doorNear(); return; }
     const l = W.near; if(!l) return; audioWake();
     const now = performance.now(); if(now - (l.at || 0) < 600) return; l.at = now; doorSet(l, !l.isOpen); if(l.isOpen) doorLook(l); doorNear(); };
   /* crouch / stand up (version 306: a press, not held); the touch button shows it pressed */
@@ -13521,6 +14156,7 @@ function build3d(T){
     if(v.giz.visible && v.gizItem && Math.abs(st.r - v.gizR) > v.gizR*0.15){ const p = v.giz.position.clone(); v.gizmo(v.gizItem); v.giz.position.copy(p); }
     if(v.walk) walkStep();
     if(v.walk) v.cabTick?.();
+    for(const a of v.tvAnims || []) a();
     if(v.walk) for(const l of v.leaves){ const u = l.sign?.userData; if(l.isOpen && (u?.fall || u?.tick)){ u.fall?.(); u.tick?.(); v.dirty = true; } }
     if(!v.dirty) return;
     v.dirty = false;
@@ -13541,6 +14177,13 @@ function build3d(T){
       w.g.traverse(o=>{ if(o.isLineSegments) o.visible = !see; });
       w.low.visible = see;
     }
+    for(const w of v.nbWalls || []){
+      const see = w.see = !v.walk && st.phi > 0.12 && (cam.position.x - w.mid[0])*w.out[0] + (cam.position.z - w.mid[1])*w.out[1] > 0;
+      for(const [m] of w.wm){ m.colorWrite = !see; m.depthWrite = !see && m.opacity===1; }
+      w.g.traverse(o=>{ if(o.isLineSegments) o.visible = !see; });
+      w.low.visible = see;
+    }
+    for(const [w, m] of v.nbPics || []) m.visible = v.dcats.pics !== false && !w.see;
     /* a picture hangs on its wall: it hides when that wall does */
     for(const f of v.furn) for(const [k, m] of f.dg?.userData.walls || []) m.visible = v.dcats.pics !== false && !v.walls.find(w=>w.k===k)?.see;
     for(const [k, g] of v.freeWalls || []) g.visible = v.dcats.pics !== false && !v.walls.find(w=>w.k===k)?.see;
@@ -13555,8 +14198,11 @@ function build3d(T){
       if(on) t.el.style.transform = `translate(${W2 + tmp.x*W2}px, ${H2 - tmp.y*H2}px) translate(-50%, -100%)`;
     }
   };
+  if(v.flat && !v.ghost) flat3dAttach(v, T, scene);
+  else { flat3dDrop(v); Object.assign(v, {nbWalls:[], nbLamps:[], nbStd:[], nbGlass:[], nbFurn:[], nbPics:[], flatWalk:null}); }
   applyStyle3d(scheme3d());
   placeDays();
+  if(v.ghost) return;
   frame();
 }
 /* in 3D: Escape drops the pick first, then closes the view; Delete takes the picked piece away (not while typing) */
@@ -13580,6 +14226,8 @@ document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){ e.preventDefault();
     if(v3d.picked || v3d.pickedLamp || v3d.pickedDec){ v3d.drop?.(); pick3d(null); } else close3d(); }
   else if((e.key==='Delete' || e.key==='Backspace') && !typing && v3d.picked){ e.preventDefault(); itemDel3d(); }
+  /* the picked thing of the decor goes the same way (version 325), as «Убрать» */
+  else if((e.key==='Delete' || e.key==='Backspace') && !typing && v3d.pickedDec){ e.preventDefault(); decorSet3d(v3d.pickedDec, {off:true}); }
 });
 
 /* sound (the door's foggy radio, version 284): one AudioContext for the page, made and resumed inside a tap or key
@@ -13640,7 +14288,7 @@ app.addEventListener('click', e=>{
   }
   if(e.target.closest('[data-3d]')){ open3d(); return; }
   /* «Изменять» / «Готово» under the plan of a room (touch screens) */
-  if(e.target.closest('[data-planedit]')){ ui.planEdit = !ui.planEdit; if(!ui.planEdit){ ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; } render(); return; }
+  if(e.target.closest('[data-planedit]')){ ui.planEdit = !ui.planEdit; if(!ui.planEdit){ ui.sel = ui.selWall = ui.selCorner = ui.elSel = null; multiClear(); } render(); return; }
   const zb = e.target.closest('[data-zoom]');
   if(zb && planBox){
     const v = ui.view[ui.planRoom] || {k:1, cx:planBox.x+planBox.w/2, cy:planBox.y+planBox.h/2};
@@ -13715,6 +14363,8 @@ app.addEventListener('click', e=>{
   if(sd){ state.savedLayouts[ui.planRoom] = savedFor(ui.planRoom).filter(v=>v.id!==sd.dataset.savedel); ui.confirmDelSaved = null; changed(); render(); return; }
   /* a door or window added on the plan: a new opening of the room (the «Квартира» tab shows it too), put on a free
      stretch of wall by defaultOpeningPos and picked */
+  const gsw = e.target.closest('[data-color="group"]');
+  if(gsw){ const g = multiItems(); if(!g) return; pushUndo(); g.forEach(i=>{ if(gsw.dataset.c) i.color = gsw.dataset.c; else delete i.color; }); changed(); render(); return; }
   const sw = e.target.closest('[data-color="item"]');
   if(sw){
     const i = layoutItems().find(x=>x.id===ui.sel); if(!i) return;
@@ -13735,6 +14385,17 @@ app.addEventListener('click', e=>{
     const c = ITEM[ad.dataset.add], room = state.rooms.find(r=>r.id===ui.planRoom); if(!c || !room) return;
     pushUndo();
     const {L, W} = roomSize(room), items = layoutItems();
+    /* «Кухня угловая» (version 329): a straight kitchen 240 × 60 and its side run 120 × 60 at its right end, turned to face
+       along it – in the top right corner when it is free, else where there is room for the whole 240 × 180 */
+    if(ad.dataset.add==='kitchenL'){
+      const free = (x, y) => { const b = {x1:x, y1:y, x2:x + c.w, y2:y + c.d}; return insideRoom({t:'kitchen', x, y, w:c.w, d:c.d, rot:0})
+        && !items.some(o=>!isOpening(o) && rectsOverlap(bbox(o), b)); };
+      const pos = free(L - c.w, 0) ? {x:L - c.w, y:0} : findSpot(L, W, items, c.w, c.d);
+      const a = {id:uid(), t:'kitchen', x:pos.x, y:pos.y, w:c.w, d:60, rot:0}, b = {id:uid(), t:'kitchenC', x:pos.x + c.w - 60, y:pos.y + 60, w:c.d - 60, d:60, rot:90};
+      items.push(a, b); ui.sel = a.id;
+      ui.layMsg = {room:room.id, warn:false, text:'Угловая кухня – из двух частей: прямой и боковой. Каждую можно двигать и менять отдельно.'};
+      changed(); render(); planIntoView(); return;
+    }
     const pos = findSpot(L, W, items, c.w, c.d);
     const it = {id:uid(), t:ad.dataset.add, x:pos.x, y:pos.y, w:c.w, d:c.d, rot:0};
     items.push(it); ui.sel = it.id; changed(); render(); planIntoView(); return;
@@ -13796,15 +14457,26 @@ app.addEventListener('click', e=>{
       changed(); render(); return;
     }
     if(a==='save'){ const room = state.rooms.find(r=>r.id===ui.planRoom); saveLayout(room); changed(); render(); return; }
+    if(a==='mpick'){ ui.multiPick = !ui.multiPick; ui.swapFrom = null; render(); return; }
+    if(['grot90','grotby','gdup','gdel','gclear'].includes(a)){
+      const g = multiItems(); if(!g){ render(); return; }
+      if(a==='gclear'){ multiClear(); render(); return; }
+      if(a==='grotby'){ const v = num(document.getElementById('grp-rot')?.value); ui.grpRot = v; if(!v) return; pushUndo(); rotateGroup(g, v); }
+      if(a==='grot90'){ pushUndo(); rotateGroup(g, 90); }
+      if(a==='gdup'){ pushUndo(); const c = g.map(i=>({...i, id:uid(), x:i.x+20, y:i.y+20})); layoutItems().push(...c); multiSet(c.map(i=>i.id)); }
+      if(a==='gdel'){ pushUndo(); const ids = new Set(g.map(i=>i.id)); state.layouts[ui.planRoom] = layoutItems().filter(x=>!ids.has(x.id)); multiClear(); }
+      changed(); render(); return;
+    }
     if(['rot','walign','flip','out','dup','del','clearyes'].includes(a) && (ui.sel || a==='clearyes')) pushUndo();
     const items = layoutItems(), i = items.find(x=>x.id===ui.sel);
-    if(a==='rot' && i && !isOpening(i)) rotateItem(i);
+    if(a==='rot' && i && !isOpening(i)) rotateFreeNote(i, rotateFree(i));
     if(a==='walign' && i && !isOpening(i)){
       const p = alignToWall(i);
       if(p){ Object.assign(i, {x:p.x, y:p.y, rot:p.rot, wall:p.wall, off:p.off}); }
       else { ui.undo[ui.planRoom]?.pop(); ui.layMsg = {room:ui.planRoom, warn:true, text:'Рядом нет стены: подвиньте предмет ближе к нужной стене.'}; }
     }
     if(a==='flip' && i && i.t==='door') i.flip = !i.flip;
+    if(a==='glass' && i && i.t==='door'){ if(i.glass) delete i.glass; else i.glass = true; }
     if(a==='out' && i && i.t==='door'){ const o = openingOf(i); if(o) o.out = !o.out; }
     if(a==='dup' && i && !isOpening(i)){ const c = {...i, id:uid(), x:i.x+20, y:i.y+20}; items.push(c); ui.sel = c.id; }
     if(a==='del' && i) removeItem(i);
@@ -14040,6 +14712,7 @@ app.addEventListener('change', e=>{
     const f = t.dataset.ldim, v = Math.round(num(t.value));
     if(f==='rot') rotateItem(i, num(t.value));
     else if(f==='h') i.h = Math.max(20, Math.min(300, v));
+    else if(f==='hb') i.hb = Math.max(60, Math.min(200, v));
     else if(f==='w' || f==='d'){
       /* a turned piece grows about its centre; a square piece from its top-left corner, as before */
       const c = centreOf(i); i[f] = Math.max(5, v);
@@ -14061,6 +14734,14 @@ app.addEventListener('change', e=>{
   else if(t.hasAttribute('data-model')){
     const i = layoutItems().find(x=>x.id===ui.sel); if(!i) return;
     pushUndo(); if(t.value) i.model = t.value; else delete i.model;
+  }
+  else if(t.hasAttribute('data-matpick')){
+    const i = layoutItems().find(x=>x.id===ui.sel); if(!i) return;
+    pushUndo(); if(t.value) i.mat = t.value; else delete i.mat;
+  }
+  else if(t.dataset.colorpick==='group'){
+    const g = multiItems(); if(!g) return;
+    pushUndo(); g.forEach(i=>{ i.color = t.value; });
   }
   else if(t.dataset.colorpick==='item'){
     const i = layoutItems().find(x=>x.id===ui.sel); if(!i) return;
@@ -14147,6 +14828,29 @@ app.addEventListener('pointerdown', e=>{
     else ui.layMsg = null;
     render(); return;
   }
+  /* a turn button at a corner of the picked piece: 90° clockwise about its centre, a step to undo */
+  const rotc = e.target.closest('[data-rotc]');
+  if(rotc){
+    e.preventDefault();
+    const i = layoutItems().find(x=>x.id===rotc.dataset.rotc); if(!i || isOpening(i)) return;
+    pushUndo(); rotateFreeNote(i, rotateFree(i, Number(rotc.dataset.rotdir) || 1)); ui.sel = i.id; ui.selWall = null; ui.selCorner = null;
+    changed(); render(); document.getElementById('plan')?.focus({preventScroll:true}); return;
+  }
+  /* several pieces (version 316): Shift, Ctrl or ⌘ + click – or a tap with «Выбрать несколько» on – adds a piece or
+     takes it off (off on release, if not dragged); any picked piece drags them all; a plain click on one of them
+     without dragging picks just that one */
+  const multiKey = e.shiftKey || e.ctrlKey || e.metaKey;
+  const gi = g && layoutItems().find(x=>x.id===g.dataset.it);
+  if(gi && !isOpening(gi)){
+    const before = multiIds(), was = before.includes(gi.id);
+    if((multiKey || ui.multiPick) && !was) multiSet([...before, gi.id]);
+    const grp = multiItems();
+    if(grp && grp.includes(gi)){
+      e.preventDefault(); ui.selWall = null; ui.selCorner = null;
+      gdrag = {items:grp, base:grp.map(i=>({...i})), id:gi.id, cx:e.clientX, cy:e.clientY, pxPerCm, moved:false, tol:touch ? 6 : 3, toggle:multiKey || !!ui.multiPick, was};
+      render(); return;
+    }
+  }
   const skh = e.target.closest('[data-sinkh]');
   if(skh && g){
     e.preventDefault();
@@ -14172,13 +14876,21 @@ app.addEventListener('pointerdown', e=>{
       cx:e.clientX, cy:e.clientY, pxPerCm, moved:false, base:shapeBase(room), tol:touch ? 8 : 4, p:svgPoint(svg, e), touch};
     return;
   }
+  if(!g && (!touch || ui.multiPick) && (!ui.view[ui.planRoom] || multiKey)){
+    /* a frame drawn over the empty floor picks every piece it touches; with Shift (or «Выбрать несколько») they join
+       those already picked; a plain click clears the selection as before */
+    e.preventDefault();
+    const p = svgPoint(svg, e);
+    band = {x:p.x, y:p.y, cx:e.clientX, cy:e.clientY, moved:false, tol:touch ? 8 : 4, add:multiKey || !!ui.multiPick, base:multiIds()};
+    return;
+  }
   if(!g && ui.view[ui.planRoom]){
     /* the plan is zoomed in: dragging the empty floor moves the view; a plain tap still clears the selection */
     e.preventDefault();
     panDrag = {cx:e.clientX, cy:e.clientY, vb:planView(planBox), pxPerCm, moved:false, tol:touch ? 8 : 4};
     return;
   }
-  if(!g){ if(ui.sel || ui.selWall!=null || ui.selCorner!=null){ ui.sel = null; ui.selWall = null; ui.selCorner = null; render(); document.getElementById('plan')?.focus({preventScroll:true}); } return; }
+  if(!g){ if(ui.sel || ui.multi || ui.selWall!=null || ui.selCorner!=null){ multiClear(); ui.sel = null; ui.selWall = null; ui.selCorner = null; render(); document.getElementById('plan')?.focus({preventScroll:true}); } return; }
   ui.selWall = null; ui.selCorner = null;
   const i = layoutItems().find(x=>x.id===g.dataset.it); if(!i) return;
   e.preventDefault();
@@ -14406,6 +15118,76 @@ function endDrag(){
 app.addEventListener('pointerup', endDrag);
 app.addEventListener('pointercancel', endDrag);
 
+/* several pieces dragged together (version 316): one offset for all, in 5 cm steps; with «Привязка» the box around
+   the group sticks to the room's corners and centre and to other pieces. Pieces that were inside the walls stay inside:
+   the group slides along a wall or stops at it, as one piece does. One step to undo */
+let gdrag = null, gFrame = 0, band = null;
+app.addEventListener('pointermove', e=>{
+  const d = gdrag; if(!d) return;
+  if(!d.moved && Math.abs(e.clientX-d.cx)+Math.abs(e.clientY-d.cy) < d.tol) return;
+  if(!d.moved){
+    d.moved = true; pushUndo(); d.inside = d.base.map(b=>insideRoom(b)); d.last = [0, 0];
+    const ids = new Set(d.items.map(i=>i.id)), sz = roomSize(state.rooms.find(r=>r.id===ui.planRoom));
+    d.L = sz.L; d.W = sz.W; d.box = groupBox(d.base); d.targets = snapTargets(layoutItems().filter(i=>!ids.has(i.id)), {}, sz.L, sz.W);
+  }
+  let ox = snap((e.clientX-d.cx)/d.pxPerCm), oy = snap((e.clientY-d.cy)/d.pxPerCm), gx = null, gy = null;
+  if(ui.snap){
+    const b = d.box, thr = snapThr(d.L, d.W);
+    const sx = snapAxis(b.x1+ox, b.x2-b.x1, d.targets.xs, thr), sy = snapAxis(b.y1+oy, b.y2-b.y1, d.targets.ys, thr);
+    if(sx){ ox = sx.pos - b.x1; gx = sx.line; } if(sy){ oy = sy.pos - b.y1; gy = sy.line; }
+  }
+  const fits = (x, y) => d.base.every((b,k)=>!d.inside[k] || insideRoom({...b, x:b.x+x, y:b.y+y}));
+  if(!fits(ox, oy)){
+    const [lx, ly] = d.last;
+    if(fits(ox, ly)){ oy = ly; gy = null; }
+    else if(fits(lx, oy)){ ox = lx; gx = null; }
+    else {
+      let lo = 0, hi = 1;
+      for(let n = 0; n < 12; n++){ const m = (lo+hi)/2; fits(lx+(ox-lx)*m, ly+(oy-ly)*m) ? lo = m : hi = m; }
+      ox = Math.round((lx+(ox-lx)*lo)*10)/10; oy = Math.round((ly+(oy-ly)*lo)*10)/10;
+      /* less than a centimetre is the walls' tolerance, not a move */
+      if(!fits(ox, oy) || Math.abs(ox-lx) + Math.abs(oy-ly) < 1){ ox = lx; oy = ly; }
+      gx = gy = null;
+    }
+  }
+  d.last = [ox, oy]; d.guides = [gx, gy];
+  d.items.forEach((i,k)=>{ i.x = Math.round((d.base[k].x+ox)*10)/10; i.y = Math.round((d.base[k].y+oy)*10)/10; delete i.wall; delete i.off; });
+  if(!gFrame) gFrame = requestAnimationFrame(()=>{ gFrame = 0; render();
+    const svg = document.getElementById('plan'); if(gdrag && gdrag.guides && svg) showGuides(svg, gdrag.guides[0], gdrag.guides[1], gdrag.L, gdrag.W); });
+});
+function endGroupDrag(){
+  const d = gdrag; if(!d) return; gdrag = null;
+  if(d.moved) changed();
+  else if(d.toggle){ if(d.was) multiSet(multiIds().filter(x=>x!==d.id)); }
+  else multiSet([d.id]);
+  render(); document.getElementById('plan')?.focus({preventScroll:true});
+}
+app.addEventListener('pointerup', endGroupDrag);
+app.addEventListener('pointercancel', endGroupDrag);
+app.addEventListener('pointermove', e=>{
+  const b = band; if(!b) return;
+  if(!b.moved && Math.abs(e.clientX-b.cx)+Math.abs(e.clientY-b.cy) < b.tol) return;
+  b.moved = true;
+  const svg = document.getElementById('plan'); if(!svg) return;
+  const p = svgPoint(svg, e);
+  ui.band = {x1:Math.min(b.x, p.x), y1:Math.min(b.y, p.y), x2:Math.max(b.x, p.x), y2:Math.max(b.y, p.y)};
+  if(!gFrame) gFrame = requestAnimationFrame(()=>{ gFrame = 0; render(); });
+});
+function endBand(){
+  const b = band; if(!b) return; band = null;
+  const r = ui.band; ui.band = null;
+  if(!b.moved || !r){
+    if(ui.sel || ui.multi || ui.multiPick || ui.selWall!=null || ui.selCorner!=null){ multiClear(); ui.sel = null; ui.selWall = null; ui.selCorner = null; }
+  } else {
+    const hit = layoutItems().filter(i=>{ if(isOpening(i)) return false; const q = bbox(i); return q.x1 < r.x2 && q.x2 > r.x1 && q.y1 < r.y2 && q.y2 > r.y1; }).map(i=>i.id);
+    ui.selWall = null; ui.selCorner = null;
+    multiSet(b.add ? [...b.base, ...hit] : hit);
+  }
+  render(); document.getElementById('plan')?.focus({preventScroll:true});
+}
+app.addEventListener('pointerup', endBand);
+app.addEventListener('pointercancel', endBand);
+
 /* zoom and pan of the plan: two fingers zoom (the point between them stays put), one finger on the empty floor moves a zoomed plan */
 const fingers = new Map();
 let pinch = null, panDrag = null;
@@ -14446,6 +15228,8 @@ app.addEventListener('pointercancel', endElDrag);
 function abortDrags(){
   if(elDrag){ const d = elDrag; elDrag = null; if(d.moved) undoLayout(true); }
   if(drag){ drag = null; }
+  if(gdrag){ const d = gdrag; gdrag = null; if(d.moved) undoLayout(true); }
+  if(band){ band = null; ui.band = null; }
   if(sizeDrag){ const s = sizeDrag; sizeDrag = null; if(s.moved) undoLayout(true); }
   if(wallDrag){ const w = wallDrag; wallDrag = null; if(w.moved) undoLayout(true); }
   panDrag = null; ui.layMsg = null;
@@ -14460,7 +15244,7 @@ app.addEventListener('pointerdown', e=>{
   if(fingers.size < 2) return;
   e.stopImmediatePropagation(); e.preventDefault();
   if(fingers.size > 2 || pinch) return;
-  const hadDrag = drag || sizeDrag || wallDrag;
+  const hadDrag = drag || sizeDrag || wallDrag || gdrag || band;
   abortDrags();
   if(hadDrag) render();
   const svg = document.getElementById('plan'), m = svg.getScreenCTM(), s = pinchState();
@@ -14500,7 +15284,7 @@ function fingerUp(e){
   }
   if(panDrag){
     const p = panDrag; panDrag = null;
-    if(!p.moved && (ui.sel || ui.selWall!=null || ui.selCorner!=null)){ ui.sel = null; ui.selWall = null; ui.selCorner = null; render(); }
+    if(!p.moved && (ui.sel || ui.multi || ui.selWall!=null || ui.selCorner!=null)){ multiClear(); ui.sel = null; ui.selWall = null; ui.selCorner = null; render(); }
   }
 }
 window.addEventListener('pointerup', fingerUp, true);
@@ -14988,6 +15772,23 @@ document.addEventListener('keydown', e=>{
     return;
   }
   if(e.key==='Escape' && (ui.selWall!=null || ui.selCorner!=null)){ ui.selWall = null; ui.selCorner = null; render(); return; }
+  const mg = multiItems();
+  if(e.key==='Escape' && (mg || ui.multiPick)){ multiClear(); if(mg){ render(); return; } }
+  if(mg && !(e.target.closest && e.target.closest('button'))){
+    /* a group: arrows move all of it, R turns it about its centre, Delete removes it; a run of arrows is one step to undo */
+    const step = e.shiftKey ? 25 : 5, mv = {ArrowLeft:[-step,0], ArrowRight:[step,0], ArrowUp:[0,-step], ArrowDown:[0,step]}[e.key];
+    const isRot = 'rRкК'.includes(e.key) && e.key.length===1, isDel = e.key==='Delete' || e.key==='Backspace';
+    if(!mv && !isRot && !isDel) return;
+    const now = Date.now(), k = ui.lastKeyUndo;
+    if(!(mv && k && k.id==='group' && now-k.t < 1500)) pushUndo();
+    ui.lastKeyUndo = mv ? {id:'group', t:now} : null;
+    if(mv) mg.forEach(i=>{ i.x += mv[0]; i.y += mv[1]; delete i.wall; delete i.off; });
+    else if(isRot) rotateGroup(mg, 90);
+    else { const ids = new Set(mg.map(i=>i.id)); state.layouts[ui.planRoom] = layoutItems().filter(x=>!ids.has(x.id)); multiClear(); }
+    e.preventDefault(); changed(); render();
+    document.getElementById('plan')?.focus({preventScroll:true});
+    return;
+  }
   if(!ui.sel || (e.target.closest && e.target.closest('button'))) return;
   const i = layoutItems().find(x=>x.id===ui.sel); if(!i) return;
   const step = e.shiftKey ? 25 : 5;
@@ -15007,7 +15808,7 @@ document.addEventListener('keydown', e=>{
     Object.assign(i, placeOnWall(i, i.side, i.along + Math.sign(proj)*step, L, W, true));
   }
   else if(moves[e.key]){ i.x += moves[e.key][0]; i.y += moves[e.key][1]; }
-  else if(e.key==='r' || e.key==='R' || e.key==='к' || e.key==='К'){ if(isOpening(i)){ if(i.t==='door') i.flip = !i.flip; else return; } else rotateItem(i); }
+  else if(e.key==='r' || e.key==='R' || e.key==='к' || e.key==='К'){ if(isOpening(i)){ if(i.t==='door') i.flip = !i.flip; else return; } else rotateFreeNote(i, rotateFree(i)); }
   else if(e.key==='Delete' || e.key==='Backspace') removeItem(i);
   else if(e.key==='Escape'){ ui.sel = null; render(); return; }
   else return;
