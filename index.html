@@ -135,6 +135,8 @@ textarea{width:100%;min-height:80px;resize:vertical}
 @media (max-width:560px){.apt-head{justify-content:flex-start}.apt-tools{display:contents}.apt-tools .btn{order:1}.apt-tools .btn:first-of-type{margin-left:auto}.apt-tools .check{order:2}}
 .apt-hint{margin:6px 0 10px}
 .apt-bar{margin-top:10px}
+/* «Обставить пустые комнаты» under the plan of the flat (version 313): the list at the left, the button at the right */
+.apt-fill{justify-content:space-between;font-size:14px}
 /* the ground under the plans (version 243): a quiet tint of the accent – lavender by default – over the sunk grey;
    numbers outside the rooms get a halo of the same colour */
 /* version 247: solid colours, not the page's own – in «Стекло» --bg/--surface are see-through and the plan looked washed
@@ -857,6 +859,38 @@ body.v3d-on{overflow:hidden}
 .help-head{display:flex;align-items:center;gap:14px;padding:12px 14px 12px 18px;border-bottom:1px solid var(--line)}
 .help-head b{flex:1;font-weight:600;font-size:16px}
 .help-body{overflow:auto;padding:14px 18px 20px}
+/* «Раскладка» (version 309): settings on the left, the drawing and the count on the right; one column on a phone */
+.tl-box{width:min(960px,100%)}
+.tl-part{margin-bottom:14px}
+.tl-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:20px;align-items:start}
+.tl-form{display:grid;gap:14px;min-width:0}
+.tl-sec{display:grid;gap:6px;min-width:0}
+.tl-k{font-weight:600;font-size:14px}
+.tl-n{margin:0}
+.tl-opts{display:flex;flex-wrap:wrap;gap:6px}
+.tl-opts button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:6px 10px;font:500 13px var(--f-body);min-height:34px;cursor:pointer}
+.tl-opts button.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.tl-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tl-photo{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tl-thumb{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.tl-msg:empty{display:none}
+.tl-view{position:sticky;top:0;display:grid;gap:8px;min-width:0}
+.tl-svg{display:block;width:100%;height:auto;max-height:58vh;background:var(--sunk);border-radius:10px}
+.tl-wall{fill:none;stroke:var(--ink);stroke-width:3}
+.tl-door{stroke:var(--sunk);stroke-width:6}
+.tl-win{stroke:var(--accent);stroke-width:6}
+.tl-sum{margin:0;font-size:14px}
+.tl-warn{margin:0;font-size:14px;color:var(--warn)}
+.tl-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.tl-legend span{display:inline-flex;align-items:center;gap:6px}
+.tl-lg{display:inline-block;width:14px;height:10px;border-radius:2px}
+.tl-lg-cut{border:1px solid var(--muted);background:repeating-linear-gradient(45deg,var(--muted) 0 1px,transparent 1px 4px)}
+.tl-lg-dot{width:10px;border-radius:50%;background:var(--accent)}
+.tl-lg-door{height:4px;background:var(--ink);box-shadow:inset 3px 0 0 var(--sunk),inset -3px 0 0 var(--sunk)}
+.tl-lg-win{height:4px;background:var(--accent)}
+.tl-line{margin:6px 0 0}
+.tl-3d{justify-self:start}
+@media (max-width:720px){.tl-grid{grid-template-columns:1fr}.tl-view{position:static;order:-1}}
 .help-lead{margin:0 0 10px;color:var(--muted);font-size:14px}
 .help-sec{border-top:1px solid var(--line)}
 .help-sec summary{list-style:none;display:flex;align-items:center;gap:10px;padding:11px 0;cursor:pointer;font-weight:600;font-size:15px}
@@ -2371,6 +2405,8 @@ document.addEventListener('keydown', e=>{
 
 /* the plan's «Вид» stays open while its boxes are ticked (the page is drawn again after each) */
 document.addEventListener('toggle', e=>{ if(e.target.matches && e.target.matches('[data-viewset]')) ui.viewOpen = e.target.open; }, true);
+/* «Вид» closes on a click or tap anywhere outside it, not only on its own button (version 310) */
+document.addEventListener('pointerdown', e=>{ for(const d of document.querySelectorAll('details[data-viewset][open]')) if(!d.contains(e.target)){ d.open = false; ui.viewOpen = false; } }, true);
 /* ---------- helpers ---------- */
 const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* the flat's profile (the questionnaire's answers); a project that somehow came without it gets the usual one
@@ -2465,16 +2501,21 @@ function materials(){
   /* what is needed in litres, kilograms, metres, m² (`need`), then whole packs of the chosen size */
   const need = {}; const want = (k, v)=>{ need[k] = (need[k]||0) + v; };
   let strips = 0;
+  /* tiles and boards: as many as the room's layout needs, in whole packs (version 309); the pieces in words per room */
+  const tlTxt = {};
+  const tq = (r, T, k, d) => { if(!T){ add(k, d); return; } add(k, T.m2);
+    (tlTxt[k] = tlTxt[k] || []).push(`${r.name}: ${tlSize(T.C)} – ${T.buy} шт., ${T.packs} уп. по ${T.C.pack} шт.`); };
   for(const r of state.rooms){
     const {floor,per,wall,doorW} = roomCalc(r);
-    if(r.floor==='laminate'){ add('laminate', floor*1.07); add('underlay', floor*1.05); }
-    if(r.floor==='parquet'){ add('parquet', floor*1.05); add('underlay', floor*1.05); }
-    if(r.floor==='vinyl') add('vinyl', floor*1.05);
+    const TF = tilingFloor(r);
+    if(r.floor==='laminate'){ tq(r, TF, 'laminate', floor*1.07); add('underlay', floor*1.05); }
+    if(r.floor==='parquet'){ tq(r, TF, 'parquet', floor*1.05); add('underlay', floor*1.05); }
+    if(r.floor==='vinyl') tq(r, TF, 'vinyl', floor*1.05);
     if(r.floor==='linoleum') add('linoleum', floor*1.1);
     if(BOARDS.includes(r.floor)) want('plinth', Math.max(0, per - doorW)*1.05);
     /* underfloor heating under about 70% of the floor (not under furniture), a thermostat a room */
     if(r.warm){ add('warmMat', floor*0.7); add('thermostat', 1); }
-    if(r.floor==='tile'){ add('floorTile', floor*1.1); want('adhesive', floor*5); }
+    if(r.floor==='tile'){ tq(r, TF, 'floorTile', floor*1.1); want('adhesive', floor*5); }
     if(r.walls==='paint'){ want('paint', wall*2/9); want('primer', wall/8); want('putty', wall*1.0); }
     if(r.walls==='wallpaper'){
       /* strips the height of the room, 1,06 m wide; as many whole strips from a roll as its length allows */
@@ -2482,7 +2523,7 @@ function materials(){
       strips += n; add('wallpaper', Math.ceil(n/perRoll));
       want('primer', wall/8); want('putty', wall*1.0);
     }
-    if(r.walls==='tile'){ add('wallTile', wall*1.1); want('adhesive', wall*5); }
+    if(r.walls==='tile'){ tq(r, tilingWalls(r), 'wallTile', wall*1.1); want('adhesive', wall*5); }
     if(r.walls==='plaster'){ want('decoPlaster', wall*1.0); want('primer', wall/8); want('putty', wall*1.0); }
     if(r.walls==='panels') add('panels', wall*1.08);
     /* the ceiling: painted – filler and ceiling paint in two coats; plasterboard – sheets and profile, then painted too; stretched – all by the fitter */
@@ -2497,7 +2538,543 @@ function materials(){
   for(const k of ['laminate','vinyl','floorTile','wallTile','parquet','underlay','linoleum','panels','skinali','apronPanel','warmMat']) if(q[k]) q[k] = Math.ceil(q[k]*10)/10;
   const needTxt = k => k==='wallpaper' ? (strips ? `нужно ${strips} ${plural(strips, 'полоса', 'полосы', 'полос')} по высоте стен` : '') : need[k] ? `нужно ≈ ${fmt(need[k], need[k] < 10 ? 1 : 0)} ${PACKS[k].u}` : '';
   return PRICES.filter(p=>q[p[0]]).map(p=>{ const pr = num((state.prices || {})[p[0]]) || (state.demo ? roundNice(p[3]*cur().rate) : 0), pk = PACKS[p[0]];
-    return {key:p[0], name:p[1], unit:pk ? packUnit(p[0]) : p[2], qty:q[p[0]], price:pr || null, cost:q[p[0]]*pr, pack:!!pk, need:pk ? needTxt(p[0]) : ''}; });
+    return {key:p[0], name:p[1], unit:pk ? packUnit(p[0]) : p[2], qty:q[p[0]], price:pr || null, cost:q[p[0]]*pr, pack:!!pk, need:pk ? needTxt(p[0]) : (tlTxt[p[0]] || []).join('; ')}; });
+}
+/* ---------- tiles and boards laid out (version 309) ----------
+   room.tiling = {tile:{…}, laminate:{…}, parquet:{…}, vinyl:{…}, wall:{…}} – per kind of finish: the size of one piece
+   (w along, h across, cm), seam (mm), pattern, start, direction, pieces in a pack, grout colour and an own photo of one
+   piece (img – a small JPEG kept inside the project, so it travels with the file); nothing chosen – the usual. The colour
+   of the tiles or boards is the room's floor or wall colour (room.c3), the same one «Стены и пол» in 3D sets. */
+const TL_BOARDS = ['laminate', 'parquet', 'vinyl'];
+const TL_DEF = {tile:{w:60, h:60, seam:2, pat:'straight', start:'center', dir:'h', pack:4},
+  laminate:{w:138, h:19.3, seam:0, pat:'rows', start:'corner', dir:'auto', pack:8},
+  parquet:{w:220, h:19, seam:0, pat:'rows', start:'corner', dir:'auto', pack:6},
+  vinyl:{w:122, h:18, seam:0, pat:'rows', start:'corner', dir:'auto', pack:10},
+  wall:{w:60, h:30, seam:2, pat:'straight', dir:'h', pack:8}};
+const TL_SIZES = {tile:[[30,30],[45,45],[60,60],[80,80],[60,120],[20,120]], wall:[[60,30],[40,25],[20,20],[20,10],[90,30],[120,60]],
+  laminate:[[138,19.3],[128.5,19.2],[121.8,19.8],[60,10]], parquet:[[220,19],[180,14],[60,9]], vinyl:[[122,18],[122,22.9],[60,12]]};
+const TL_PATS = {tile:[['straight','Прямо'],['half','Вразбежку ½'],['third','Вразбежку ⅓'],['diag','По диагонали']],
+  board:[['rows','Рядами'],['herring','Ёлочкой']], wall:[['straight','Прямо'],['half','Вразбежку ½']]};
+/* a reserve for breakage on top of what the layout itself needs (the cuts are already counted piece by piece) */
+const TL_RES = {straight:0.05, half:0.05, third:0.05, rows:0.05, diag:0.1, herring:0.1};
+const GROUT_SW = ['#F4F3EF','#DCDBD6','#B9B8B2','#8F8E89','#5F5F5B','#3F3F3C','#D9CDB8','#A38F75'];
+const TL_GROUT = '#DCDBD6';
+function tilingCfg(r, part){
+  const kind = part==='w' ? (r.walls==='tile' ? 'wall' : null) : r.floor==='tile' ? 'tile' : TL_BOARDS.includes(r.floor) ? r.floor : null;
+  if(!kind) return null;
+  const D = TL_DEF[kind], o = {...D, ...((r.tiling || {})[kind] || {})};
+  const nm = (v, a, b, d) => { v = Number(v); return isFinite(v) && v >= a && v <= b ? v : d; };
+  o.w = nm(o.w, 5, 400, D.w); o.h = nm(o.h, 5, 400, D.h); o.seam = nm(o.seam, 0, 20, D.seam); o.pack = Math.round(nm(o.pack, 1, 999, D.pack));
+  const board = TL_BOARDS.includes(kind);
+  if(board && o.h > o.w) [o.w, o.h] = [o.h, o.w];
+  if(board) o.seam = 0;
+  if(!(kind==='wall' ? TL_PATS.wall : board ? TL_PATS.board : TL_PATS.tile).some(p=>p[0]===o.pat)) o.pat = D.pat;
+  if(!['center', 'corner', 'door'].includes(o.start) || (board && o.start==='center')) o.start = D.start;
+  if(!['auto', 'h', 'v'].includes(o.dir) || (!board && o.dir==='auto')) o.dir = board ? 'auto' : 'h';
+  return {...o, kind, part, board};
+}
+/* the size of a piece in words: boards in mm, as on their pack; tiles in cm */
+const tlSize = C => C.board ? `${Math.round(C.w*10)} × ${Math.round(C.h*10)} мм` : `${fmt(C.w, 1)} × ${fmt(C.h, 1)} см`;
+/* the direction the pieces' long side follows, degrees: along the longest wall; boards by default along the light from
+   the biggest window (across the window's wall) */
+function tlBase(r, C, G){
+  const e = G.edges.reduce((a, b)=>b.len > a.len ? b : a);
+  let base = Math.atan2(e.u[1], e.u[0])*180/Math.PI;
+  if(C.dir==='auto'){
+    const win = (state.layouts[r.id] || []).filter(i=>i.t==='window' && G.edges[i.side]).sort((a, b)=>b.w - a.w)[0];
+    if(win){ const n = G.edges[win.side].n; base = Math.atan2(n[1], n[0])*180/Math.PI; }
+  }
+  else if(C.dir==='v') base += 90;
+  return ((base % 180) + 180) % 180;
+}
+/* the entrance: the widest door of the room – its middle on the wall */
+function tlDoor(r, G){
+  const d = (state.layouts[r.id] || []).filter(i=>i.t==='door' && G.edges[i.side] && i.along!=null).sort((a, b)=>b.w - a.w)[0];
+  if(!d) return null;
+  const e = G.edges[d.side], t = d.along + d.w/2;
+  return {p:[e.a[0] + e.u[0]*t, e.a[1] + e.u[1]*t], e};
+}
+/* the part of polygon `subj` inside the convex polygon `clip` (Sutherland–Hodgman) */
+function clipConvex(subj, clip){
+  const o = area2(clip) > 0 ? 1 : -1; let out = subj;
+  for(let i=0; i<clip.length && out.length; i++){
+    const a = clip[i], b = clip[(i+1)%clip.length], inp = out; out = [];
+    const side = p => ((b[0]-a[0])*(p[1]-a[1]) - (b[1]-a[1])*(p[0]-a[0]))*o;
+    for(let k=0; k<inp.length; k++){
+      const P = inp[k], Q = inp[(k+1)%inp.length], sp = side(P), sq = side(Q);
+      if(sp >= 0) out.push(P);
+      if((sp >= 0) !== (sq >= 0)){ const t = sp/(sp - sq); out.push([P[0] + (Q[0]-P[0])*t, P[1] + (Q[1]-P[1])*t]); }
+    }
+  }
+  return out;
+}
+const tlCorners = q => { const R = q.a*Math.PI/180, c = Math.cos(R), s = Math.sin(R), hw = q.w/2, hh = q.h/2;
+  return [[-hw,-hh],[hw,-hh],[hw,hh],[-hw,hh]].map(([x, y])=>[q.c[0] + x*c - y*s, q.c[1] + x*s + y*c]); };
+const TL_CACHE = new Map();
+/* the floor laid out: every piece {c (middle, plan cm), a (angle), w, h, cut, out}, how many pieces are needed (whole
+   ones, cut ones, offcuts used again), how many to buy with the reserve and in packs, the narrowest cut at the walls */
+function tilingFloor(r){
+  const C = tilingCfg(r, 'f'); if(!C) return null;
+  const poly = polyOf(r), items = (state.layouts[r.id] || []).filter(i=>i.t==='door' || i.t==='window').map(i=>[i.t, i.side, i.along, i.w]);
+  const key = JSON.stringify([poly, items, {...C, img:0, grout:0}]);
+  if(TL_CACHE.has(key)) return TL_CACHE.get(key);
+  const res = tlLayFloor(r, C, poly);
+  if(TL_CACHE.size > 60) TL_CACHE.delete(TL_CACHE.keys().next().value);
+  TL_CACHE.set(key, res);
+  return res;
+}
+function tlLayFloor(r, C, poly){
+  const G = geoFromPoly(poly), W = C.w, H = C.h, s = C.seam/10, base = tlBase(r, C, G);
+  const ang = C.pat==='diag' ? base + 45 : C.pat==='herring' ? base - 45 : base;
+  const R = ang*Math.PI/180, cs = Math.cos(R), sn = Math.sin(R);
+  const toL = p => [p[0]*cs + p[1]*sn, -p[0]*sn + p[1]*cs], toW = (u, v) => [u*cs - v*sn, u*sn + v*cs];
+  const lp = poly.map(toL), us = lp.map(p=>p[0]), vs = lp.map(p=>p[1]);
+  const u0 = Math.min(...us), u1 = Math.max(...us), v0 = Math.min(...vs), v1 = Math.max(...vs);
+  const door = tlDoor(r, G), dl = door && toL(door.p);
+  /* the corner farthest from the door (no door – the first one) */
+  const far = dl ? [Math.abs(dl[0]-u0) > Math.abs(dl[0]-u1) ? u0 : u1, Math.abs(dl[1]-v0) > Math.abs(dl[1]-v1) ? v0 : v1] : [u0, v0];
+  const pieces = [], add = (u, v, w, h, cut) => pieces.push({c:toW(u, v), a:ang, w, h, cut:!!cut});
+  const Pu = W + s, Pv = H + s, md = (x, P) => ((x % P) + P) % P;
+  const out = {C, W, H, s, ang, base, pieces, minCut:null, minOff:null, minLen:null, start:null};
+  const area = Math.abs(area2(poly))/2;
+  /* too many pieces to draw one by one (a mosaic): counted by the area */
+  if((u1 - u0)*(v1 - v0)/(Pu*Pv) > 6000){
+    out.pieces = null; out.count = Math.ceil(area/(W*H)*1.08); return tlBuy(out);
+  }
+  let boards = 0;
+  if(C.pat==='herring'){
+    /* herringbone: boards along and across in a zigzag whose axis follows `base`; the lattice steps (H, H) along the
+       zigzag and (W, −W) to the next one */
+    const cu = (u0+u1)/2, cv = (v0+v1)/2;
+    const k0 = Math.floor((u0 + v0 - cu - cv)/(2*H)) - 2, k1 = Math.ceil((u1 + v1 - cu - cv)/(2*H)) + 2;
+    const m0 = Math.floor((u0 - v1 - cu + cv)/(2*W)) - 2, m1 = Math.ceil((u1 - v0 - cu + cv)/(2*W)) + 2;
+    for(let m=m0; m<=m1; m++) for(let k=k0; k<=k1; k++){
+      const x = cu + k*H + m*W, y = cv + k*H - m*W;
+      if(x + W > u0 - W && x - W < u1 + W && y + W > v0 - W && y - W < v1 + W){
+        pieces.push({c:toW(x + W/2, y + H/2), a:ang, w:W, h:H});
+        pieces.push({c:toW(x - H/2, y + W/2), a:ang + 90, w:W, h:H});
+      }
+    }
+    out.start = toW(cu, cv);
+  }
+  else if(C.board){
+    /* rows of boards across `v` from the starting wall; the first and the last row are no narrower than half a board */
+    const st = C.start==='door' && dl ? dl : far;
+    const dv = Math.abs(st[1]-v0) <= Math.abs(st[1]-v1) ? 1 : -1, du = Math.abs(st[0]-u0) <= Math.abs(st[0]-u1) ? 1 : -1;
+    const span = v1 - v0, n = Math.floor(span/H + 1e-6), rem = span - n*H;
+    let first = H; if(rem > 0.05 && rem < H/2 && n >= 1) first = (H + rem)/2;
+    const bands = []; for(let a = 0, w = first; a < span - 0.05; w = H){ const b = Math.min(span, a + w); bands.push([a, b]); a = b; }
+    const cross = vm => { const xs = [];
+      for(let k=0; k<lp.length; k++){ const P = lp[k], Q = lp[(k+1)%lp.length]; if((P[1] > vm) !== (Q[1] > vm)) xs.push(P[0] + (Q[0]-P[0])*(vm-P[1])/(Q[1]-P[1])); }
+      xs.sort((x, y)=>x-y); const o = []; for(let k=0; k+1<xs.length; k+=2) o.push([xs[k], xs[k+1]]); return o; };
+    const MIN = Math.min(30, W/3), OFF = Math.min(30, W/4);
+    let prevJ = [], startPool = [], endPool = [], minOff = Infinity, minLen = Infinity;
+    out.minCut = Math.min(...bands.map(b=>b[1]-b[0]));
+    for(const [a, b] of bands){
+      const va = dv > 0 ? v0 + a : v1 - b, vb = dv > 0 ? v0 + b : v1 - a, vc = (va + vb)/2, bw = vb - va, rowCut = bw < H - 0.05;
+      /* the row reaches as far as the room does anywhere across it (slanted walls) */
+      let iv = [...cross(va + 0.02), ...cross(vc), ...cross(vb - 0.02)].sort((x, y)=>x[0]-y[0]); const merged = [];
+      for(const x of iv){ const l = merged[merged.length-1]; if(l && x[0] <= l[1] + 0.01) l[1] = Math.max(l[1], x[1]); else merged.push([...x]); }
+      if(du < 0) merged.reverse();
+      const rowJ = [];
+      for(const [ia, ib] of merged){
+        const len = ib - ia; if(len < 0.5) continue;
+        const pos0 = du > 0 ? ia : ib, at = x => du > 0 ? pos0 + x : pos0 - x;
+        const place = (x1, x2) => { const l = x2 - x1; add((at(x1) + at(x2))/2, vc, l, bw, rowCut || l < W - 0.05); minLen = Math.min(minLen, l); };
+        const jointsOk = sl => { for(let x = sl; x < len - 0.1; x += W){ const ux = at(x); if(prevJ.some(p=>Math.abs(p - ux) < OFF)) return false; }
+          const e = (len - sl) % W; return e < 0.1 || e > W - 0.1 || e >= MIN; };
+        if(len <= W + 0.05){
+          /* one piece from wall to wall: any offcut long enough, else a new board */
+          const pool = [...startPool.map((p, k)=>[p, 0, k]), ...endPool.map((p, k)=>[p, 1, k])].filter(p=>p[0] >= len).sort((x, y)=>x[0]-y[0])[0];
+          if(pool) (pool[1] ? endPool : startPool).splice(pool[2], 1);
+          else { boards++; if(W - len >= MIN) startPool.push(W - len); }
+          place(0, len); continue;
+        }
+        /* the first board: an offcut whose joints keep away from the last row's, else a new board cut to fit */
+        startPool.sort((x, y)=>y-x);
+        let sl = null; const k = startPool.findIndex(p=>p >= MIN && p <= len && jointsOk(p));
+        if(k >= 0) sl = startPool.splice(k, 1)[0];
+        else { boards++; for(let x = W; x >= MIN; x -= 1) if(jointsOk(x)){ sl = x; break; } if(sl==null) sl = W; if(W - sl >= MIN) endPool.push(W - sl); }
+        place(0, sl); let x = sl; rowJ.push(at(x));
+        while(len - x > W + 0.05){ boards++; place(x, x + W); x += W; rowJ.push(at(x)); }
+        const e = len - x;
+        if(e >= W - 0.05){ boards++; place(x, len); }
+        else if(e > 0.05){
+          /* the last board: the left part of an earlier cut, else a new board – its right part starts a later row */
+          endPool.sort((p, q)=>p-q); const j = endPool.findIndex(p=>p >= e);
+          if(j >= 0) endPool.splice(j, 1); else { boards++; if(W - e >= MIN) startPool.push(W - e); }
+          place(x, len);
+        }
+      }
+      for(const j of rowJ) for(const p of prevJ) minOff = Math.min(minOff, Math.abs(j - p));
+      if(rowJ.length) prevJ = rowJ;
+    }
+    out.minOff = isFinite(minOff) ? minOff : null; out.minLen = isFinite(minLen) ? minLen : null;
+    const sp = toW(du > 0 ? u0 + Math.min(W/4, 15) : u1 - Math.min(W/4, 15), dv > 0 ? v0 + H/2 : v1 - H/2); out.start = pointInPoly(sp[0], sp[1], poly) ? sp : null;
+  }
+  else {
+    /* tiles: a grid of seams through (ou, ov); from the middle – the seam or the middle of a tile goes through the
+       room's middle, whichever leaves the wider cuts at the walls; from a corner – whole tiles from the corner farthest
+       from the door; from the door – a whole row along the door's wall, a tile right in the middle of the door */
+    const cut = (o, P, a, b) => { let x = md(o - a, P), y = md(b - o, P); if(x < 0.05) x = P; if(y < 0.05) y = P; return Math.min(x, y); };
+    const best = (c, P, a, b) => cut(c, P, a, b) >= cut(c - P/2, P, a, b) - 0.01 ? c : c - P/2;
+    const cu = (u0+u1)/2, cv = (v0+v1)/2;
+    let ou = best(cu, Pu, u0, u1), ov = best(cv, Pv, v0, v1);
+    if(C.start==='corner' && C.pat!=='diag'){ ou = far[0]; ov = far[1]; out.start = toW(far[0] + (far[0]===u0 ? 1 : -1)*Math.min(W/4, 10), far[1] + (far[1]===v0 ? 1 : -1)*Math.min(H/4, 10)); }
+    else if(C.start==='door' && dl && C.pat!=='diag'){
+      const eu = [door.e.u[0]*cs + door.e.u[1]*sn, -door.e.u[0]*sn + door.e.u[1]*cs];
+      const inw = [door.e.n[0]*Math.min(W, H)/4, door.e.n[1]*Math.min(W, H)/4];
+      if(Math.abs(eu[1]) < 0.05){ ov = dl[1]; ou = dl[0] - Pu/2; out.start = [door.p[0] + inw[0], door.p[1] + inw[1]]; }
+      else if(Math.abs(eu[0]) < 0.05){ ou = dl[0]; ov = dl[1] - Pv/2; out.start = [door.p[0] + inw[0], door.p[1] + inw[1]]; }
+    }
+    if(!out.start) out.start = toW(ou + Math.round((cu - ou)/Pu)*Pu, ov + Math.round((cv - ov)/Pv)*Pv);
+    if(out.start && !pointInPoly(out.start[0], out.start[1], poly)) out.start = null;
+    for(let j = Math.floor((v0 - ov)/Pv) - 1; ov + j*Pv < v1; j++){
+      const o = ou + (C.pat==='half' ? md(j, 2)*Pu/2 : C.pat==='third' ? md(j, 3)*Pu/3 : 0);
+      for(let i = Math.floor((u0 - o)/Pu) - 1; o + i*Pu < u1; i++) add(o + i*Pu + Pu/2, ov + j*Pv + Pv/2, W, H);
+    }
+  }
+  /* each piece against the room: outside – dropped, inside – whole, across a wall – cut (its size within the piece) */
+  let whole = 0; const cuts = [];
+  for(const q of pieces){
+    const cl = clipConvex(poly, tlCorners(q));
+    const A = cl.length >= 3 ? Math.abs(area2(cl))/2 : 0, fr = A/(q.w*q.h);
+    if(fr < 0.002){ q.out = true; continue; }
+    if(fr > 0.995){ if(!C.board || C.pat==='herring') whole++; continue; }
+    const Rq = q.a*Math.PI/180, c = Math.cos(Rq), sq = Math.sin(Rq);
+    const pu = cl.map(p=>(p[0]-q.c[0])*c + (p[1]-q.c[1])*sq), pv = cl.map(p=>-(p[0]-q.c[0])*sq + (p[1]-q.c[1])*c);
+    const du = Math.max(...pu) - Math.min(...pu), dv = Math.max(...pv) - Math.min(...pv);
+    if(Math.min(du, dv) < 0.3){ q.out = true; continue; }
+    q.cut = true; cuts.push({du, dv, fr});
+  }
+  if(C.board && C.pat!=='herring'){ out.count = boards; out.whole = pieces.filter(q=>!q.out && !q.cut).length; out.cuts = pieces.filter(q=>!q.out && q.cut).length; return tlBuy(out); }
+  /* cut pieces: from a new piece or from what is left of an earlier cut (a saw cut takes 3 mm); triangles of a
+     diagonal layout come two from one tile */
+  let need = whole, halves = 0; const pool = [], K = 0.3, MINC = 3;
+  cuts.sort((x, y)=>y.du*y.dv - x.du*x.dv);
+  for(const c of cuts){
+    if(c.fr <= 0.52 && c.du > 0.7*W && c.dv > 0.7*H){ halves++; continue; }
+    const sq = Math.abs(W - H) < 0.01;
+    const k = pool.findIndex(([a, b])=>(c.du <= a && c.dv <= b) || (sq && c.du <= b && c.dv <= a));
+    let a = W, b = H, du = c.du, dv = c.dv;
+    if(k >= 0){ [a, b] = pool.splice(k, 1)[0]; if(!(du <= a && dv <= b)) [du, dv] = [dv, du]; } else need++;
+    if(a - du - K >= MINC) pool.push([a - du - K, b]);
+    if(b - dv - K >= MINC) pool.push([du, b - dv - K]);
+  }
+  need += Math.ceil(halves/2);
+  out.count = need; out.whole = whole; out.cuts = cuts.length;
+  if(C.pat==='straight' || C.pat==='half' || C.pat==='third'){
+    /* staggered rows always end in short pieces somewhere, so for them only the rows along the walls count */
+    const m = cuts.map(c=>Math.min(c.du < W - 0.3 && C.pat==='straight' ? c.du : Infinity, c.dv < H - 0.3 ? c.dv : Infinity)).filter(isFinite);
+    out.minCut = m.length ? Math.min(...m) : null;
+  }
+  return tlBuy(out);
+}
+/* with the reserve, in whole packs; the area bought */
+function tlBuy(o){
+  const C = o.C; o.res = TL_RES[C.pat] ?? 0.05; o.buy = Math.ceil(o.count*(1 + o.res) - 1e-9);
+  o.packs = Math.ceil(o.buy/C.pack); o.m2 = o.packs*C.pack*o.W*o.H/1e4; return o;
+}
+/* tiled walls: full height, row by row on each wall from the floor up; doors and windows take off what they cover */
+function tilingWalls(r){
+  const C = tilingCfg(r, 'w'); if(!C) return null;
+  const G = geoFromPoly(polyOf(r)), s = C.seam/10, [W, H] = C.dir==='v' ? [C.h, C.w] : [C.w, C.h];
+  const Hh = (r.h || 2.7)*100, rows = Math.ceil(Hh/(H + s) - 1e-6);
+  let n = 0; for(const e of G.edges) n += Math.ceil(e.len/(W + s) - 1e-6)*rows + (C.pat==='half' ? Math.ceil(rows/2) : 0);
+  n = Math.max(0, n - Math.floor(roomCalc(r).open*1e4/(W*H)));
+  return tlBuy({C, W, H, s, count:n});
+}
+/* one line about the layouts of a room, for its card */
+function tilingLine(r){
+  const F = tilingCfg(r, 'f'), Wc = tilingCfg(r, 'w'), pat = C => ((C.kind==='wall' ? TL_PATS.wall : C.board ? TL_PATS.board : TL_PATS.tile).find(p=>p[0]===C.pat) || [, ''])[1].toLowerCase();
+  const out = [];
+  if(F){ const T = tilingFloor(r); out.push(`пол – ${tlSize(F)}, ${pat(F)}${T ? `, ${T.buy} шт.` : ''}`); }
+  if(Wc){ const T = tilingWalls(r); out.push(`стены – ${tlSize(Wc)}, ${pat(Wc)}${T ? `, ${T.buy} шт.` : ''}`); }
+  return out.join(' · ');
+}
+/* a photo of one piece, loaded once for the drawings and the 3D */
+const TL_IMGS = new Map();
+function tlImg(src, then){
+  let im = TL_IMGS.get(src);
+  if(!im){ im = new Image(); im.onload = () => { (im._wait || []).forEach(f=>f()); im._wait = null; }; im._wait = []; im.src = src; TL_IMGS.set(src, im); }
+  if(im.complete && im.naturalWidth) return im;
+  if(then && im._wait) im._wait.push(then);
+  return null;
+}
+let tlSeq = 0;
+/* the layout as SVG in plan cm: the pieces in their colour or the photo, seams, cut pieces hatched, the start marked;
+   bw – black and white for the drawings */
+function tilingSvg(r, T, opt = {}){
+  if(!T || !T.pieces) return '';
+  const id = 'tl' + (++tlSeq), C = T.C, poly = polyOf(r), pts = poly.map(p=>p.map(x=>Math.round(x*10)/10).join(',')).join(' ');
+  const gr = tlGrout(C, opt.color || '#cccccc'), img = !opt.bw && C.img;
+  const line = opt.bw ? '#9a9a9a' : C.board ? 'rgba(0,0,0,.4)' : gr, fill = opt.bw ? '#fff' : opt.color || '#ccc', sw = opt.sw || 1;
+  const hatch = opt.bw ? '#b0b0b0' : 'rgba(0,0,0,.32)', hs = opt.hs || 6;
+  let defs = `<clipPath id="${id}c"><polygon points="${pts}"/></clipPath>`
+    + `<pattern id="${id}h" patternUnits="userSpaceOnUse" width="${hs}" height="${hs}" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="${hs}" stroke="${hatch}" stroke-width="${hs/7}"/></pattern>`
+    + (img ? `<pattern id="${id}i" patternContentUnits="objectBoundingBox" width="1" height="1"><image href="${img}" width="1" height="1" preserveAspectRatio="none"/></pattern>` : '');
+  const f = n => Math.round(n*10)/10;
+  let s = `<g clip-path="url(#${id}c)"><polygon points="${pts}" fill="${opt.bw ? '#fff' : gr}"/>`;
+  for(const q of T.pieces){
+    if(q.out) continue;
+    const tr = Math.abs(q.a) > 1e-6 ? ` transform="rotate(${f(q.a)} ${f(q.c[0])} ${f(q.c[1])})"` : '', at = `x="${f(q.c[0] - q.w/2)}" y="${f(q.c[1] - q.h/2)}" width="${f(q.w)}" height="${f(q.h)}"${tr}`;
+    s += `<rect ${at} fill="${img ? `url(#${id}i)` : fill}" stroke="${line}" stroke-width="${sw}" vector-effect="non-scaling-stroke"/>`;
+    if(q.cut && opt.cuts!==false) s += `<rect ${at} fill="url(#${id}h)"/>`;
+  }
+  s += '</g>';
+  if(T.start && opt.start!==false) s += `<circle cx="${f(T.start[0])}" cy="${f(T.start[1])}" r="${opt.r || 6}" ${opt.bw ? 'fill="#000"' : 'style="fill:var(--accent)"'} stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+  return `<defs>${defs}</defs>${s}`;
+}
+/* the colour as numbers, a shade of it as CSS */
+const tlRgb = h => { const n = parseInt(String(h).replace('#', ''), 16) || 0; return [n>>16&255, n>>8&255, n&255]; };
+const tlShade = (rgb, k) => `rgb(${rgb.map(x=>Math.max(0, Math.min(255, Math.round(x*k)))).join(',')})`;
+/* the grout: the chosen one, else a little darker than the tiles, so the seams show */
+const tlGrout = (C, color) => C.grout || tlShade(tlRgb(color), 0.82);
+/* the floor's layout as a picture for the 3D: square, N px for the room's biggest side; draw(colour) paints it again
+   (a new colour, the photo loaded) */
+function tilingCanvas(r, T, onPhoto){
+  const poly = polyOf(r), xs = poly.map(p=>p[0]), ys = poly.map(p=>p[1]);
+  const X0 = Math.min(...xs) - 1, Y0 = Math.min(...ys) - 1, S = Math.max(Math.max(...xs) - X0, Math.max(...ys) - Y0) + 1;
+  let N = 512; while(N < S*2.2 && N < 2048) N *= 2;
+  const c = document.createElement('canvas'); c.width = c.height = N;
+  const C = T.C, k = N/S;
+  let last = '#cccccc', gr = TL_GROUT;
+  const draw = color => {
+    last = color; gr = tlGrout(C, color);
+    const g = c.getContext('2d'), rgb = tlRgb(color), im = C.img ? tlImg(C.img, ()=>{ draw(last); onPhoto && onPhoto(); }) : null;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = C.board ? tlShade(rgb, 0.8) : gr; g.fillRect(0, 0, N, N);
+    g.setTransform(k, 0, 0, k, -X0*k, -Y0*k);
+    let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647)/2147483647;
+    const px = 1/k, seamW = Math.max(T.s, 1.3*px);
+    for(const q of T.pieces){
+      if(q.out) continue;
+      g.save(); g.translate(q.c[0], q.c[1]); g.rotate(q.a*Math.PI/180);
+      const w = q.w, h = q.h, flip = rnd() < 0.5;
+      g.beginPath(); g.rect(-w/2, -h/2, w, h); g.save(); g.clip();
+      if(im){
+        if(C.board && flip) g.rotate(Math.PI);
+        g.drawImage(im, -T.W/2, -T.H/2, T.W, T.H);
+      } else {
+        g.fillStyle = tlShade(rgb, 1 - rnd()*(C.board ? 0.13 : 0.05)); g.fillRect(-w/2, -h/2, w, h);
+        if(C.board){
+          /* the grain along the board */
+          for(let n=0; n<6; n++){
+            const y0 = -h/2 + rnd()*h, amp = 0.15 + rnd()*0.5, ph = rnd()*6, L = 30 + rnd()*40;
+            g.strokeStyle = `rgba(60,40,20,${0.05 + rnd()*0.1})`; g.lineWidth = Math.max(px, 0.12 + rnd()*0.2); g.beginPath();
+            for(let x = -w/2; x <= w/2 + 4; x += 4) g.lineTo(x, y0 + Math.sin(x/L + ph)*amp);
+            g.stroke();
+          }
+        }
+      }
+      g.restore();
+      if(C.board){ g.strokeStyle = 'rgba(0,0,0,.3)'; g.lineWidth = 1.2*px; g.strokeRect(-w/2, -h/2, w, h); }
+      else { g.strokeStyle = gr; g.lineWidth = seamW; g.strokeRect(-w/2 - T.s/2, -h/2 - T.s/2, w + T.s, h + T.s); }
+      g.restore();
+    }
+  };
+  return {canvas:c, draw, X0, Y0, S};
+}
+/* tiled walls for the 3D: one repeat of the pattern (a tile, or two rows when they are staggered) */
+function tilingWallCanvas(C, onPhoto){
+  const s = C.seam/10, [W, H] = C.dir==='v' ? [C.h, C.w] : [C.w, C.h], Pu = W + s, Pv = H + s, rows = C.pat==='half' ? 2 : 1;
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const cu = Pu, cv = Pv*rows, kx = 512/cu, ky = 512/cv;
+  let last = '#dddddd', gr = TL_GROUT;
+  const draw = color => {
+    last = color; gr = tlGrout(C, color);
+    const g = c.getContext('2d'), rgb = tlRgb(color), im = C.img ? tlImg(C.img, ()=>{ draw(last); onPhoto && onPhoto(); }) : null;
+    g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = gr; g.fillRect(0, 0, 512, 512);
+    g.setTransform(kx, 0, 0, ky, 0, 0);
+    const sx = Math.max(s, 1.5/kx), sy = Math.max(s, 1.5/ky);
+    for(let j=0; j<rows; j++) for(const o of [-Pu, 0, Pu]){
+      const x = o + (j ? Pu/2 : 0) + sx/2, y = j*Pv + sy/2, w = Pu - sx, h = Pv - sy;
+      if(im){ g.save(); g.translate(x + w/2, y + h/2); if(C.dir==='v') g.rotate(Math.PI/2); const a = C.dir==='v' ? h : w, b = C.dir==='v' ? w : h; g.drawImage(im, -a/2, -b/2, a, b); g.restore(); }
+      else { g.fillStyle = tlShade(rgb, 1 - ((j*3 + o/Pu + 5)%4)*0.012); g.fillRect(x, y, w, h); }
+    }
+  };
+  return {canvas:c, draw, cu, cv};
+}
+/* the floor's layout in words, for the legend of the floor plan in «Чертежи» */
+function tilingNote(r){
+  const T = tilingFloor(r); if(!T) return '';
+  const C = T.C, pat = ((C.board ? TL_PATS.board : TL_PATS.tile).find(p=>p[0]===C.pat) || [, ''])[1].toLowerCase();
+  const st = C.pat==='herring' || C.pat==='diag' ? '' : C.board ? (C.start==='door' ? ', от двери' : ', от дальней стены') : {center:', от центра', corner:', от угла', door:', от двери'}[C.start];
+  return `${C.board ? 'доска' : 'плитка'} ${tlSize(C)}, ${pat}${C.seam ? `, шов ${fmt(C.seam, 1)} мм` : ''}${st}; ${T.buy} шт. с запасом ${Math.round(T.res*100)}% (${T.packs} уп. по ${C.pack} шт.). Штриховка – с подрезкой${T.start ? ', точка – начало' : ''}.`;
+}
+/* «Раскладка» (version 309): a window over the page (or the 3D) for one room – the floor's or the tiled walls' piece
+   size, seam, pattern, start, direction, colours, an own photo of one piece, pieces in a pack; the drawing and the count
+   change at once. Closed – the page is drawn again, an open 3D of the room is built again */
+let tlOpen = null;
+const tlColor = (r, part) => {
+  const c3 = r.c3 || {};
+  if(part==='w') return c3.wall || hex6((S3[scheme3d()] || S3.neutral)[r.walls==='tile' ? 'tile' : 'wall']);
+  return c3.floor || hex6(FLOOR3[r.floor] ?? FLOOR3.laminate);
+};
+function openTiling(roomId, part){
+  closeTiling();
+  const r = state.rooms.find(x=>x.id===roomId); if(!r) return;
+  tlOpen = {id:roomId, part:part || (!tilingCfg(r, 'f') && tilingCfg(r, 'w') ? 'w' : 'f'), dirty:false, live:null};
+  const el = document.createElement('div'); el.className = 'help-dlg tl-dlg'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Раскладка плитки и ламината');
+  document.body.appendChild(el);
+  el.addEventListener('click', e=>{
+    if(e.target===el){ closeTiling(); return; }
+    const o = tlOpen, r = o && state.rooms.find(x=>x.id===o.id); if(!r) return;
+    const cb = e.target.closest('[data-color^="tl-"]');
+    if(cb){ tilingColor(r, cb.dataset.color, cb.dataset.c); return; }
+    const b = e.target.closest('[data-tl]'); if(!b) return;
+    const a = b.dataset.tl, C = tilingCfg(r, o.part);
+    if(a==='close'){ closeTiling(); return; }
+    if(a==='part'){ o.part = b.dataset.v; o.live = null; tilingDraw(); return; }
+    if(!C) return;
+    if(a==='size') tilingSet(r, o.part, {w:num(b.dataset.w), h:num(b.dataset.h)});
+    else if(a==='pat' || a==='dir' || a==='start') tilingSet(r, o.part, {[a]:b.dataset.v});
+    else if(a==='imgoff') tilingSet(r, o.part, {img:null});
+  });
+  el.addEventListener('change', e=>{
+    const t = e.target, o = tlOpen, r = o && state.rooms.find(x=>x.id===o.id); if(!r) return;
+    if(t.dataset.colorpick && t.dataset.colorpick.startsWith('tl-')){ o.live = null; tilingColor(r, t.dataset.colorpick, t.value); return; }
+    if(t.hasAttribute('data-tlimg')){ const f = t.files && t.files[0]; t.value = ''; if(f) tilingPhoto(r, o.part, f); return; }
+    const k = t.dataset.tlf; if(!k) return;
+    if(k==='floor' || k==='walls'){ r[k] = t.value; o.dirty = true; changed(); tilingDraw(); return; }
+    const C = tilingCfg(r, o.part); if(!C) return;
+    let v = num(t.value);
+    if((k==='w' || k==='h') && C.board) v = v/10;
+    if(k==='w' || k==='h'){ if(v < 5 || v > 400){ tilingDraw(); return; } }
+    if(k==='seam') v = Math.max(0, Math.min(20, v));
+    if(k==='pack'){ v = Math.round(v); if(v < 1){ tilingDraw(); return; } }
+    tilingSet(r, o.part, {[k]:v});
+  });
+  el.addEventListener('input', e=>{
+    const t = e.target; if(!(t.dataset.colorpick || '').startsWith('tl-') || !tlOpen) return;
+    t.parentElement.querySelector('.wheel')?.style.setProperty('--c', t.value);
+    tlOpen.live = {what:t.dataset.colorpick, c:t.value}; tilingDrawView();
+  });
+  el.addEventListener('keydown', e=>{ if(e.key==='Escape'){ e.stopPropagation(); closeTiling(); } });
+  tilingDraw();
+  el.querySelector('[data-tl="close"]')?.focus({preventScroll:true});
+}
+function closeTiling(){
+  const el = document.querySelector('.tl-dlg'); if(!el) return;
+  el.remove(); const o = tlOpen; tlOpen = null;
+  if(o && o.dirty){ render(); if(v3d && v3d.room && v3d.room.id===o.id) rebuild3d(); }
+}
+function tilingSet(r, part, patch){
+  const C = tilingCfg(r, part); if(!C) return;
+  const t = r.tiling = {...(r.tiling || {})}, cur = t[C.kind] = {...(t[C.kind] || {}), ...patch};
+  for(const k of Object.keys(cur)) if(cur[k]==null) delete cur[k];
+  if(tlOpen) tlOpen.dirty = true;
+  changed(); tilingDraw();
+}
+/* the tiles' or boards' colour is the room's floor or wall colour; the grout is the layout's own */
+function tilingColor(r, what, c){
+  const part = tlOpen ? tlOpen.part : 'f';
+  if(what==='tl-g'){ tilingSet(r, part, {grout:c || null}); return; }
+  const key = part==='w' ? 'wall' : 'floor', c3 = r.c3 = {...(r.c3 || {})};
+  if(c) c3[key] = c; else delete c3[key];
+  if(!Object.keys(c3).length) delete r.c3;
+  if(tlOpen) tlOpen.dirty = true;
+  changed(); tilingDraw();
+}
+/* a photo of one piece: made small (a JPEG about 480 px) and kept in the project itself, so it works without any
+   storage and goes into the project's file */
+async function tilingPhoto(r, part, file){
+  const msg = t => { const m = document.querySelector('.tl-dlg .tl-msg'); if(m) m.textContent = t; };
+  if(!/^image\//.test(file.type || 'image/')){ msg('Это не картинка.'); return; }
+  msg('Загружаю фото…');
+  try{ const s = await shrinkImage(file, 480, 0.82); tilingSet(r, part, {img:s.url()}); }
+  catch(e){ msg('Фото не загрузилось. Попробуйте другой файл.'); }
+}
+function tilingDraw(){
+  const el = document.querySelector('.tl-dlg'), o = tlOpen; if(!el || !o) return;
+  const r = state.rooms.find(x=>x.id===o.id); if(!r){ closeTiling(); return; }
+  const C = tilingCfg(r, o.part), sc = el.querySelector('.tl-body')?.scrollTop || 0;
+  const opts = (k, list, cur) => `<div class="tl-opts" role="group">${list.map(([v, n])=>`<button type="button" data-tl="${k}" data-v="${v}" class="${cur===v ? 'on' : ''}" aria-pressed="${cur===v}">${n}</button>`).join('')}</div>`;
+  const sec = (t, h) => `<div class="tl-sec"><b class="tl-k">${t}</b>${h}</div>`;
+  const fin = o.part==='w'
+    ? `<label class="f"><span>Отделка стен</span><select data-tlf="walls">${Object.entries(WALLS).map(([k, v])=>`<option value="${k}" ${r.walls===k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`
+    : `<label class="f"><span>Покрытие пола</span><select data-tlf="floor">${Object.entries(FLOORS).map(([k, v])=>`<option value="${k}" ${r.floor===k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`;
+  let form = fin;
+  /* no layout (linoleum, paint, wallpaper…): the colour only (version 315), the same room.c3 as in 3D */
+  if(!C) form += sec(o.part==='w' ? 'Цвет стен' : 'Цвет пола', colorPick('tl-c', (r.c3 || {})[o.part==='w' ? 'wall' : 'floor'] || '', o.part==='w' ? 'wall' : 'floor'))
+    + `<p class="note tl-n">${o.part==='w' ? 'Раскладка – у стен из плитки: выберите выше «Плитка».' : 'Раскладка – у плитки, ламината, паркетной доски и кварцвинила: выберите одно из них выше.'}</p>`;
+  else {
+    const mm = C.board, k = mm ? 10 : 1, u = mm ? 'мм' : 'см', nW = C.kind==='wall' ? 'По стене' : 'Длина', nH = C.kind==='wall' ? 'В высоту' : 'Ширина';
+    form += sec('Размер', `<div class="tl-opts" role="group">${TL_SIZES[C.kind].map(([w, h])=>{ const on = Math.abs(w - C.w) < 0.01 && Math.abs(h - C.h) < 0.01;
+        return `<button type="button" data-tl="size" data-w="${w}" data-h="${h}" class="${on ? 'on' : ''}" aria-pressed="${on}">${mm ? Math.round(w*k) : fmt(w, 1)} × ${mm ? Math.round(h*k) : fmt(h, 1)}</button>`; }).join('')}</div>`
+      + `<div class="tl-2"><label class="f">${nW}, ${u}<input type="number" inputmode="decimal" data-tlf="w" min="${5*k}" max="${400*k}" step="${mm ? 1 : 0.5}" value="${Math.round(C.w*k*10)/10}"></label>`
+      + `<label class="f">${nH}, ${u}<input type="number" inputmode="decimal" data-tlf="h" min="${5*k}" max="${400*k}" step="${mm ? 1 : 0.5}" value="${Math.round(C.h*k*10)/10}"></label></div>`);
+    form += sec('Укладка', opts('pat', C.kind==='wall' ? TL_PATS.wall : C.board ? TL_PATS.board : TL_PATS.tile, C.pat)
+      + (C.board && C.pat==='rows' ? '<p class="note tl-n">Стыки соседних рядов – не ближе 30 см, обрезок с конца ряда начинает следующий.</p>' : '')
+      + (C.pat==='herring' ? '<p class="note tl-n">Для ёлочки берут короткую доску, например 600 × 100 мм.</p>' : ''));
+    if(C.kind==='wall'){ if(Math.abs(C.w - C.h) > 0.01) form += sec('Как стоит плитка', opts('dir', [['h', 'Лёжа'], ['v', 'Стоя']], C.dir)); }
+    else {
+      const dirs = C.board ? [['auto', 'По свету из окна'], ['h', 'Вдоль длинной стены'], ['v', 'Поперёк']] : [['h', 'Вдоль длинной стены'], ['v', 'Поперёк']];
+      if(C.board || Math.abs(C.w - C.h) > 0.01 || C.pat==='half' || C.pat==='third') form += sec('Направление', opts('dir', dirs, C.dir));
+      if(C.pat!=='herring' && C.pat!=='diag') form += sec('Откуда начинать', opts('start', C.board ? [['corner', 'От дальней стены'], ['door', 'От двери']] : [['center', 'От центра'], ['corner', 'От угла'], ['door', 'От двери']], C.start));
+    }
+    if(!mm) form += sec('Шов', `<div class="tl-2"><label class="f">Ширина шва, мм<input type="number" inputmode="decimal" data-tlf="seam" min="0" max="20" step="0.5" value="${C.seam}"></label></div>`);
+    const wood = o.part==='f' && C.board;
+    form += sec(o.part==='w' ? 'Цвет плитки' : wood ? 'Цвет доски' : 'Цвет плитки', colorPick('tl-c', (r.c3 || {})[o.part==='w' ? 'wall' : 'floor'] || '', wood ? 'floor' : 'wall'));
+    if(!mm) form += sec('Цвет шва', colorPick('tl-g', C.grout || '', 'grout'));
+    form += sec(`Своё фото ${wood ? 'доски' : 'плитки'}`, `<p class="note tl-n">Сфотографируйте одну ${wood ? 'доску' : 'плитку'} прямо сверху и обрежьте фото по её краям – фото ляжет на каждую ${wood ? 'доску' : 'плитку'} на чертеже и в 3D.</p>`
+      + `<div class="row tl-photo">${C.img ? `<img class="tl-thumb" src="${C.img}" alt="">` : ''}<label class="btn small">${C.img ? 'Другое фото' : 'Загрузить фото'}<input type="file" accept="image/*" data-tlimg hidden></label>${C.img ? '<button class="btn small" type="button" data-tl="imgoff">Убрать фото</button>' : ''}</div><p class="note tl-msg tl-n" aria-live="polite"></p>`);
+    form += sec('Упаковка', `<div class="tl-2"><label class="f">${wood ? 'Досок' : 'Плиток'} в упаковке, шт.<input type="number" inputmode="numeric" data-tlf="pack" min="1" max="999" step="1" value="${C.pack}"></label></div>`);
+  }
+  el.innerHTML = `<div class="help-box tl-box"><div class="help-head"><b>Раскладка – ${esc(r.name)}</b><button class="btn small" type="button" data-tl="close" aria-label="Закрыть">✕</button></div>
+    <div class="help-body tl-body"><div class="seg tl-part" role="group" aria-label="Что раскладывать">${[['f', 'Пол'], ['w', 'Стены']].map(([v, n])=>`<button type="button" data-tl="part" data-v="${v}" class="${o.part===v ? 'on' : ''}" aria-pressed="${o.part===v}">${n}</button>`).join('')}</div>
+      <div class="tl-grid"><div class="tl-form">${form}</div><div class="tl-view"></div></div></div></div>`;
+  tilingDrawView();
+  const b = el.querySelector('.tl-body'); if(b) b.scrollTop = sc;
+}
+/* the drawing and the count; a colour being picked on the wheel shows at once (tlOpen.live) */
+function tilingDrawView(){
+  const el = document.querySelector('.tl-dlg .tl-view'), o = tlOpen; if(!el || !o) return;
+  const r = state.rooms.find(x=>x.id===o.id); if(!r) return;
+  const C = tilingCfg(r, o.part);
+  const live = o.live, color = live && live.what==='tl-c' ? live.c : tlColor(r, o.part);
+  const Cg = live && live.what==='tl-g' ? {...C, grout:live.c} : C;
+  let svg = '', sum = '';
+  const res = T => `<p class="tl-sum">Нужно <b>${T.count} шт.</b>${T.whole!=null ? (C.board && C.pat==='rows' ? ` (целых досок на полу – ${T.whole}, подрезанных кусков – ${T.cuts}, обрезки идут в дело)` : ` (целых ${T.whole}, с подрезкой ${T.cuts})`) : ''} и запас ${Math.round(T.res*100)}% на бой – купить <b>${T.buy} шт.</b> = <b>${T.packs} ${plural(T.packs, 'упаковка', 'упаковки', 'упаковок')}</b> по ${C.pack} шт. (${fmt(T.m2, 2)} м²).</p>`;
+  if(o.part==='f'){
+    const T = C ? tilingFloor(r) : null, poly = polyOf(r), xs = poly.map(p=>p[0]), ys = poly.map(p=>p[1]);
+    const x0 = Math.min(...xs), y0 = Math.min(...ys), w = Math.max(...xs) - x0, h = Math.max(...ys) - y0, m = Math.max(w, h)*0.05 + 10;
+    const G = geoFromPoly(poly), f = n => Math.round(n*10)/10;
+    const ops = (state.layouts[r.id] || []).filter(i=>(i.t==='door' || i.t==='window') && G.edges[i.side] && i.along!=null).map(i=>{
+      const e = G.edges[i.side], a = [e.a[0] + e.u[0]*i.along, e.a[1] + e.u[1]*i.along], b = [a[0] + e.u[0]*i.w, a[1] + e.u[1]*i.w];
+      return `<line x1="${f(a[0])}" y1="${f(a[1])}" x2="${f(b[0])}" y2="${f(b[1])}" class="${i.t==='door' ? 'tl-door' : 'tl-win'}" vector-effect="non-scaling-stroke"/>`; }).join('');
+    const vb = `${f(x0 - m)} ${f(y0 - m)} ${f(w + 2*m)} ${f(h + 2*m)}`, k = Math.max(w, h)/500;
+    svg = `<svg class="tl-svg" viewBox="${vb}" role="img" aria-label="Раскладка пола">${T && T.pieces ? tilingSvg(r, {...T, C:Cg}, {color, hs:Math.max(4, 7*k), r:6*k}) : `<polygon points="${poly.map(p=>p.join(',')).join(' ')}" fill="${color}"/>`}`
+      + `<polygon points="${poly.map(p=>p.join(',')).join(' ')}" class="tl-wall" vector-effect="non-scaling-stroke"/>${ops}</svg>`;
+    if(T){
+      sum = res(T);
+      const warn = [];
+      if(!T.pieces) warn.push('Плитка очень мелкая – на чертеже без швов, количество посчитано по площади.');
+      if(T.minCut!=null){
+        const half = C.board ? C.h/2 : Math.min(C.w, C.h)/2;
+        if(T.minCut < half - 0.5) warn.push(`${C.board ? 'Крайний ряд' : 'Подрезка у стены'} – ${fmt(T.minCut, 1)} см, уже половины ${C.board ? 'доски' : 'плитки'}.${!C.board && C.start!=='center' ? ' Начните «От центра» – подрезка станет шире.' : !C.board ? ' Сдвинуть некуда: попробуйте другой размер.' : ''}`);
+        else sum += `<p class="note tl-n">${C.board ? 'Крайние ряды' : 'Самая узкая подрезка у стены'} – ${fmt(T.minCut, 1)} см${C.board ? '' : ', не уже половины плитки'}.</p>`;
+      }
+      if(C.board && C.pat==='rows' && T.minOff!=null) sum += `<p class="note tl-n">Стыки соседних рядов – не ближе ${fmt(T.minOff, 0)} см друг от друга${T.minLen!=null ? `, самый короткий кусок – ${fmt(T.minLen, 0)} см` : ''}.</p>`;
+      if(warn.length) sum += warn.map(t=>`<p class="tl-warn">${t}</p>`).join('');
+    }
+    if(T) sum += `<div class="tl-legend"><span><i class="tl-lg tl-lg-cut"></i>с подрезкой</span>${T && T.start ? `<span><i class="tl-lg tl-lg-dot"></i>${C.pat==='herring' || C.pat==='diag' ? 'середина' : C.board ? 'первая доска' : 'начало раскладки'}</span>` : ''}<span><i class="tl-lg tl-lg-door"></i>дверь</span><span><i class="tl-lg tl-lg-win"></i>окно</span></div>`;
+  } else {
+    /* the longest wall from inside, tiled from the floor up; walls without tiles – in their colour */
+    if(!C){ const e = geoFromPoly(polyOf(r)).edges.reduce((a, b)=>b.len > a.len ? b : a), L = e.len, Hh = (r.h || 2.7)*100, m = Math.max(L, Hh)*0.04;
+      el.innerHTML = `<svg class="tl-svg" viewBox="${-m} ${-m} ${L + 2*m} ${Hh + 2*m}" role="img" aria-label="Цвет стен"><rect x="0" y="0" width="${L}" height="${Hh}" fill="${color}"/><rect x="0" y="0" width="${L}" height="${Hh}" class="tl-wall" vector-effect="non-scaling-stroke"/></svg><p class="note tl-n">На рисунке – самая длинная стена, ${fmt(L/100, 2)} × ${fmt(Hh/100, 2)} м.</p>`; return; }
+    const T = tilingWalls(r), G = geoFromPoly(polyOf(r)), e = G.edges.reduce((a, b)=>b.len > a.len ? b : a), L = e.len, Hh = (r.h || 2.7)*100;
+    const s = C.seam/10, [W, H] = C.dir==='v' ? [C.h, C.w] : [C.w, C.h], Pu = W + s, Pv = H + s, rows = C.pat==='half' ? 2 : 1, id = 'tlw' + (++tlSeq), gr = tlGrout(Cg, color);
+    const tile = (x, y) => C.img ? (C.dir==='v' ? `<image href="${C.img}" x="${-H/2}" y="${-W/2}" width="${H}" height="${W}" preserveAspectRatio="none" transform="translate(${x + W/2} ${y + H/2}) rotate(90)"/>` : `<image href="${C.img}" x="${x}" y="${y}" width="${W}" height="${H}" preserveAspectRatio="none"/>`) : `<rect x="${x}" y="${y}" width="${W}" height="${H}" fill="${color}"/>`;
+    /* a seam at least a pixel wide on the screen */
+    const sl = Math.max(s, Math.max(L, Hh)/450);
+    let cells = ''; for(let j=0; j<rows; j++) for(const dx of [-Pu, 0, Pu]){ const x = dx + (j ? Pu/2 : 0) + s/2, y = j*Pv + s/2; cells += tile(x, y) + `<rect x="${x}" y="${y}" width="${W}" height="${H}" fill="none" stroke="${gr}" stroke-width="${sl}"/>`; }
+    const oy = Hh - Math.ceil(Hh/(Pv*rows))*Pv*rows, ox = (L/2) % Pu - Pu/2;
+    const m = Math.max(L, Hh)*0.04;
+    svg = `<svg class="tl-svg" viewBox="${-m} ${-m} ${L + 2*m} ${Hh + 2*m}" role="img" aria-label="Раскладка плитки на стене"><defs><pattern id="${id}" patternUnits="userSpaceOnUse" x="${ox}" y="${oy}" width="${Pu}" height="${Pv*rows}"><rect width="${Pu}" height="${Pv*rows}" fill="${gr}"/>${cells}</pattern></defs>`
+      + `<rect x="0" y="0" width="${L}" height="${Hh}" fill="url(#${id})"/><rect x="0" y="0" width="${L}" height="${Hh}" class="tl-wall" vector-effect="non-scaling-stroke"/></svg>`;
+    sum = (T ? res(T) : '') + `<p class="note tl-n">На рисунке – самая длинная стена, ${fmt(L/100, 2)} × ${fmt(Hh/100, 2)} м. Плитка – от пола до потолка на всех стенах, без дверей и окон.</p>`;
+  }
+  el.innerHTML = svg + sum;
 }
 function spentBy(){
   const s = {}, planned = {};
@@ -3486,6 +4063,7 @@ function aptView(mini){
         <button class="zb" data-aptz="out" title="Отдалить – вокруг будет больше места, чтобы расставить комнаты" aria-label="Отдалить" ${zk <= APT_KMIN + 0.001 ? 'disabled' : ''}>−</button>
         <button class="zb" data-aptz="fit" title="Вся квартира" aria-label="Вся квартира" ${Math.abs(zk - 1) < 0.001 ? 'disabled' : ''}>⤢</button>
       </div></div>
+    ${!edit && emptyRooms().length ? `<div class="row apt-bar apt-fill"><span class="muted">Без мебели: ${esc(emptyRooms().map(r=>r.name).join(', '))}</span><button class="btn small" data-act="furnishall" ${ui.furnishing ? 'disabled' : ''} title="Подобрать мебель сразу во всех комнатах, где её ещё нет">${ui.furnishing ? 'Расставляю…' : `Обставить пустые комнаты (${emptyRooms().length})`}</button></div>` : ''}
     ${edit ? `<div class="row apt-bar">
       ${sel ? `<button class="btn small" data-apt="rot">Повернуть на 90°</button><button class="btn small" data-padd="door" title="Новая дверь в комнате «${esc(selRoom.name)}»">+ Дверь</button><button class="btn small" data-padd="window" title="Новое окно в комнате «${esc(selRoom.name)}»">+ Окно</button><button class="btn small" data-apt="open">Открыть планировку</button>` : ''}
       </div>${aptPanel(pick)}` : ''}
@@ -3575,6 +4153,7 @@ function vRooms(){
         ${['kitchen', 'studio'].includes(roomKind(r.name)) ? `<label class="f"><span>Фартук кухни ${gq('apron')}</span><select id="rap-${r.id}" data-rf="apron">${Object.entries(APRONS).map(([k,v])=>`<option value="${k}" ${(APRONS[r.apron] ? r.apron : 'tile')===k?'selected':''}>${v}</option>`).join('')}</select></label>` : ''}
       </div>
       <label class="check"><input type="checkbox" id="rwm-${r.id}" data-rf="warm" ${r.warm ? 'checked' : ''}> Тёплый пол ${gq('warm')}</label>
+      <p class="note tl-line">${tilingCfg(r, 'f') || tilingCfg(r, 'w') ? `<span>Раскладка: ${esc(tilingLine(r))}</span> ` : ''}<button class="lnk" type="button" data-tiling="${r.id}">Раскладка и цвет</button></p>
       <p class="room-sub">Размеры, двери и окна</p>
       <div class="fields">
         ${r.poly ? ''
@@ -3809,6 +4388,7 @@ const HELP = [
     <p>Есть фото плана? <b>«Обвести план по фото»</b>: обведите комнаты, впишите длину одной стены – остальное посчитается само.</p>
     <p>Плана нет или хотите придумать свой? <b>«Нарисовать план»</b>: то же самое на чистом листе в клетку – клетка 50 см, размеры видны сразу, углы прилипают через 10 см.</p>
     <p>Нажмите на комнату на плане – под ним появится кнопка <b>«Открыть планировку»</b>.</p>
+    <p>Есть комнаты без мебели – под планом кнопка <b>«Обставить пустые комнаты»</b>: мебель встанет сразу во всех.</p>
     <p>Ниже плана – карточки комнат: высота, двери, окна, пол, стены, потолок.</p>`],
   ['Общий план – комнаты вместе', `<p>Сначала каждая комната нарисована отдельно, в ряд. Сложить их в общий план квартиры – по желанию: размеры, мебель, смета и 3D работают и без этого.</p><p><b>Длину стены</b> можно поменять всегда: нажмите на число у стены и впишите свою.</p><p><b>«Составить автоматически»</b> поставит комнаты вокруг прихожей сама – окна наружу, двери в прихожую. <b>«Комнаты в ряд»</b> вернёт их обратно. Поправить вручную – нажмите над планом <b>«Править план»</b>:</p>
     <ul><li><b>Комнату</b> тяните за пол – стены сами «прилипнут» к соседним.</li><li><b>Стену</b> тяните – она двигается прямо. Общая стена меняется у обеих комнат.</li>
@@ -3818,7 +4398,7 @@ const HELP = [
     <li>Нажмите на комнату – появятся <b>«+ Дверь»</b> и <b>«+ Окно»</b>.</li></ul><p>Ошиблись – <b>↶</b> в углу плана. Закончили – <b>«Готово»</b>.</p>`],
   ['Стиль – какой ремонт нравится', `<p><b>Шаг по желанию.</b> Без него квартира в 3D будет в нейтральных цветах, а пол, стены и цвета вы выберете сами.</p><p>Ответьте на пять вопросов – приложение покажет два подходящих стиля. У каждого ответа есть картинка – выбирайте то, что нравится на глаз. <b>«Применить к квартире»</b> перекрасит 3D, <b>«Применить отделку к комнатам»</b> выберет пол, стены и потолок по стилю, <b>«Вернуть как было»</b> – обратно. «Мудборд» – доска для картинок и заметок.</p>`],
   ['Планировка – мебель в комнате', `<p>Выберите комнату – нажмите её название.</p>
-    <ul><li><b>«Подобрать мебель»</b> – поставит мебель само. Не понравилось – <b>«Другой вариант»</b>.</li><li><b>«Обставить пустые комнаты»</b> – подберёт мебель сразу во всех комнатах, где её ещё нет.</li><li><b>Добавить</b> – справа список, например «Диван».</li>
+    <ul><li><b>«Подобрать мебель»</b> – поставит мебель само. Не понравилось – <b>«Другой вариант»</b>.</li><li><b>Добавить</b> – справа список, например «Диван».</li>
     <li><b>Передвинуть</b> – нажмите на предмет и тяните.</li><li><b>Повернуть, удалить, размер</b> – нажмите на предмет, под планом кнопки.</li>
     <li><b>Длина стены</b> – нажмите на число размера и впишите своё.</li></ul>
     <p>Зелёная надпись «Пересечений нет» – всё удобно. Красная – что-то мешает, она подскажет что.</p>
@@ -5274,7 +5854,6 @@ function autoTools(room, items){
   const hasDoor = items.some(i=>i.t==='door');
   const msg = ui.layMsg && ui.layMsg.room===room.id ? ui.layMsg : null;
   const n = ui.variant[room.id] || 0;
-  const empty = emptyRooms();
   return `<div class="grid" style="gap:8px;margin-bottom:10px">
     <div class="row">
       ${ui.confirmFill
@@ -5282,8 +5861,8 @@ function autoTools(room, items){
         : ui.confirmClear
         ? `<span class="confirm">Удалить всю мебель из комнаты «${esc(room.name)}»? Двери и окна останутся. <button class="btn small" data-lact="clearyes" style="color:var(--bad)">Да, удалить</button><button class="btn small" data-lact="clearno">Отмена</button></span>`
         : `<button class="btn small" data-lact="fill">Подобрать мебель</button>
-           ${furniture ? `<button class="btn small" data-lact="arrange" title="Та же мебель, по-другому расставленная">${n?'Другой вариант':'Переставить по-другому'}</button>` : ''}
-           ${empty.length > (furniture ? 0 : 1) ? `<button class="btn small" data-act="furnishall" ${ui.furnishing ? 'disabled' : ''} title="Подобрать мебель сразу во всех комнатах, где её ещё нет: ${esc(empty.map(r=>r.name).join(', '))}">${ui.furnishing ? 'Расставляю…' : `Обставить пустые комнаты (${empty.length})`}</button>` : ''}
+           ${furniture ? `<button class="btn small" data-lact="arrange" title="Та же мебель, по-другому расставленная">${n?'Другой вариант':'Переставить'}</button>` : ''}
+           <button class="btn small" type="button" data-tiling="${room.id}" title="Пол и стены: цвет; у плитки и досок – размер, шов, укладка и своё фото">Раскладка и цвет</button>
            ${furniture?'<button class="lnk lnk-del" data-lact="clear">удалить всю мебель</button>':''}`}
     </div>
     ${msg?`<p class="note" style="margin:0;color:${msg.warn?'var(--warn)':'var(--muted)'}">${esc(msg.text)}</p>`:''}
@@ -7177,7 +7756,8 @@ function dwPlan(room, mode, maxW, maxH){
       if(mode==='elec' || mode==='plumb'){ ui.layMode = mode; pts = elecSvg(2.4*k); }
       /* the floor's pattern: boards of laminate or SPC along the longer side, tiles 60 × 60 */
       const fl = room.floor, horiz = (Math.max(...GEO.poly.map(p=>p[0])) - Math.min(...GEO.poly.map(p=>p[0]))) >= (Math.max(...GEO.poly.map(p=>p[1])) - Math.min(...GEO.poly.map(p=>p[1])));
-      const pat = mode!=='floor' || !FLOORS[fl] || fl==='none' || fl==='linoleum' ? '' : fl==='tile'
+      const TFp = mode==='floor' ? tilingFloor(room) : null, tlg = TFp && TFp.pieces ? tilingSvg(room, TFp, {bw:true, sw:0.6, hs:2*k, r:1.2*k}) : '';
+      const pat = tlg || mode!=='floor' || !FLOORS[fl] || fl==='none' || fl==='linoleum' ? '' : fl==='tile'
         ? `<pattern id="${id}f" patternUnits="userSpaceOnUse" width="60" height="60"><path d="M60 0H0V60" class="dw-fl"/></pattern>`
         : `<pattern id="${id}f" patternUnits="userSpaceOnUse" width="${horiz ? 120 : (fl==='vinyl' ? 18 : 20)}" height="${horiz ? (fl==='vinyl' ? 18 : 20) : 120}">${horiz ? `<path d="M0 0H120M40 0V${fl==='vinyl' ? 18 : 20}" class="dw-fl"/>` : `<path d="M0 0V120M0 40H${fl==='vinyl' ? 18 : 20}" class="dw-fl"/>`}</pattern>`;
       /* the room's name, area and height in the middle (on the plans without furniture) */
@@ -7195,7 +7775,7 @@ function dwPlan(room, mode, maxW, maxH){
         + `#${id} .badge{fill:#fff;stroke:#000;stroke-width:${0.18*k}}#${id} .badge-t{fill:#000}#${id} .dw-faint .b,#${id} .dw-faint .dt{stroke:#9a9a9a}`
         + `#${id} .eb{fill:#fff;stroke:#000;stroke-width:${0.2*k}}#${id} .et{stroke:#000;stroke-width:${0.13*k}}#${id} .em{fill:#000}#${id} .ex{stroke:#000;stroke-width:${0.2*k}}#${id} .ep.r .eb{fill:#000}#${id} .ep.r .em{fill:#fff}#${id} .eh{fill:#000;text-anchor:middle;dominant-baseline:central;font-family:'Roboto Condensed','Arial Narrow',Arial,sans-serif}`;
       const body = `<style>${css}</style><defs><pattern id="${id}h" patternUnits="userSpaceOnUse" width="${1.6*k}" height="${1.6*k}" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="${1.6*k}" class="dw-h"/></pattern>${pat}</defs>`
-        + `<polygon points="${GEO.poly.map(P).join(' ')}" fill="${pat ? `url(#${id}f)` : '#fff'}" stroke="none"/>${bands}${openSvg}${furnSvg}${dims}${tag}${pts}`;
+        + `<polygon points="${GEO.poly.map(P).join(' ')}" fill="${pat ? `url(#${id}f)` : '#fff'}" stroke="none"/>${tlg}${bands}${openSvg}${furnSvg}${dims}${tag}${pts}`;
       return {body, box, den, k};
     };
     let r = null;
@@ -7246,7 +7826,9 @@ function dwElev(room, k2, den){
     const css = `#${id} .dw-wl{stroke:#000;stroke-width:${0.5*k}}#${id} .dw-op{fill:#fff;stroke:#000;stroke-width:${0.35*k}}#${id} .dw-sw{fill:none;stroke:#000;stroke-width:${0.13*k};stroke-dasharray:${1.2*k} ${0.8*k}}`
       + `#${id} .dw-thin{stroke:#000;stroke-width:${0.18*k}}#${id} .dw-pc{fill:#efefef;stroke:#000;stroke-width:${0.25*k}}#${id} .dw-bd,#${id} .dw-pt{fill:#fff;stroke:#000;stroke-width:${0.18*k}}`
       + `#${id} .dw-bt{fill:#000;text-anchor:middle;dominant-baseline:central}#${id} .dw-h1{fill:#000}#${id} .dw-ext,#${id} .dw-dim{stroke:#000;stroke-width:${0.13*k}}#${id} .dw-tick{stroke:#000;stroke-width:${0.35*k}}#${id} .dw-tl{fill:none;stroke:#b9b9b9;stroke-width:${0.1*k}}`;
-    const defs = `<defs><pattern id="${id}t" patternUnits="userSpaceOnUse" width="30" height="60"><path d="M30 0H0V60" class="dw-tl"/></pattern></defs>`;
+    const tc = tilingCfg(room, 'w'), ts = tc ? tc.seam/10 : 0, [ta, tb] = tc ? (tc.dir==='v' ? [tc.h + ts, tc.w + ts] : [tc.w + ts, tc.h + ts]) : [30, 60];
+    const defs = tc && tc.pat==='half' ? `<defs><pattern id="${id}t" patternUnits="userSpaceOnUse" width="${ta}" height="${2*tb}"><path d="M${ta} 0H0V${tb}H${ta}M${ta/2} ${tb}V${2*tb}" class="dw-tl"/></pattern></defs>`
+      : `<defs><pattern id="${id}t" patternUnits="userSpaceOnUse" width="${ta}" height="${tb}"><path d="M${ta} 0H0V${tb}" class="dw-tl"/></pattern></defs>`;
     return {svg:`<svg id="${id}" class="dw-svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}" width="${box.w*10/den}mm" height="${box.h*10/den}mm"><style>${css}</style>${defs}${s}${dimsB}${dimsR}${dimsL}</svg>`, w:box.w*10/den, h:box.h*10/den,
       name:wallName(k2), pts};
   });
@@ -7403,8 +7985,8 @@ function dwContent(sh, list){
         return dwTable(['№', 'Точка', 'h, см', 'Где'], rows, 'dw-sm'); });
     } else if(sh.kind==='floor'){
       const c = roomCalc(room), fl = room.floor;
-      side = `<div class="dw-legend"><h4>Условные обозначения</h4><p>${esc(FLOORS[fl] || '–')}: ${fl==='tile' ? 'раскладка 60 × 60 см' : fl==='linoleum' ? 'одним полотном, стыки – вдоль длинной стороны' : 'направление укладки – вдоль длинной стороны'}</p>${room.warm ? '<p>Тёплый пол: нагревательный мат под ~70% площади, не под мебелью.</p>' : ''}`
-        + `<p>Площадь пола: ${dwNum(Math.round(c.floor*10)/10)} м²${fl==='laminate' ? `, с запасом 7%: ${dwNum(Math.round(c.floor*1.07*10)/10)} м²` : fl==='tile' ? `, с запасом 10%: ${dwNum(Math.round(c.floor*1.1*10)/10)} м²` : (fl==='vinyl' || fl==='parquet') ? `, с запасом 5%: ${dwNum(Math.round(c.floor*1.05*10)/10)} м²` : ''}</p>`
+      side = `<div class="dw-legend"><h4>Условные обозначения</h4><p>${esc(FLOORS[fl] || '–')}: ${tilingCfg(room, 'f') ? tilingNote(room) : fl==='linoleum' ? 'одним полотном, стыки – вдоль длинной стороны' : 'направление укладки – вдоль длинной стороны'}</p>${room.warm ? '<p>Тёплый пол: нагревательный мат под ~70% площади, не под мебелью.</p>' : ''}`
+        + `<p>Площадь пола: ${dwNum(Math.round(c.floor*10)/10)} м²${tilingFloor(room) ? `, в упаковках по раскладке: ${dwNum(Math.round(tilingFloor(room).m2*10)/10)} м²` : fl==='laminate' ? `, с запасом 7%: ${dwNum(Math.round(c.floor*1.07*10)/10)} м²` : fl==='tile' ? `, с запасом 10%: ${dwNum(Math.round(c.floor*1.1*10)/10)} м²` : (fl==='vinyl' || fl==='parquet') ? `, с запасом 5%: ${dwNum(Math.round(c.floor*1.05*10)/10)} м²` : ''}</p>`
         + (fl!=='tile' ? `<p>Плинтус: ${dwNum(Math.round(Math.max(0, c.per - c.doorW)*10)/10)} м (за вычетом дверей)</p>` : '') + '</div>';
     } else {
       const c = roomCalc(room);
@@ -7425,7 +8007,7 @@ function dwContent(sh, list){
     const cells = sh.walls.map(k2=>{ const ev = dwElev(room, k2, den);
       return `<div class="dw-cell"><div class="dw-cell-h"><b>${esc(ev.name)}</b>${dwKey(room, k2)}</div><div class="dw-cell-d">${ev.svg}</div>`
         + (ev.pts.length ? `<p class="dw-cell-n">${ev.pts.map(x=>`${x.mark} – ${esc(x.name)}, ${x.p.h}`).join('; ')}</p>` : '') + '</div>'; });
-    return {html:`<div class="dw-full dw-grid">${cells.join('')}</div><p class="dw-notes dw-notes-w">Вид изнутри помещения. Высоты точек – от чистого пола до центра. Номера мебели – как на плане расстановки. ${room.walls==='tile' ? 'Сетка на стене – раскладка плитки 30 × 60 см.' : ''}</p>`, scale:den};
+    return {html:`<div class="dw-full dw-grid">${cells.join('')}</div><p class="dw-notes dw-notes-w">Вид изнутри помещения. Высоты точек – от чистого пола до центра. Номера мебели – как на плане расстановки. ${room.walls==='tile' ? `Сетка на стене – раскладка плитки ${tilingCfg(room, 'w') ? tlSize(tilingCfg(room, 'w')) : '30 × 60 см'}.` : ''}</p>`, scale:den};
   }
   if(sh.kind==='finishes'){
     const rows = state.rooms.map((r, j)=>{ const c = roomCalc(r);
@@ -8835,7 +9417,7 @@ const liftNum = n => parseInt(liftHex('#' + n.toString(16).padStart(6, '0')).sli
 /* the colours of a setting (version 293): the colour wheel first, then «Как в стиле» and the scheme's colours; without a
    scheme – the wheel and «Как в стиле» */
 function colorPick(what, cur, kind){
-  const sw = SCHEME_SW[scheme3d()], list0 = sw && (kind==='floor' ? FLOOR_SW : sw[kind]), lc = (cur || '').toLowerCase();
+  const sw = SCHEME_SW[scheme3d()], list0 = kind==='grout' ? GROUT_SW : sw && (kind==='floor' ? FLOOR_SW : sw[kind]), lc = (cur || '').toLowerCase();
   const list = list0 && kind==='furn' ? [...new Set(list0.map(liftHex))] : list0;
   const reset = `<button class="sw sw-reset${cur ? '' : ' on'}" data-color="${what}" data-c="" title="Как в стиле" aria-label="Как в стиле" aria-pressed="${!cur}"></button>`;
   const own = cur && !(list || []).some(c=>c.toLowerCase()===lc);
@@ -9457,6 +10039,7 @@ function open3d(){
       else { const th = {front:0, right:Math.PI/2, back:Math.PI, left:-Math.PI/2}[side]; v3d.goal = {phi:1.36, theta:th, r:v3d.fit(false, 1.36, th), tx:v3d.c[0], tz:v3d.c[1]}; }
       v3d.dirty = true; return;
     }
+    if(a==='tiling'){ openTiling(v3d.room.id); return; }
     if(a==='render'){ renderPop(true); return; }
     if(a==='photo'){ photoSet3d(!v3d.photo); return; }
     if(a==='popclose'){ renderPop(false); return; }
@@ -9679,9 +10262,11 @@ function applyStyle3d(key){
   const s = S3[key] || S3.neutral, c3 = v.room.c3 || {}, hex = h => parseInt(h.slice(1), 16);
   /* style colours are sRGB, the materials work in linear light; the room's own wall and floor colours win */
   const wall = c3.wall ? hex(c3.wall) : v.room.walls==='tile' ? s.tile : s.wall;
-  v.walls.forEach(w=>{ w.wm[0][0].color.setHex(wall).convertSRGBToLinear(); w.low.material.color.setHex(wall).convertSRGBToLinear().multiplyScalar(0.8); });
+  if(v.wallTiling) v.wallTiling.draw(hex6(wall));
+  v.walls.forEach(w=>{ w.wm[0][0].color.setHex(v.wallTiling ? 0xFFFFFF : wall).convertSRGBToLinear(); w.low.material.color.setHex(wall).convertSRGBToLinear().multiplyScalar(0.8); });
   v.riserMat?.color.setHex(c3.wall ? hex(c3.wall) : s.wall).convertSRGBToLinear();
-  v.floorMat?.color.setHex(c3.floor ? hex(c3.floor) : FLOOR3[v.room.floor] ?? FLOOR3.laminate).convertSRGBToLinear();
+  if(v.floorTiling){ v.floorTiling.draw(c3.floor || hex6(FLOOR3[v.room.floor] ?? FLOOR3.laminate)); v.floorMat?.color.setHex(0xFFFFFF); }
+  else v.floorMat?.color.setHex(c3.floor ? hex(c3.floor) : FLOOR3[v.room.floor] ?? FLOOR3.laminate).convertSRGBToLinear();
   for(const role of ['light','wood','fabric']) v.mats[C3[role]]?.color.setHex(s[role]).convertSRGBToLinear();
   /* curtains and tulle: the room's own colours, else the scheme's */
   const cc = curtColors(v.room, key);
@@ -9780,6 +10365,7 @@ function refreshWf(){
   const v = v3d, p = v && v.el.querySelector('.v3d-wf'); if(!p || p.hidden) return;
   const c3 = v.room.c3 || {};
   p.innerHTML = `<b>Стены</b>${colorPick('wall', c3.wall || '', 'wall')}<div class="insp-sec"><b>Пол</b>${colorPick('floor', c3.floor || '', 'floor')}</div>`
+    + '<div class="insp-sec"><b>Плитка и ламинат</b><button class="btn small tl-3d" type="button" data-v3d="tiling">Раскладка, шов и своё фото</button></div>'
     + `<details class="insp-help"><summary>? Как это работает</summary><p class="note">${schemeNote()} Цвет хранится для этой комнаты.</p></details>`;
 }
 /* the current view as a sharp picture (version 288): drawn once more off screen with up to 4 times as many pixels on each
@@ -10395,7 +10981,18 @@ function build3d(T){
   const fg = new T.ShapeGeometry(shape); fg.rotateX(Math.PI/2);
   /* the floor finish from the tab «Квартира»: laminate and vinyl planks, tiles; the shape's own coordinates are in cm */
   const floorKind = {laminate:'laminate', parquet:'parquet', vinyl:'vinyl', tile:'tile'}[room.floor];
-  const floor = new T.Mesh(fg, MAT({color:FLOOR3[room.floor] ?? FLOOR3.laminate, side:T.DoubleSide, map:floorKind ? texture(floorKind, 1) : null,
+  /* the floor's own layout (version 309): the room's real pieces, seams, colours or photo drawn on one picture over the
+     whole floor; its texture coordinates are the plan's cm, so the picture lies exactly as on the drawing */
+  const TF = tilingFloor(room); let floorMap = null; v.floorTiling = null;
+  if(TF && TF.pieces){
+    const cv = tilingCanvas(room, TF, ()=>{ if(floorMap){ floorMap.needsUpdate = true; v.dirty = true; } }), t = floorMap = new T.CanvasTexture(cv.canvas);
+    cv.draw(tlColor(room, 'f'));
+    t.flipY = false; t.wrapS = t.wrapT = T.ClampToEdgeWrapping; t.repeat.set(1/cv.S, 1/cv.S); t.offset.set(-cv.X0/cv.S, -cv.Y0/cv.S); t.anisotropy = 8; t.encoding = T.sRGBEncoding;
+    t.nrm = relief(cv.canvas, TF.C.board ? 'laminate' : 'tile', t);
+    for(const x of [t.nrm.tex, t.nrm.rough]) if(x){ x.flipY = false; x.wrapS = x.wrapT = T.ClampToEdgeWrapping; x.repeat.copy(t.repeat); x.offset.copy(t.offset); x.needsUpdate = true; }
+    v.floorTiling = {draw:c=>{ cv.draw(c); t.needsUpdate = true; v.dirty = true; }};
+  }
+  const floor = new T.Mesh(fg, MAT({color:floorMap ? 0xFFFFFF : FLOOR3[room.floor] ?? FLOOR3.laminate, side:T.DoubleSide, map:floorMap || (floorKind ? texture(floorKind, 1) : null),
     roughness:{laminate:0.5, parquet:0.45, vinyl:0.6, linoleum:0.55, tile:0.28}[room.floor] ?? 0.9}));
   floor.receiveShadow = true; scene.add(floor); v.floorMat = floor.material; v.floorMesh = floor;
   /* photo: a floor with a little more gloss, so the window and the lamps shine in it */
@@ -10446,12 +11043,19 @@ function build3d(T){
     return {i, s1:Math.max(0, i.along), s2:Math.min(E[k].len, i.along + i.w), z1:sill, z2:sill + h};
   }).filter(o=>o.s2 > o.s1 + 1).sort((a,b)=>a.s1-b.s1);
   /* the wall finish: paint is plain, wallpaper and tiles get their pattern (one texture shared by all walls) */
-  const wallMap = room.walls==='wallpaper' ? texture('wallpaper', 100) : room.walls==='tile' ? texture('wallTile', 100) : room.walls==='plaster' ? texture('plaster', 100) : room.walls==='panels' ? texture('panels', 100) : null;
+  /* tiled walls (version 309): the chosen tile, seam, pattern and colour or photo, one repeat of the pattern */
+  v.wallTiling = null;
+  const tilingWallTex = () => { const C = tilingCfg(room, 'w'); if(!C) return texture('wallTile', 100);
+    const cv = tilingWallCanvas(C, ()=>{ t.needsUpdate = true; v.dirty = true; }); cv.draw(tlColor(room, 'w'));
+    const t = new T.CanvasTexture(cv.canvas); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(100/cv.cu, 100/cv.cv); t.anisotropy = 4; t.encoding = T.sRGBEncoding;
+    t.nrm = relief(cv.canvas, 'wallTile', t);
+    v.wallTiling = {draw:c=>{ cv.draw(c); t.needsUpdate = true; v.dirty = true; }}; return t; };
+  const wallMap = room.walls==='wallpaper' ? texture('wallpaper', 100) : room.walls==='tile' ? tilingWallTex() : room.walls==='plaster' ? texture('plaster', 100) : room.walls==='panels' ? texture('panels', 100) : null;
   const paintRelief = wallMap ? null : texture('paint', 100).nrm;
   v.days = []; v.wins = []; v.glass = [];
   v.walls = E.map((e,k)=>{
     const T0 = curWalls[k], len = e.len, g = new T.Group();
-    const m = MAT({color:room.walls==='tile' ? C3.wallTile : C3.wall, transparent:true, opacity:1, map:wallMap, roughness:room.walls==='tile' ? 0.35 : 0.92, shadowSide:T.FrontSide,
+    const m = MAT({color:room.walls==='tile' ? (v.wallTiling ? 0xFFFFFF : C3.wallTile) : C3.wall, transparent:true, opacity:1, map:wallMap, roughness:room.walls==='tile' ? 0.35 : 0.92, shadowSide:T.FrontSide,
       /* a painted wall has no picture, only the relief of the paint */
       ...(wallMap ? {} : {normalMap:paintRelief.tex, normalScale:new T.Vector2(paintRelief.k*(photo ? 1.4 : 1), paintRelief.k*(photo ? 1.4 : 1))})});
     /* the wall's shadow is taken from its sunlit outer side, so the whole thickness of the wall keeps the sun out: taken
@@ -13024,6 +13628,8 @@ app.addEventListener('click', e=>{
   if(e.target.closest('[data-delroomno]')){ ui.confirmDelRoom = null; render(); return; }
   const dy = e.target.closest('[data-delroomyes]');
   if(dy){ const id = dy.dataset.delroomyes; state.rooms = state.rooms.filter(r=>r.id!==id); delete state.layouts[id]; delete state.savedLayouts[id]; delete state.elec[id]; if(state.plumb) delete state.plumb[id]; delete ui.undo[id]; delete ui.redo[id]; delete ui.view[id]; ui.confirmDelRoom = null; changed(); render(); return; }
+  const tlb = e.target.closest('[data-tiling]');
+  if(tlb){ openTiling(tlb.dataset.tiling); return; }
   const du = e.target.closest('[data-duproom]');
   if(du){
     const c = dupRoom(du.dataset.duproom); if(!c) return;

@@ -2,7 +2,7 @@
    The page itself: from the network when there is one (so a new version shows at once), else from the cache.
    Fonts, three.js, Excel and the other libraries from CDNs: from the cache, refreshed in the background.
    make-site.sh writes the build time into VERSION, so every new upload gets a fresh cache. */
-const VERSION = '20261113-001704';
+const VERSION = '20261113-202734';
 const CACHE = 'remont-' + VERSION;
 const SHELL = ['./', './index.html', './catalog.json', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 const CDN = /^https:\/\/(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net)\//;
